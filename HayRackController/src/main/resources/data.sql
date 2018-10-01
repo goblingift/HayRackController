@@ -12,4 +12,4 @@ insert into role
     values(100,'Admin');
 
 insert into user
-    values(1000,'admin','geheim123');
+    values(1000,'superadmin','geheim123');
