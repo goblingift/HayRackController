@@ -8,8 +8,11 @@
  * Created: 23.09.2018
  */
 
-insert into role
-    values(100,'Admin');
+insert into role (id, name)
+    values(100,'admin');
 
-insert into user
-    values(1000,'superadmin','geheim123');
+insert into user (id, username, password) 
+    values(1000,'user_admin','$2a$10$ZHEbIfq20s8zVPPE9csG8.poZ3H7JzKrqFz9pRWTUHcrfjrV8xrUS');
+
+insert into user_role (user_id, role_id)
+    values(1000, 100);
