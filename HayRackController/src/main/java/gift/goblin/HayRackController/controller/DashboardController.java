@@ -13,23 +13,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * Controller which offers endpoints for all actions regarding the user dashboard.
+ * Controller which offers endpoints for all actions regarding the user
+ * dashboard.
+ *
  * @author andre
  */
 @Controller
 public class DashboardController {
-    
+
     @Autowired
     private SecurityService securityService;
-    
+
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public String renderDashboard(Model model) {
-        
+
         String username = securityService.getUsernameOfCurrentUser();
         model.addAttribute("username", username);
         System.out.println("Added username to model:" + username);
-        
+
         return "dashboard";
     }
-    
+
+    @RequestMapping(value = "/dashboard/shutters-up", method = RequestMethod.GET)
+    public String shuttersUp(Model model) {
+
+        // todo: Doing fancy stuff with raspberry pi, to roll up the shutters
+        System.out.println("SHUTTER GOES UP!");
+
+        return "dashboard";
+    }
+
+    @RequestMapping(value = "/dashboard/shutters-down", method = RequestMethod.GET)
+    public String shuttersDown(Model model) {
+
+        // todo: Doing fancy stuff with raspberry pi, to roll down the shutters
+        System.out.println("SHUTTER GOES DOWN!");
+
+        return "dashboard";
+    }
+
 }
