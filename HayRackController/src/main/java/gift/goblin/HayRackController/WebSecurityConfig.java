@@ -5,7 +5,10 @@
  */
 package gift.goblin.HayRackController;
 
+import gift.goblin.HayRackController.service.security.enumerations.Pages;
+import gift.goblin.HayRackController.service.security.enumerations.UserRole;
 import java.io.IOException;
+import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +23,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 
 /**
  * Defines which paths are public, and which are private (login required).
@@ -31,6 +37,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -61,8 +69,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             HttpServletResponse response,
             Authentication authentication) throws IOException {
 
-        response.setStatus(HttpStatus.OK.value());
-        System.out.println("LOGIN SUCCESSFUL!");
+        String redirectAfterLoginUrl = getRedirectAfterLoginUrl(authentication);
+
+        System.out.println("LOGIN SUCCESSFUL! Redirect user to: " + redirectAfterLoginUrl);
+        
+        redirectStrategy.sendRedirect(request, response, redirectAfterLoginUrl);
     }
 
     private void loginFailureHandler(
@@ -72,6 +83,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         System.out.println("LOGIN FAILED!");
+    }
+
+    private String getRedirectAfterLoginUrl(Authentication authentication) {
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        for (GrantedAuthority actAuthority : authorities) {
+            if (actAuthority.getAuthority().equals(UserRole.ADMIN.getDatabaseValue())) {
+                return Pages.ADMIN_DASHBOARD.getUrl();
+            } else if (actAuthority.getAuthority().equals(UserRole.USER.getDatabaseValue())) {
+                return Pages.DASHBOARD.getUrl();
+            }
+        }
+
+        return Pages.LOGINPAGE.getUrl();
     }
 
     @Bean

@@ -31,12 +31,11 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public String getUsernameOfCurrentUser() {
-        Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
-        if (userDetails instanceof UserDetails) {
-            return ((UserDetails)userDetails).getUsername();
-        }
-
-        return null;
+         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        System.out.println("getUsernameOfCurrentUser" + username);
+        
+        return username;
     }
 
     @Override
