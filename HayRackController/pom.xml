@@ -6,7 +6,7 @@
     <groupId>gift.goblin</groupId>
     <artifactId>HayRackController</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>HayRackController</name>
     <description>Controls the automatic hay rack feeding system, with the help of a raspberry pi</description>
