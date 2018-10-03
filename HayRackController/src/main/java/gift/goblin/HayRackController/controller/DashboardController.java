@@ -5,7 +5,15 @@
  */
 package gift.goblin.HayRackController.controller;
 
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
+import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.security.SecurityService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +32,9 @@ public class DashboardController {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private ShutterController shutterController;
+
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public String renderDashboard(Model model) {
 
@@ -40,6 +51,12 @@ public class DashboardController {
         // todo: Doing fancy stuff with raspberry pi, to roll up the shutters
         System.out.println("SHUTTER GOES UP!");
 
+        try {
+            shutterController.openShutter();
+        } catch (InterruptedException ex) {
+            System.out.println("InterruptedException thrown while called shuttersUp!");
+        }
+
         return "dashboard";
     }
 
@@ -48,6 +65,12 @@ public class DashboardController {
 
         // todo: Doing fancy stuff with raspberry pi, to roll down the shutters
         System.out.println("SHUTTER GOES DOWN!");
+
+        try {
+            shutterController.closeShutter();
+        } catch (InterruptedException ex) {
+            System.out.println("InterruptedException thrown while called shuttersDown!");
+        }
 
         return "dashboard";
     }
