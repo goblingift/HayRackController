@@ -48,8 +48,8 @@ public class ShutterController {
      * Initialize all required pins for the shutdown shutter functionality.
      */
     private void setupCloseShutter() {
-        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay Channel 1", PinState.LOW);
-        pinCloseMotor.setShutdownOptions(true, PinState.LOW);
+        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay Channel 1", PinState.HIGH);
+        pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
 
         pinYellowLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_26, "Yellow-LED", PinState.LOW);
         pinYellowLed.setShutdownOptions(true, PinState.LOW);
@@ -59,13 +59,19 @@ public class ShutterController {
      * Initialize all required pins for the shutdown shutter functionality.
      */
     private void setupOpenShutter() {
-        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay Channel 2", PinState.LOW);
-        pinOpenMotor.setShutdownOptions(true, PinState.LOW);
+        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay Channel 2", PinState.HIGH);
+        pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
 
         pinBlueLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03, "Blue-LED", PinState.LOW);
         pinBlueLed.setShutdownOptions(true, PinState.LOW);
     }
 
+    /**
+     * Triggers the closing logic, which powers the motor to close the shutters.
+     *
+     * @param ms the duration, how long the motor will get powered.
+     * @throws InterruptedException  Dont wake me up!
+     */
     public void closeShutter() throws InterruptedException {
         System.out.println("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
 
@@ -75,13 +81,19 @@ public class ShutterController {
             pinYellowLed.low();
             Thread.sleep(500);
         }
-        
-        pinCloseMotor.high();
-        System.out.println("Triggered relay! Give em power for 10 seconds!");
-        
-        Thread.sleep(10_000);
+    }
+
+    /**
+     * Closes the shutter for x milliseconds.
+     * @param ms the duration how long the motor will get powered, to drive the shutter down.
+     * @throws InterruptedException Dont wake me up!
+     */
+    public void closeShutter(int ms) throws InterruptedException {
+        System.out.println("Triggering relay! Give em power for " + ms + " milliseconds!");
         pinCloseMotor.low();
-        
+        Thread.sleep(ms);
+        pinCloseMotor.high();
+
         System.out.println("Close shutter process done!");
     }
 
@@ -94,13 +106,13 @@ public class ShutterController {
             pinBlueLed.low();
             Thread.sleep(500);
         }
-        
+
         pinOpenMotor.high();
         System.out.println("Triggered relay! Give em power for 10 seconds!");
-        
+
         Thread.sleep(10_000);
         pinOpenMotor.low();
-        
+
         System.out.println("Open shutter process done!");
     }
 

@@ -33,5 +33,25 @@
             <a class="btn btn-default" href="/dashboard/shutters-down">Shutters down</a>
         </div>
 
+        <br>
+        <br>
+
+
+        <form:form action="/dashboard/shutters-move-custom" method="POST" modelAttribute="shutterMovement">
+            <table>
+                <tr>
+                    <td><form:label path="duration">Duration (Milliseconds)</form:label></td>
+                    <td><form:input path="duration" type="number"/></td>
+                </tr>
+                <tr>
+                    <form:radiobutton path = "direction" value = "UP" label = "Up" />
+                    <form:radiobutton path = "direction" value = "DOWN" label = "Down" />
+                </tr>
+                <tr>
+                    <td><input type="submit" value="Submit"/></td>
+                </tr>
+            </table>
+        </form:form>
+
     </body>
 </html>

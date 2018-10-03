@@ -5,20 +5,17 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
 import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.security.SecurityService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import gift.goblin.HayRackController.view.model.ShutterMovement;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controller which offers endpoints for all actions regarding the user
@@ -42,6 +39,7 @@ public class DashboardController {
         model.addAttribute("username", username);
         System.out.println("Added username to model:" + username);
 
+        model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 500));
         return "dashboard";
     }
 
@@ -70,6 +68,21 @@ public class DashboardController {
             shutterController.closeShutter();
         } catch (InterruptedException ex) {
             System.out.println("InterruptedException thrown while called shuttersDown!");
+        }
+
+        return "dashboard";
+    }
+
+    @RequestMapping(value = "/dashboard/shutters-move-custom", method = RequestMethod.POST)
+    public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
+            Model model) throws InterruptedException {
+
+        System.out.println("Triggered custom shutdown method!");
+
+        if (shutterMovement.directionIsDown()) {
+            shutterController.closeShutter(shutterMovement.getDuration());
+        } else if (shutterMovement.directionIsUp()) {
+            // todo
         }
 
         return "dashboard";
