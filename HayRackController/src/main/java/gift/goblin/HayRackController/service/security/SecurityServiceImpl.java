@@ -27,13 +27,13 @@ public class SecurityServiceImpl implements SecurityService {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityServiceImpl.class);
-
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Override
     public String getUsernameOfCurrentUser() {
          String username = SecurityContextHolder.getContext().getAuthentication().getName();
         
-        System.out.println("getUsernameOfCurrentUser" + username);
+         logger.debug("Read username of user: {}", username);
         
         return username;
     }

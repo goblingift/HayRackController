@@ -11,8 +11,11 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,7 +25,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShutterController {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     private GpioController gpioController;
+    private boolean raspberryInitialized;
 
     private GpioPinDigitalOutput pinCloseMotor;
     private GpioPinDigitalOutput pinOpenMotor;
@@ -31,15 +37,27 @@ public class ShutterController {
 
     @PostConstruct
     private void setupPins() {
-        gpioController = GpioFactory.getInstance();
-
-        setupOpenShutter();
-        setupCloseShutter();
+        try {
+            gpioController = GpioFactory.getInstance();
+            
+            setupOpenShutter();
+            setupCloseShutter();
+            
+            raspberryInitialized = true;
+            logger.info("Raspberry PI successful initialized!");
+        } catch (UnsatisfiedLinkError e) {
+            logger.warn("Couldnt initialize Raspberry PI.");
+            raspberryInitialized = false;
+        }
+    }
+    
+    public boolean isRaspberryInitialized() {
+        return raspberryInitialized;
     }
 
     @PreDestroy
     private void releasePins() {
-        System.out.println("Called PreDestroy bean ShutterController!");
+        logger.info("Shutdown bean- unprovision Raspberry PI pins!");
         gpioController.shutdown();
         gpioController.unprovisionPin(pinCloseMotor);
     }
@@ -47,6 +65,7 @@ public class ShutterController {
     /**
      * Initialize all required pins for the shutdown shutter functionality.
      */
+    @RequiresRaspberry
     private void setupCloseShutter() {
         pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay Channel 1", PinState.HIGH);
         pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
@@ -58,6 +77,7 @@ public class ShutterController {
     /**
      * Initialize all required pins for the shutdown shutter functionality.
      */
+    @RequiresRaspberry
     private void setupOpenShutter() {
         pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay Channel 2", PinState.HIGH);
         pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
@@ -72,8 +92,9 @@ public class ShutterController {
      * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException  Dont wake me up!
      */
+    @RequiresRaspberry
     public void closeShutter() throws InterruptedException {
-        System.out.println("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
+        logger.info("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
 
         for (int i = 0; i < 5; i++) {
             pinYellowLed.high();
@@ -88,17 +109,19 @@ public class ShutterController {
      * @param ms the duration how long the motor will get powered, to drive the shutter down.
      * @throws InterruptedException Dont wake me up!
      */
+    @RequiresRaspberry
     public void closeShutter(int ms) throws InterruptedException {
-        System.out.println("Triggering relay! Give em power for " + ms + " milliseconds!");
+        logger.info("Triggering closing shutter. Give em power for {} milliseconds", ms);
         pinCloseMotor.low();
         Thread.sleep(ms);
         pinCloseMotor.high();
 
-        System.out.println("Close shutter process done!");
+        logger.info("Close shutter process done.");
     }
 
+    @RequiresRaspberry
     public void openShutter() throws InterruptedException {
-        System.out.println("Open shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
+        logger.info("Open shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
 
         for (int i = 0; i < 5; i++) {
             pinBlueLed.high();
@@ -107,13 +130,13 @@ public class ShutterController {
             Thread.sleep(500);
         }
 
+        logger.info("Triggered relay! Give em power for 10 seconds!");
         pinOpenMotor.high();
-        System.out.println("Triggered relay! Give em power for 10 seconds!");
 
         Thread.sleep(10_000);
         pinOpenMotor.low();
 
-        System.out.println("Open shutter process done!");
+        logger.info("Open shutter process done!");
     }
 
 }

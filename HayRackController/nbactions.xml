@@ -3,10 +3,12 @@
         <action>
             <actionName>run</actionName>
             <packagings>
-                <packaging>jar</packaging>
+                <packaging>war</packaging>
+                <packaging>ear</packaging>
+                <packaging>ejb</packaging>
             </packagings>
             <goals>
-                <goal>org.springframework.boot:spring-boot-maven-plugin:2.0.5.RELEASE:run</goal>
+                <goal>org.springframework.boot:spring-boot-maven-plugin:1.3.2.RELEASE:run</goal>
             </goals>
         </action>
     </actions>

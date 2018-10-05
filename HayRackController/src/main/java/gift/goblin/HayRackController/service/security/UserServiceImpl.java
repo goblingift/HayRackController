@@ -30,11 +30,11 @@ public class UserServiceImpl implements UserService {
     public void save(User user) {
         
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-        System.out.println(encodedPassword);
         
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setRoles(new HashSet<>(roleRepository.findAll()));
         userRepository.save(user);
+        logger.info("Successful saved new user: {}", user.getUsername())
     }
 
     @Override

@@ -9,6 +9,8 @@ import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class DashboardController {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private SecurityService securityService;
 
@@ -37,37 +41,34 @@ public class DashboardController {
 
         String username = securityService.getUsernameOfCurrentUser();
         model.addAttribute("username", username);
-        System.out.println("Added username to model:" + username);
 
         model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 500));
         return "dashboard";
     }
 
     @RequestMapping(value = "/dashboard/shutters-up", method = RequestMethod.GET)
-    public String shuttersUp(Model model) {
+    public String shuttersUp(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
+            Model model) {
 
         // todo: Doing fancy stuff with raspberry pi, to roll up the shutters
-        System.out.println("SHUTTER GOES UP!");
-
         try {
             shutterController.openShutter();
         } catch (InterruptedException ex) {
-            System.out.println("InterruptedException thrown while called shuttersUp!");
+            logger.warn("Exception thrown while opening shutters!", ex);
         }
 
         return "dashboard";
     }
 
     @RequestMapping(value = "/dashboard/shutters-down", method = RequestMethod.GET)
-    public String shuttersDown(Model model) {
+    public String shuttersDown(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
+            Model model) {
 
         // todo: Doing fancy stuff with raspberry pi, to roll down the shutters
-        System.out.println("SHUTTER GOES DOWN!");
-
         try {
             shutterController.closeShutter();
         } catch (InterruptedException ex) {
-            System.out.println("InterruptedException thrown while called shuttersDown!");
+            logger.warn("Exception thrown while closing shutters!", ex);
         }
 
         return "dashboard";
@@ -76,8 +77,6 @@ public class DashboardController {
     @RequestMapping(value = "/dashboard/shutters-move-custom", method = RequestMethod.POST)
     public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
             Model model) throws InterruptedException {
-
-        System.out.println("Triggered custom shutdown method!");
 
         if (shutterMovement.directionIsDown()) {
             shutterController.closeShutter(shutterMovement.getDuration());

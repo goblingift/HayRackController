@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +41,8 @@ import org.springframework.security.web.RedirectStrategy;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -70,8 +74,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             Authentication authentication) throws IOException {
 
         String redirectAfterLoginUrl = getRedirectAfterLoginUrl(authentication);
-
-        System.out.println("LOGIN SUCCESSFUL! Redirect user to: " + redirectAfterLoginUrl);
+        
+        logger.info("Login successful, redirect user to: {}", redirectAfterLoginUrl);
         
         redirectStrategy.sendRedirect(request, response, redirectAfterLoginUrl);
     }
@@ -82,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             AuthenticationException e) throws IOException {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        System.out.println("LOGIN FAILED!");
+        logger.error("Login failed! Caused by: {}", e.getMessage())
     }
 
     private String getRedirectAfterLoginUrl(Authentication authentication) {
