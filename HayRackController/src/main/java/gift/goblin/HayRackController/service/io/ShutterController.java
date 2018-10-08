@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 public class ShutterController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     private GpioController gpioController;
     private boolean raspberryInitialized;
 
@@ -39,10 +39,10 @@ public class ShutterController {
     private void setupPins() {
         try {
             gpioController = GpioFactory.getInstance();
-            
+
             setupOpenShutter();
             setupCloseShutter();
-            
+
             raspberryInitialized = true;
             logger.info("Raspberry PI successful initialized!");
         } catch (UnsatisfiedLinkError e) {
@@ -50,7 +50,7 @@ public class ShutterController {
             raspberryInitialized = false;
         }
     }
-    
+
     public boolean isRaspberryInitialized() {
         return raspberryInitialized;
     }
@@ -90,7 +90,7 @@ public class ShutterController {
      * Triggers the closing logic, which powers the motor to close the shutters.
      *
      * @param ms the duration, how long the motor will get powered.
-     * @throws InterruptedException  Dont wake me up!
+     * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
     public void closeShutter() throws InterruptedException {
@@ -102,11 +102,15 @@ public class ShutterController {
             pinYellowLed.low();
             Thread.sleep(500);
         }
+
+        closeShutter(10_000);
     }
 
     /**
      * Closes the shutter for x milliseconds.
-     * @param ms the duration how long the motor will get powered, to drive the shutter down.
+     *
+     * @param ms the duration how long the motor will get powered, to drive the
+     * shutter down.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
@@ -119,6 +123,29 @@ public class ShutterController {
         logger.info("Close shutter process done.");
     }
 
+    /**
+     * Opens the shutter for x milliseconds.
+     *
+     * @param ms the duration how long the motor will get powered, to drive the
+     * shutter up.
+     * @throws InterruptedException Dont wake me up!
+     */
+    @RequiresRaspberry
+    public void openShutter(int ms) throws InterruptedException {
+        logger.info("Triggering custom opening shutter. Give em power for {} milliseconds", ms);
+        pinOpenMotor.low();
+        Thread.sleep(ms);
+        pinOpenMotor.high();
+
+        logger.info("Open shutter process done.");
+    }
+
+    /**
+     * Triggers the opening logic, which powers the motor to open the shutters.
+     *
+     * @param ms the duration, how long the motor will get powered.
+     * @throws InterruptedException Dont wake me up!
+     */
     @RequiresRaspberry
     public void openShutter() throws InterruptedException {
         logger.info("Open shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
@@ -130,13 +157,7 @@ public class ShutterController {
             Thread.sleep(500);
         }
 
-        logger.info("Triggered relay! Give em power for 10 seconds!");
-        pinOpenMotor.high();
-
-        Thread.sleep(10_000);
-        pinOpenMotor.low();
-
-        logger.info("Open shutter process done!");
+        openShutter(10_000);
     }
 
 }

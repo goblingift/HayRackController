@@ -62,14 +62,12 @@ public class DashboardController {
 
     @RequestMapping(value = "/dashboard/shutters-down", method = RequestMethod.GET)
     public String shuttersDown(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
-            Model model) {
+            Model model) throws InterruptedException {
 
+        logger.info("Manually triggered shutters down.");
         // todo: Doing fancy stuff with raspberry pi, to roll down the shutters
-        try {
-            shutterController.closeShutter();
-        } catch (InterruptedException ex) {
-            logger.warn("Exception thrown while closing shutters!", ex);
-        }
+
+        shutterController.closeShutter();
 
         return "dashboard";
     }
@@ -77,11 +75,13 @@ public class DashboardController {
     @RequestMapping(value = "/dashboard/shutters-move-custom", method = RequestMethod.POST)
     public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
             Model model) throws InterruptedException {
+        
+        logger.info("Manually triggered custom shutters movement, with param: {}", shutterMovement);
 
         if (shutterMovement.directionIsDown()) {
             shutterController.closeShutter(shutterMovement.getDuration());
         } else if (shutterMovement.directionIsUp()) {
-            // todo
+            shutterController.openShutter(shutterMovement.getDuration());
         }
 
         return "dashboard";

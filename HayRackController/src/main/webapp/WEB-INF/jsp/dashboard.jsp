@@ -53,5 +53,9 @@
             </table>
         </form:form>
 
+        <div>
+            <a class="btn btn-default" href="/timetable">Display timetable</a>
+        </div>
+
     </body>
 </html>

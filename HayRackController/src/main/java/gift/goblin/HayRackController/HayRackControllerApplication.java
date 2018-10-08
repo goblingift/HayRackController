@@ -2,11 +2,14 @@ package gift.goblin.HayRackController;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 /**
  * Starts the spring boot application
  * @author andre
  */
+@EntityScan(basePackages = {"gift.goblin.HayRackController.database.*"}, basePackageClasses = {Jsr310JpaConverters.class})
 @SpringBootApplication
 public class HayRackControllerApplication {
 

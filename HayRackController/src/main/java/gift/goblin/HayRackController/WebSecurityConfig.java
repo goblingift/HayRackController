@@ -86,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             AuthenticationException e) throws IOException {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        logger.error("Login failed! Caused by: {}", e.getMessage())
+        logger.error("Login failed! Caused by: {}", e.getMessage());
     }
 
     private String getRedirectAfterLoginUrl(Authentication authentication) {

@@ -9,6 +9,8 @@ import gift.goblin.HayRackController.database.security.model.User;
 import gift.goblin.HayRackController.database.security.repo.RoleRepository;
 import gift.goblin.HayRackController.database.security.repo.UserRepository;
 import java.util.HashSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Override
     public void save(User user) {
         
@@ -34,7 +38,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setRoles(new HashSet<>(roleRepository.findAll()));
         userRepository.save(user);
-        logger.info("Successful saved new user: {}", user.getUsername())
+        logger.info("Successful saved new user: {}", user.getUsername());
     }
 
     @Override
