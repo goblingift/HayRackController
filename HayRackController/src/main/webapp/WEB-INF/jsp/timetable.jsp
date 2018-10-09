@@ -68,6 +68,7 @@
                                 <td>${actItem.comment}</td>
                                 <td>${actItem.createdAt}</td>
                                 <td>${actItem.createdBy}</td>
+                                <td><a class="btn btn-default" href="/timetable/delete/${actItem.id}">Delete</a></td>
                             </tr>
                         </c:forEach>
                     </c:if>
@@ -79,6 +80,7 @@
                             <td><form:input path="openAt"/></td>
                             <td><form:input path="closeAt"/></td>
                             <td><form:input path="comment"/></td>
+                            <td></td>
                             <td></td>
                             <td><input type="submit" value="submit"/>ADD</td>
                         </tr>

@@ -6,10 +6,8 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.security.model.User;
 import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
-import gift.goblin.HayRackController.view.model.ShutterMovement;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -51,8 +50,8 @@ public class TimeTableController {
         
         logger.info("Mapped shutter movements...");
         
-        List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.isIsActive(),
-                s.getOpenAt().toString(), s.getCloseAt().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
+        List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
+                s.isIsActive(), s.getOpenAt().toString(), s.getCloseAt().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
         logger.info("Number of mapped ones:" + shutterMovementDtos.size());        
         
@@ -72,6 +71,13 @@ public class TimeTableController {
         
         scheduledShutterMovementService.addNewShutterMovement(newMovement.getOpenAt(), newMovement.getCloseAt(), newMovement.getComment());
 
+        return renderTimetable(model);
+    }
+    
+    @RequestMapping(value = "/timetable/delete/{id}", method = RequestMethod.GET)
+    public String deleteEntry(@PathVariable("id") String id, Model model) {
+        
+        scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
         return renderTimetable(model);
     }
 

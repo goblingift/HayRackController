@@ -12,6 +12,7 @@ package gift.goblin.HayRackController.view.model;
  */
 public class ScheduledShutterMovementDto {
     
+    private String id;
     private boolean isActive;
     private String openAt;
     private String closeAt;
@@ -22,7 +23,8 @@ public class ScheduledShutterMovementDto {
     public ScheduledShutterMovementDto() {
     }
 
-    public ScheduledShutterMovementDto(boolean isActive, String openAt, String closeAt, String comment, String createdBy, String createdAt) {
+    public ScheduledShutterMovementDto(String id, boolean isActive, String openAt, String closeAt, String comment, String createdBy, String createdAt) {
+        this.id = id;
         this.isActive = isActive;
         this.openAt = openAt;
         this.closeAt = closeAt;
@@ -32,6 +34,15 @@ public class ScheduledShutterMovementDto {
     }
 
 //<editor-fold defaultstate="collapsed" desc="getterSetter">
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+   
     public boolean isIsActive() {
         return isActive;
     }
@@ -83,8 +94,8 @@ public class ScheduledShutterMovementDto {
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovementDto{" + "isActive=" + isActive + ", openAt=" + openAt + ", closeAt=" + closeAt + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", openAt=" + openAt + ", closeAt=" + closeAt + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
-    
+
     
 }

@@ -30,4 +30,10 @@ public interface ScheduledShutterMovementService {
      */
     List<ScheduledShutterMovement> readAllStoredShutterMovementSchedules();
     
+    /**
+     * Delete a scheduled movement from database.
+     * @param id the PK of this entry.
+     */
+    void deleteScheduledMovement(Long id);
+    
 }

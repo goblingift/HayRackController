@@ -54,4 +54,11 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
         return sortedShutterMovements;
     }
 
+    @Override
+    public void deleteScheduledMovement(Long id) {
+        
+        repo.deleteById(id);
+        logger.info("Successful deleted shutter movement entry with id: {}", id);
+    }
+
 }
