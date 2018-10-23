@@ -52,13 +52,11 @@ public class SchedulerConfiguration {
     @Bean
     public Trigger trigger(JobDetail job) {
 
-        logger.info("called trigger!");
-
         return TriggerBuilder.newTrigger().forJob(job)
-                .withIdentity("Quartz_Trigger")
+                .withIdentity("Spring trigger")
                 .withDescription("Daily trigger")
                 .startAt(new Date())
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInHours(24))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInSeconds(10))
                 .build();
     }
 
