@@ -20,8 +20,9 @@ public interface ScheduledShutterMovementService {
      * @param openAt time, when the shutters should get opened.
      * @param closeAt time, when the shutters should get closed.
      * @param comment comment of the user, which created this schedule, e.g. 'lunch'.
+     * @return the id of the created entity
      */
-    void addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment);
+    Long addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment);
     
     /**
      * Reads all stored planned shutter movement.

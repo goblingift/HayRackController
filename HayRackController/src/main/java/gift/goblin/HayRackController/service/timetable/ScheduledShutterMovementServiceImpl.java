@@ -34,7 +34,7 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment) {
+    public Long addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment) {
 
         ScheduledShutterMovement newShutterMovement = new ScheduledShutterMovement(openAt, closeAt, comment);
         
@@ -42,8 +42,10 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
         
         newShutterMovement.setCreatedBy(usernameOfCurrentUser);
         newShutterMovement.setCreatedAt(LocalDateTime.now());
-        repo.save(newShutterMovement);
+        ScheduledShutterMovement entity = repo.save(newShutterMovement);
         logger.info("Successful added new scheduled Movement: {}", newShutterMovement);
+        
+        return entity.getId();
     }
 
     @Override

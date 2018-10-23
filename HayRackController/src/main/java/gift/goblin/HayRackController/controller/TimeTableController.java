@@ -56,25 +56,15 @@ public class TimeTableController {
     @RequestMapping(value = "/timetable", method = RequestMethod.GET)
     public String renderTimetable(Model model) {
 
-        logger.info("Rendering timetable...");
-
         List<ScheduledShutterMovement> scheduledMovements = scheduledShutterMovementService.readAllStoredShutterMovementSchedules();
-        logger.info("Scheduled movements({})", scheduledMovements.size());
 
         for (ScheduledShutterMovement actSchedule : scheduledMovements) {
             logger.info(actSchedule.toString());
         }
 
-        logger.info("Mapped shutter movements...");
-
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
                 s.isIsActive(), s.getOpenAt().toString(), s.getCloseAt().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
-        logger.info("Number of mapped ones:" + shutterMovementDtos.size());
-
-        for (ScheduledShutterMovementDto actDto : shutterMovementDtos) {
-            logger.info(actDto.toString());
-        }
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);
         model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), LocalTime.now(), "-comment-"));
@@ -86,9 +76,12 @@ public class TimeTableController {
 
         logger.info("Called adding new schedule with object: {}", newMovement);
 
-        scheduledShutterMovementService.addNewShutterMovement(newMovement.getOpenAt(), newMovement.getCloseAt(), newMovement.getComment());
+        Long newShutterMovementId = scheduledShutterMovementService
+                .addNewShutterMovement(newMovement.getOpenAt(), newMovement.getCloseAt(), newMovement.getComment());
 
-        scheduler.
+        registerShutdownSchedule(newMovement.getOpenAt(), newShutterMovementId);
+        
+//        scheduler.
         
         return renderTimetable(model);
     }
@@ -100,9 +93,8 @@ public class TimeTableController {
         return renderTimetable(model);
     }
 
-    private void registerShutdownSchedule(String time) {
+    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId) {
 
-        LocalTime localTime = LocalTime.parse(time);
         LocalDateTime nextExecutionDateTime = getNextExecutionDateTime(localTime);
 
         ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
@@ -110,15 +102,15 @@ public class TimeTableController {
 
         JobDetail newjobDetail = JobBuilder.newJob().ofType(ShutterDownJob.class)
                 .storeDurably()
-                .withIdentity("Quartz_shutter_down_job")
-                .withDescription("Scheduler for closing shutters.")
+                .withIdentity("shutdown_job_" + schedulerId)
+                .withDescription("Scheduler for closing shutters")
                 .build();
 
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(newjobDetail)
-                .withIdentity("Quartz_Trigger")
-                .withDescription("Daily trigger")
+                .withIdentity("trigger_" + schedulerId, "shutter_down_triggers")
+                .withDescription("Trigger for closing shutters")
                 .startAt(nextExecutionDate)
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInHours(24))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInSeconds(15))
                 .build();
         
         try {
