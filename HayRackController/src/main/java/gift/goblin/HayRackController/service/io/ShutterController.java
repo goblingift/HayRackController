@@ -7,10 +7,14 @@ package gift.goblin.HayRackController.service.io;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.trigger.GpioBlinkStateTrigger;
+import com.pi4j.io.gpio.trigger.GpioBlinkStopStateTrigger;
+import com.pi4j.io.gpio.trigger.GpioSetStateTrigger;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,15 +38,21 @@ public class ShutterController {
     private GpioPinDigitalOutput pinOpenMotor;
     private GpioPinDigitalOutput pinBlueLed;
     private GpioPinDigitalOutput pinYellowLed;
+    private GpioPinDigitalOutput pinSiren;
+
+    private GpioPinDigitalInput pinManualDown;
+    private GpioPinDigitalInput pinManualUp;
 
     @PostConstruct
     private void setupPins() {
         try {
             gpioController = GpioFactory.getInstance();
 
+            setupVisualAndAudioOutputs();
             setupOpenShutter();
             setupCloseShutter();
-
+            setupManualInputs();
+            
             raspberryInitialized = true;
             logger.info("Raspberry PI successful initialized!");
         } catch (UnsatisfiedLinkError e) {
@@ -62,6 +72,41 @@ public class ShutterController {
         gpioController.unprovisionPin(pinCloseMotor);
     }
 
+    @RequiresRaspberry
+    private void setupManualInputs() {
+        pinManualDown = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
+        pinManualUp = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_01, PinPullResistance.PULL_DOWN);
+
+        // Add triggers to power on relay, if manual switch is triggered
+        pinManualDown.addTrigger(new GpioSetStateTrigger(PinState.HIGH, pinCloseMotor, PinState.LOW));
+        pinManualDown.addTrigger(new GpioSetStateTrigger(PinState.LOW, pinCloseMotor, PinState.HIGH));
+        pinManualUp.addTrigger(new GpioSetStateTrigger(PinState.HIGH, pinOpenMotor, PinState.LOW));
+        pinManualUp.addTrigger(new GpioSetStateTrigger(PinState.LOW, pinOpenMotor, PinState.HIGH));
+
+        // Add triggers for the siren and leds
+        pinManualDown.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinYellowLed, 250));
+        pinManualDown.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinSiren, 250));
+        pinManualDown.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinYellowLed));
+        pinManualDown.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinSiren));
+        
+        pinManualUp.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinBlueLed, 250));
+        pinManualUp.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinSiren, 250));
+        pinManualUp.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinBlueLed));
+        pinManualUp.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinSiren));
+    }
+
+    @RequiresRaspberry
+    private void setupVisualAndAudioOutputs() {
+        pinYellowLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_26, "Yellow-LED", PinState.LOW);
+        pinYellowLed.setShutdownOptions(true, PinState.LOW);
+
+        pinBlueLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03, "Blue-LED", PinState.LOW);
+        pinBlueLed.setShutdownOptions(true, PinState.LOW);
+
+        pinSiren = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_07, "Siren", PinState.LOW);
+        pinSiren.setShutdownOptions(true, PinState.LOW);
+    }
+
     /**
      * Initialize all required pins for the shutdown shutter functionality.
      */
@@ -69,9 +114,6 @@ public class ShutterController {
     private void setupCloseShutter() {
         pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay Channel 1", PinState.HIGH);
         pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
-
-        pinYellowLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_26, "Yellow-LED", PinState.LOW);
-        pinYellowLed.setShutdownOptions(true, PinState.LOW);
     }
 
     /**
@@ -81,9 +123,6 @@ public class ShutterController {
     private void setupOpenShutter() {
         pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay Channel 2", PinState.HIGH);
         pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
-
-        pinBlueLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03, "Blue-LED", PinState.LOW);
-        pinBlueLed.setShutdownOptions(true, PinState.LOW);
     }
 
     /**
