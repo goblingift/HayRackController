@@ -68,7 +68,7 @@ public class SchedulerJobFactory {
                 .withIdentity(PREFIX_START_FEEDING_TRIGGER + id, GROUP_START_TRIGGERS)
                 .withDescription(description)
                 .startAt(nextExecutionDate)
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(3))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInHours(24))
                 .build();
         
         return trigger;
