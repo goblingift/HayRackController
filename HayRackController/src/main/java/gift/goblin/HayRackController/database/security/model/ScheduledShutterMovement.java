@@ -24,8 +24,11 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     
     private Long id;
     private boolean isActive;
-    private LocalTime openAt;
-    private LocalTime closeAt;
+    private LocalTime feedingStartTime;
+    /**
+     * Feeding duration in minutes.
+     */
+    private Integer feedingDuration;
     private String comment;
     private String createdBy;
     private LocalDateTime createdAt;
@@ -33,9 +36,9 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     public ScheduledShutterMovement() {
     }
 
-    public ScheduledShutterMovement(LocalTime openAt, LocalTime closeAt, String comment) {
-        this.openAt = openAt;
-        this.closeAt = closeAt;
+    public ScheduledShutterMovement(LocalTime feedingStartTime, Integer feedingDuration, String comment) {
+        this.feedingStartTime = feedingStartTime;
+        this.feedingDuration = feedingDuration;
         this.comment = comment;
     }
     
@@ -57,20 +60,20 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         this.isActive = isActive;
     }
 
-    public LocalTime getOpenAt() {
-        return openAt;
+    public LocalTime getFeedingStartTime() {
+        return feedingStartTime;
     }
 
-    public void setOpenAt(LocalTime openAt) {
-        this.openAt = openAt;
+    public void setFeedingStartTime(LocalTime feedingStartTime) {
+        this.feedingStartTime = feedingStartTime;
     }
 
-    public LocalTime getCloseAt() {
-        return closeAt;
+    public Integer getFeedingDuration() {
+        return feedingDuration;
     }
 
-    public void setCloseAt(LocalTime closeAt) {
-        this.closeAt = closeAt;
+    public void setFeedingDuration(Integer feedingDuration) {
+        this.feedingDuration = feedingDuration;
     }
 
     public String getComment() {
@@ -128,10 +131,10 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
-        if (!Objects.equals(this.openAt, other.openAt)) {
+        if (!Objects.equals(this.feedingStartTime, other.feedingStartTime)) {
             return false;
         }
-        if (!Objects.equals(this.closeAt, other.closeAt)) {
+        if (!Objects.equals(this.feedingDuration, other.feedingDuration)) {
             return false;
         }
         if (!Objects.equals(this.createdAt, other.createdAt)) {
@@ -142,13 +145,12 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovement{" + "id=" + id + ", isActive=" + isActive + ", openAt=" + openAt + ", closeAt=" + closeAt + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovement{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
     @Override
     public int compareTo(ScheduledShutterMovement o) {
-        
-        return this.getOpenAt().isBefore(o.getOpenAt()) ? -1 : 1;
+        return this.getFeedingStartTime().isBefore(o.getFeedingStartTime()) ? -1 : 1;
     }
     
 }

@@ -6,25 +6,21 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.service.scheduled.ShutterDownJob;
+import gift.goblin.HayRackController.service.scheduled.SchedulerJobFactory;
 import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
-import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import org.quartz.SimpleTrigger;
-import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +47,13 @@ public class TimeTableController {
     private ScheduledShutterMovementService scheduledShutterMovementService;
 
     @Autowired
-    Scheduler scheduler;
+    private SchedulerJobFactory schedulerJobFactory;
+    
+    @Autowired
+    private Scheduler scheduler;
+    
+    @Autowired
+    private DateAndTimeUtil dateAndTimeUtil;
 
     @RequestMapping(value = "/timetable", method = RequestMethod.GET)
     public String renderTimetable(Model model) {
@@ -63,11 +65,11 @@ public class TimeTableController {
         }
 
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
-                s.isIsActive(), s.getOpenAt().toString(), s.getCloseAt().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
+                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);
-        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), LocalTime.now(), "-comment-"));
+        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), 60, "-comment-"));
         return "timetable";
     }
 
@@ -77,9 +79,9 @@ public class TimeTableController {
         logger.info("Called adding new schedule with object: {}", newMovement);
 
         Long newShutterMovementId = scheduledShutterMovementService
-                .addNewShutterMovement(newMovement.getOpenAt(), newMovement.getCloseAt(), newMovement.getComment());
+                .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration(), newMovement.getComment());
 
-        registerShutdownSchedule(newMovement.getOpenAt(), newShutterMovementId);
+        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId, newMovement.getComment());
         
 //        scheduler.
         
@@ -93,49 +95,23 @@ public class TimeTableController {
         return renderTimetable(model);
     }
 
-    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId) {
+    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId, String triggerDescription) {
 
-        LocalDateTime nextExecutionDateTime = getNextExecutionDateTime(localTime);
+        LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
 
         ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
         Date nextExecutionDate = Date.from(zdt.toInstant());
 
-        JobDetail newjobDetail = JobBuilder.newJob().ofType(ShutterDownJob.class)
-                .storeDurably()
-                .withIdentity("shutdown_job_" + schedulerId)
-                .withDescription("Scheduler for closing shutters")
-                .build();
-
-        SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(newjobDetail)
-                .withIdentity("trigger_" + schedulerId, "shutter_down_triggers")
-                .withDescription("Trigger for closing shutters")
-                .startAt(nextExecutionDate)
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInSeconds(15))
-                .build();
+        JobDetail jobDetail = schedulerJobFactory.createStartFeedingJob(schedulerId.intValue());
+        SimpleTrigger newTrigger = schedulerJobFactory.createStartFeedingTrigger(schedulerId.intValue(), triggerDescription, nextExecutionDate, jobDetail);
         
         try {
-            scheduler.scheduleJob(newjobDetail, trigger);
+            scheduler.scheduleJob(jobDetail, newTrigger);
+            logger.info("Successful registered scheduler for shutdown shutters. Next execution:" + nextExecutionDate);
         } catch (SchedulerException ex) {
             logger.error("Couldnt register new scheduled job!", ex);
         }
         
-        logger.info("Successful registered scheduler for shutdown shutters. Next execution:" + nextExecutionDate);
-    }
-
-    private LocalDateTime getNextExecutionDateTime(LocalTime localTime) {
-
-        if (localTime.isBefore(LocalTime.now())) {
-            // Next execution will be tomorrow
-            LocalDateTime nextExecutionTomorrow = LocalDateTime.of(LocalDate.now().plusDays(1), localTime);
-            logger.debug("Next execution will be tomorrow: {}", nextExecutionTomorrow);
-            return nextExecutionTomorrow;
-        } else {
-            // Next execution will be today
-            LocalDateTime nextExecutionToday = LocalDateTime.of(LocalDate.now(), localTime);
-            logger.debug("Next execution will be today: {}", nextExecutionToday);
-            return nextExecutionToday;
-        }
-
     }
 
 }

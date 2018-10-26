@@ -6,6 +6,7 @@
 package gift.goblin.HayRackController.service.scheduled;
 
 import gift.goblin.HayRackController.service.io.ShutterController;
+import java.util.logging.Level;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class ShutterDownJob implements Job {
+public class StopFeedingJob implements Job {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,8 +29,14 @@ public class ShutterDownJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
-        logger.info("Shutter down job triggered! Triggername: {} - Group: {}",
+        logger.info("End of feeding scheduled! Triggername: {} - Group: {}",
                 jec.getTrigger().getKey().getName(), jec.getTrigger().getKey().getGroup());
+        
+        try {
+            shutterController.closeShutter();
+        } catch (InterruptedException ex) {
+            logger.error("Exception thrown while closing shutters!", ex);
+        }
     }
 
 }

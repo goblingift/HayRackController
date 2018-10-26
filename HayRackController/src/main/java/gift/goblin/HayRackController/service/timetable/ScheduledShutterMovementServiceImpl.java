@@ -34,9 +34,9 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public Long addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment) {
+    public Long addNewShutterMovement(LocalTime openAt, Integer feedingDuration, String comment) {
 
-        ScheduledShutterMovement newShutterMovement = new ScheduledShutterMovement(openAt, closeAt, comment);
+        ScheduledShutterMovement newShutterMovement = new ScheduledShutterMovement(openAt, feedingDuration, comment);
         
         String usernameOfCurrentUser = securityService.getUsernameOfCurrentUser();
         

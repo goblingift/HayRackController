@@ -50,7 +50,7 @@
                     <tr>
                         <th>#</th>
                         <th>Open at</th>
-                        <th>Close at</th>
+                        <th>Feeding duration</th>
                         <th>Comment</th>
                         <th>Defined at</th>
                         <th>Defined from</th>
@@ -63,8 +63,8 @@
                         <c:forEach items="${scheduledMovements}" var="actItem" varStatus="actStatus">
                             <tr>
                                 <th scope="row">${actStatus.count}</th>
-                                <td>${actItem.openAt}</td>
-                                <td>${actItem.closeAt}</td>
+                                <td>${actItem.feedingStartTime}</td>
+                                <td>${actItem.feedingDuration}</td>
                                 <td>${actItem.comment}</td>
                                 <td>${actItem.createdAt}</td>
                                 <td>${actItem.createdBy}</td>
@@ -77,8 +77,8 @@
                     <form:form action="/timetable/add" modelAttribute="newMovement">
                         <tr>
                             <th scope="row">ADD NEW</th>
-                            <td><form:input path="openAt"/></td>
-                            <td><form:input path="closeAt"/></td>
+                            <td><form:input path="feedingStartTime"/></td>
+                            <td><form:input path="feedingDuration"/></td>
                             <td><form:input path="comment"/></td>
                             <td></td>
                             <td></td>
