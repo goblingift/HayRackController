@@ -14,8 +14,11 @@ public class ScheduledShutterMovementDto {
     
     private String id;
     private boolean isActive;
-    private String openAt;
-    private String closeAt;
+    private String feedingStartTime;
+    /**
+     * Feeding duration in minutes.
+     */
+    private String feedingDuration;
     private String comment;
     private String createdBy;
     private String createdAt;
@@ -23,11 +26,17 @@ public class ScheduledShutterMovementDto {
     public ScheduledShutterMovementDto() {
     }
 
-    public ScheduledShutterMovementDto(String id, boolean isActive, String openAt, String closeAt, String comment, String createdBy, String createdAt) {
+    public ScheduledShutterMovementDto(String feedingStartTime, String feedingDuration, String comment) {
+        this.feedingStartTime = feedingStartTime;
+        this.feedingDuration = feedingDuration;
+        this.comment = comment;
+    }
+
+    public ScheduledShutterMovementDto(String id, boolean isActive, String feedingStartTime, String feedingDuration, String comment, String createdBy, String createdAt) {
         this.id = id;
         this.isActive = isActive;
-        this.openAt = openAt;
-        this.closeAt = closeAt;
+        this.feedingStartTime = feedingStartTime;
+        this.feedingDuration = feedingDuration;
         this.comment = comment;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
@@ -50,21 +59,21 @@ public class ScheduledShutterMovementDto {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
-    
-    public String getOpenAt() {
-        return openAt;
+
+    public String getFeedingStartTime() {
+        return feedingStartTime;
+    }
+
+    public void setFeedingStartTime(String feedingStartTime) {
+        this.feedingStartTime = feedingStartTime;
     }
     
-    public void setOpenAt(String openAt) {
-        this.openAt = openAt;
+    public String getFeedingDuration() {
+        return feedingDuration;
     }
     
-    public String getCloseAt() {
-        return closeAt;
-    }
-    
-    public void setCloseAt(String closeAt) {
-        this.closeAt = closeAt;
+    public void setFeedingDuration(String feedingDuration) {
+        this.feedingDuration = feedingDuration;
     }
     
     public String getComment() {
@@ -94,8 +103,7 @@ public class ScheduledShutterMovementDto {
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", openAt=" + openAt + ", closeAt=" + closeAt + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
-    
 }

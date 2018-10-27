@@ -6,11 +6,21 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.service.scheduled.SchedulerJobFactory;
 import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,31 +46,30 @@ public class TimeTableController {
     @Autowired
     private ScheduledShutterMovementService scheduledShutterMovementService;
 
+    @Autowired
+    private SchedulerJobFactory schedulerJobFactory;
+    
+    @Autowired
+    private Scheduler scheduler;
+    
+    @Autowired
+    private DateAndTimeUtil dateAndTimeUtil;
+
     @RequestMapping(value = "/timetable", method = RequestMethod.GET)
     public String renderTimetable(Model model) {
-        
-        logger.info("Rendering timetable...");
 
         List<ScheduledShutterMovement> scheduledMovements = scheduledShutterMovementService.readAllStoredShutterMovementSchedules();
-        logger.info("Scheduled movements({})", scheduledMovements.size());
-        
+
         for (ScheduledShutterMovement actSchedule : scheduledMovements) {
             logger.info(actSchedule.toString());
         }
-        
-        logger.info("Mapped shutter movements...");
-        
+
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
-                s.isIsActive(), s.getOpenAt().toString(), s.getCloseAt().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
+                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
-        logger.info("Number of mapped ones:" + shutterMovementDtos.size());        
-        
-        for (ScheduledShutterMovementDto actDto : shutterMovementDtos) {
-            logger.info(actDto.toString());
-        }
-        
+
         model.addAttribute("scheduledMovements", shutterMovementDtos);
-        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), LocalTime.now(), "-comment-"));
+        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), 60, "-comment-"));
         return "timetable";
     }
 
@@ -68,17 +77,41 @@ public class TimeTableController {
     public String addNewSchedule(@ModelAttribute("newMovement") ScheduledShutterMovement newMovement, BindingResult bindingResult, Model model) {
 
         logger.info("Called adding new schedule with object: {}", newMovement);
-        
-        scheduledShutterMovementService.addNewShutterMovement(newMovement.getOpenAt(), newMovement.getCloseAt(), newMovement.getComment());
 
+        Long newShutterMovementId = scheduledShutterMovementService
+                .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration(), newMovement.getComment());
+
+        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId, newMovement.getComment());
+        
+//        scheduler.
+        
         return renderTimetable(model);
     }
-    
+
     @RequestMapping(value = "/timetable/delete/{id}", method = RequestMethod.GET)
     public String deleteEntry(@PathVariable("id") String id, Model model) {
-        
+
         scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
         return renderTimetable(model);
+    }
+
+    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId, String triggerDescription) {
+
+        LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
+
+        ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
+        Date nextExecutionDate = Date.from(zdt.toInstant());
+
+        JobDetail jobDetail = schedulerJobFactory.createStartFeedingJob(schedulerId.intValue());
+        SimpleTrigger newTrigger = schedulerJobFactory.createStartFeedingTrigger(schedulerId.intValue(), triggerDescription, nextExecutionDate, jobDetail);
+        
+        try {
+            scheduler.scheduleJob(jobDetail, newTrigger);
+            logger.info("Successful registered scheduler for shutdown shutters. Next execution:" + nextExecutionDate);
+        } catch (SchedulerException ex) {
+            logger.error("Couldnt register new scheduled job!", ex);
+        }
+        
     }
 
 }

@@ -33,7 +33,7 @@ public class ShutterControllerAspect {
         if (shutterController.isRaspberryInitialized()) {
             joinPoint.proceed();
         } else {
-            logger.warn("Raspberry isnt initialized! Skip method call");
+            logger.warn("Raspberry isnt initialized! Skip method call: {}", joinPoint.getSignature().getName());
         }
     }
 

@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 /**
- * Service bean to add and access the scheduled shutter movements.
+ * Service bean to add and access the scheduled shutter movement entities.
  * @author andre
  */
 public interface ScheduledShutterMovementService {
@@ -18,10 +18,11 @@ public interface ScheduledShutterMovementService {
     /**
      * Adds a new planned shutter movement, which will be used by the cronjob.
      * @param openAt time, when the shutters should get opened.
-     * @param closeAt time, when the shutters should get closed.
+     * @param feedingDuration duration of the feeding time in minutes.
      * @param comment comment of the user, which created this schedule, e.g. 'lunch'.
+     * @return the id of the created entity
      */
-    void addNewShutterMovement(LocalTime openAt, LocalTime closeAt, String comment);
+    Long addNewShutterMovement(LocalTime openAt, Integer feedingDuration, String comment);
     
     /**
      * Reads all stored planned shutter movement.
