@@ -42,7 +42,7 @@ public class StartFeedingJob implements Job {
     private ShutterController shutterController;
 
     @Autowired
-    private SchedulerJobFactory schedulerJobFactory;
+    private SchedulerJobService schedulerJobFactory;
 
     @Autowired
     private StringUtils stringUtils;

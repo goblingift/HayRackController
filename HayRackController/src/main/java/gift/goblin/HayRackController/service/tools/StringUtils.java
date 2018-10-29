@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.service.tools;
 
-import gift.goblin.HayRackController.service.scheduled.SchedulerJobFactory;
+import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +28,9 @@ public class StringUtils {
     public int getJobId(String jobDetailIdentifier) {
         
         logger.debug("start splitting with:" + jobDetailIdentifier);
-        logger.debug("splitting with:" + SchedulerJobFactory.PREFIX_START_FEEDING_JOB);
+        logger.debug("splitting with:" + SchedulerJobService.PREFIX_START_FEEDING_JOB);
         
-        String[] splittedStrings = jobDetailIdentifier.split(SchedulerJobFactory.PREFIX_START_FEEDING_JOB);
+        String[] splittedStrings = jobDetailIdentifier.split(SchedulerJobService.PREFIX_START_FEEDING_JOB);
         
         logger.debug("splitted:" + Arrays.toString(splittedStrings));
         

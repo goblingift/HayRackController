@@ -6,7 +6,7 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.service.scheduled.SchedulerJobFactory;
+import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
 import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
@@ -47,11 +47,11 @@ public class TimeTableController {
     private ScheduledShutterMovementService scheduledShutterMovementService;
 
     @Autowired
-    private SchedulerJobFactory schedulerJobFactory;
-    
+    private SchedulerJobService schedulerJobService;
+
     @Autowired
     private Scheduler scheduler;
-    
+
     @Autowired
     private DateAndTimeUtil dateAndTimeUtil;
 
@@ -82,9 +82,8 @@ public class TimeTableController {
                 .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration(), newMovement.getComment());
 
         registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId, newMovement.getComment());
-        
+
 //        scheduler.
-        
         return renderTimetable(model);
     }
 
@@ -92,6 +91,8 @@ public class TimeTableController {
     public String deleteEntry(@PathVariable("id") String id, Model model) {
 
         scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
+        schedulerJobService.deleteStartFeedingJob(Integer.valueOf(id));
+        
         return renderTimetable(model);
     }
 
@@ -102,16 +103,16 @@ public class TimeTableController {
         ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
         Date nextExecutionDate = Date.from(zdt.toInstant());
 
-        JobDetail jobDetail = schedulerJobFactory.createStartFeedingJob(schedulerId.intValue());
-        SimpleTrigger newTrigger = schedulerJobFactory.createStartFeedingTrigger(schedulerId.intValue(), triggerDescription, nextExecutionDate, jobDetail);
-        
+        JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId.intValue());
+        SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), triggerDescription, nextExecutionDate, jobDetail);
+
         try {
             scheduler.scheduleJob(jobDetail, newTrigger);
             logger.info("Successful registered scheduler for shutdown shutters. Next execution:" + nextExecutionDate);
         } catch (SchedulerException ex) {
             logger.error("Couldnt register new scheduled job!", ex);
         }
-        
+
     }
 
 }

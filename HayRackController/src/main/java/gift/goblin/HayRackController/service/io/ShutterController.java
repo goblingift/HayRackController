@@ -36,13 +36,19 @@ public class ShutterController {
 
     private GpioPinDigitalOutput pinCloseMotor;
     private GpioPinDigitalOutput pinOpenMotor;
-    private GpioPinDigitalOutput pinBlueLed;
-    private GpioPinDigitalOutput pinYellowLed;
-    private GpioPinDigitalOutput pinSiren;
 
-    private GpioPinDigitalInput pinManualDown;
-    private GpioPinDigitalInput pinManualUp;
+    /**
+     * Pin for the 230V to 12V transformator
+     */
+    private GpioPinDigitalOutput pin12VTransformator;
 
+    /**
+     * Controls the first onboard relais (Which triggers 12V adapter for light &
+     * sound)
+     */
+    private GpioPinDigitalOutput pinLightAndSound;
+
+//<editor-fold defaultstate="collapsed" desc="setup pins">
     @PostConstruct
     private void setupPins() {
         try {
@@ -51,8 +57,8 @@ public class ShutterController {
             setupVisualAndAudioOutputs();
             setupOpenShutter();
             setupCloseShutter();
-            setupManualInputs();
-            
+            setup12VTransformator();
+
             raspberryInitialized = true;
             logger.info("Raspberry PI successful initialized!");
         } catch (UnsatisfiedLinkError e) {
@@ -70,63 +76,71 @@ public class ShutterController {
         logger.info("Shutdown bean- unprovision Raspberry PI pins!");
         gpioController.shutdown();
         gpioController.unprovisionPin(pinCloseMotor);
+        gpioController.unprovisionPin(pinOpenMotor);
+        gpioController.unprovisionPin(pin12VTransformator);
+        gpioController.unprovisionPin(pinLightAndSound);
     }
 
+    /**
+     * Setup for the 12V transformator.
+     */
     @RequiresRaspberry
-    private void setupManualInputs() {
-        pinManualDown = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_00, PinPullResistance.PULL_DOWN);
-        pinManualUp = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_01, PinPullResistance.PULL_DOWN);
-
-        // Add triggers to power on relay, if manual switch is triggered
-        pinManualDown.addTrigger(new GpioSetStateTrigger(PinState.HIGH, pinCloseMotor, PinState.LOW));
-        pinManualDown.addTrigger(new GpioSetStateTrigger(PinState.LOW, pinCloseMotor, PinState.HIGH));
-        pinManualUp.addTrigger(new GpioSetStateTrigger(PinState.HIGH, pinOpenMotor, PinState.LOW));
-        pinManualUp.addTrigger(new GpioSetStateTrigger(PinState.LOW, pinOpenMotor, PinState.HIGH));
-
-        // Add triggers for the siren and leds
-        pinManualDown.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinYellowLed, 250));
-        pinManualDown.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinSiren, 250));
-        pinManualDown.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinYellowLed));
-        pinManualDown.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinSiren));
-        
-        pinManualUp.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinBlueLed, 250));
-        pinManualUp.addTrigger(new GpioBlinkStateTrigger(PinState.HIGH, pinSiren, 250));
-        pinManualUp.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinBlueLed));
-        pinManualUp.addTrigger(new GpioBlinkStopStateTrigger(PinState.LOW, pinSiren));
+    private void setup12VTransformator() {
+        pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay #1, 12V transformator", PinState.HIGH);
+        pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
 
     @RequiresRaspberry
     private void setupVisualAndAudioOutputs() {
-        pinYellowLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_26, "Yellow-LED", PinState.LOW);
-        pinYellowLed.setShutdownOptions(true, PinState.LOW);
-
-        pinBlueLed = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_03, "Blue-LED", PinState.LOW);
-        pinBlueLed.setShutdownOptions(true, PinState.LOW);
-
-        pinSiren = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_07, "Siren", PinState.LOW);
-        pinSiren.setShutdownOptions(true, PinState.LOW);
+        pinLightAndSound = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay #2, Light and Sound", PinState.HIGH);
+        pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
 
     /**
-     * Initialize all required pins for the shutdown shutter functionality.
-     */
-    @RequiresRaspberry
-    private void setupCloseShutter() {
-        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay Channel 1", PinState.HIGH);
-        pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
-    }
-
-    /**
-     * Initialize all required pins for the shutdown shutter functionality.
+     * Initialize all required pins for the open shutter functionality.
      */
     @RequiresRaspberry
     private void setupOpenShutter() {
-        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay Channel 2", PinState.HIGH);
+        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_28, "Relay #3, Open motor", PinState.HIGH);
         pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
     }
 
     /**
+     * Initialize all required pins for the close shutter functionality.
+     */
+    @RequiresRaspberry
+    private void setupCloseShutter() {
+        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_29, "Relay #4, Close motor", PinState.HIGH);
+        pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
+    }
+
+//</editor-fold>
+    /**
+     * Triggers the opening logic, which powers the motor to open the shutters.
+     *
+     * @param ms the duration, how long the motor will get powered.
+     * @throws InterruptedException Dont wake me up!
+     */
+    @RequiresRaspberry
+    public void openShutter() throws InterruptedException {
+        logger.info("Open shutters triggered! Power on 12V transformator for light and sound warnings! Motors will be triggered in 10 seconds!");
+        
+        pin12VTransformator.low();
+
+        for (int i = 0; i < 5; i++) {
+            pinLightAndSound.low();
+            Thread.sleep(500);
+            pinLightAndSound.high();
+            Thread.sleep(500);
+        }
+
+        pin12VTransformator.high();
+        openShutter(15_000);
+    }
+
+    /**
      * Triggers the closing logic, which powers the motor to close the shutters.
+     * Including warn lights and warn sounds.
      *
      * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
@@ -135,14 +149,17 @@ public class ShutterController {
     public void closeShutter() throws InterruptedException {
         logger.info("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
 
+        pin12VTransformator.low();
+
         for (int i = 0; i < 5; i++) {
-            pinYellowLed.high();
+            pinLightAndSound.low();
             Thread.sleep(500);
-            pinYellowLed.low();
+            pinLightAndSound.high();
             Thread.sleep(500);
         }
 
-        closeShutter(10_000);
+        pin12VTransformator.high();
+        closeShutter(15_000);
     }
 
     /**
@@ -154,7 +171,7 @@ public class ShutterController {
      */
     @RequiresRaspberry
     public void closeShutter(int ms) throws InterruptedException {
-        logger.info("Triggering closing shutter. Give em power for {} milliseconds", ms);
+        logger.info("Trigger closing shutter motors. Give em power for {} milliseconds", ms);
         pinCloseMotor.low();
         Thread.sleep(ms);
         pinCloseMotor.high();
@@ -171,32 +188,12 @@ public class ShutterController {
      */
     @RequiresRaspberry
     public void openShutter(int ms) throws InterruptedException {
-        logger.info("Triggering custom opening shutter. Give em power for {} milliseconds", ms);
+        logger.info("Trigger opening shutter motors. Give em power for {} milliseconds", ms);
         pinOpenMotor.low();
         Thread.sleep(ms);
         pinOpenMotor.high();
 
         logger.info("Open shutter process done.");
-    }
-
-    /**
-     * Triggers the opening logic, which powers the motor to open the shutters.
-     *
-     * @param ms the duration, how long the motor will get powered.
-     * @throws InterruptedException Dont wake me up!
-     */
-    @RequiresRaspberry
-    public void openShutter() throws InterruptedException {
-        logger.info("Open shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
-
-        for (int i = 0; i < 5; i++) {
-            pinBlueLed.high();
-            Thread.sleep(500);
-            pinBlueLed.low();
-            Thread.sleep(500);
-        }
-
-        openShutter(10_000);
     }
 
 }
