@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,12 +36,18 @@ public class DashboardController {
 
     @Autowired
     private ShutterController shutterController;
+    
+    @Autowired
+    private BuildProperties buildProperties;
 
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
     public String renderDashboard(Model model) {
 
         String username = securityService.getUsernameOfCurrentUser();
-        model.addAttribute("username", username);
+        model.addAttribute("your-username", username);
+        
+        logger.info("v: {}", buildProperties.getVersion());
+        model.addAttribute("maven-version", buildProperties.getVersion());
 
         model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 500));
         return "dashboard";
