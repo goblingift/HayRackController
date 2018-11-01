@@ -36,6 +36,8 @@ public class ShutterController {
 
     private GpioPinDigitalOutput pinCloseMotor;
     private GpioPinDigitalOutput pinOpenMotor;
+    
+    private static final int OPENING_CLOSING_TIME_MS = 30_000;
 
     /**
      * Pin for the 230V to 12V transformator
@@ -135,7 +137,7 @@ public class ShutterController {
         }
 
         pin12VTransformator.high();
-        openShutter(15_000);
+        openShutter(OPENING_CLOSING_TIME_MS);
     }
 
     /**
@@ -159,7 +161,7 @@ public class ShutterController {
         }
 
         pin12VTransformator.high();
-        closeShutter(15_000);
+        closeShutter(OPENING_CLOSING_TIME_MS);
     }
 
     /**
