@@ -23,7 +23,14 @@
         <title>HayRack dashboard</title>
     </head>
     <body>
-        <h3>Welcome ${username} to your dashboard!</h3>
+        <div>
+            <p>
+                <h3>Welcome ${username} to your dashboard!</h3>  
+            </p>
+            <p>
+                ${build_artifact}, version ${build_version} built at ${build_time}
+            </p>
+        </div>
 
         <div>
             <a class="btn btn-default" href="/dashboard/shutters-up">Shutters up</a>
