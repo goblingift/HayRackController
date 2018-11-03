@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Spring Boot Thymeleaf Hello World Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" type="text/css"
+              href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+
+    </head>
+    <body>
+
+        <form method="POST" action="th:@{/login}" class="form-signin">
+            <h2 class="form-heading">Log in</h2>
+
+            <div class="form-group ${error != null ? 'has-error' : ''}">
+                <input name="username" type="text" class="form-control" placeholder="Username"
+                       autofocus="true"/>
+                <input name="password" type="password" class="form-control" placeholder="Password"/>
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
+                <h4 class="text-center"><a href="@{/}/registration">Create an account</a></h4>
+            </div>
+
+        </form>
+        <script type="text/javascript"
+        src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    </body>
+</html>
