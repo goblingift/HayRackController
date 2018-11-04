@@ -12,6 +12,8 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.io.gpio.trigger.GpioBlinkStateTrigger;
 import com.pi4j.io.gpio.trigger.GpioBlinkStopStateTrigger;
 import com.pi4j.io.gpio.trigger.GpioSetStateTrigger;
@@ -36,7 +38,7 @@ public class ShutterController {
 
     private GpioPinDigitalOutput pinCloseMotor;
     private GpioPinDigitalOutput pinOpenMotor;
-    
+
     private static final int OPENING_CLOSING_TIME_MS = 30_000;
 
     /**
@@ -105,6 +107,12 @@ public class ShutterController {
     private void setupOpenShutter() {
         pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_28, "Relay #3, Open motor", PinState.HIGH);
         pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
+        pinOpenMotor.addListener(new GpioPinListenerDigital()  {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                logger.info("Changed pinstate of pin# {} to state: {}", event.getPin().getName(), event.getState().getValue());
+            }
+        });
     }
 
     /**
@@ -114,6 +122,12 @@ public class ShutterController {
     private void setupCloseShutter() {
         pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_29, "Relay #4, Close motor", PinState.HIGH);
         pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
+        pinCloseMotor.addListener(new GpioPinListenerDigital()  {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                logger.info("Changed pinstate of pin# {} to state: {}", event.getPin().getName(), event.getState().getValue());
+            }
+        });
     }
 
 //</editor-fold>
@@ -125,8 +139,9 @@ public class ShutterController {
      */
     @RequiresRaspberry
     public void openShutter() throws InterruptedException {
-        logger.info("Open shutters triggered! Power on 12V transformator for light and sound warnings! Motors will be triggered in 10 seconds!");
-        
+        logger.info("Open shutters triggered! Power on 12V transformator for light and sound warnings! Motors will be triggered immediately!");
+
+        // power on 12v transformator
         pin12VTransformator.low();
 
         for (int i = 0; i < 5; i++) {
@@ -135,9 +150,12 @@ public class ShutterController {
             pinLightAndSound.high();
             Thread.sleep(500);
         }
-
-        pin12VTransformator.high();
+        
+        // trigger shutter motors after the sound and lights was played
         openShutter(OPENING_CLOSING_TIME_MS);
+
+        // power off 12v transformator
+        pin12VTransformator.high();
     }
 
     /**
@@ -149,19 +167,29 @@ public class ShutterController {
      */
     @RequiresRaspberry
     public void closeShutter() throws InterruptedException {
-        logger.info("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights on!");
+        logger.info("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights & sounds will be activated!");
 
+        // power on 12v transformator
         pin12VTransformator.low();
 
-        for (int i = 0; i < 5; i++) {
+        // trigger shutter motors to the same time as the sound and lights
+        closeShutter(OPENING_CLOSING_TIME_MS);
+
+        for (int i = 0; i < (OPENING_CLOSING_TIME_MS / 1000 / 2); i++) {
             pinLightAndSound.low();
             Thread.sleep(500);
             pinLightAndSound.high();
             Thread.sleep(500);
+
+            pinLightAndSound.low();
+            Thread.sleep(150);
+            pinLightAndSound.high();
+            Thread.sleep(150);
         }
 
+        // power off 12v transformator
         pin12VTransformator.high();
-        closeShutter(OPENING_CLOSING_TIME_MS);
+
     }
 
     /**
@@ -174,11 +202,8 @@ public class ShutterController {
     @RequiresRaspberry
     public void closeShutter(int ms) throws InterruptedException {
         logger.info("Trigger closing shutter motors. Give em power for {} milliseconds", ms);
-        pinCloseMotor.low();
-        Thread.sleep(ms);
-        pinCloseMotor.high();
-
-        logger.info("Close shutter process done.");
+        
+        pinCloseMotor.pulse(ms, PinState.LOW);
     }
 
     /**
@@ -191,11 +216,8 @@ public class ShutterController {
     @RequiresRaspberry
     public void openShutter(int ms) throws InterruptedException {
         logger.info("Trigger opening shutter motors. Give em power for {} milliseconds", ms);
-        pinOpenMotor.low();
-        Thread.sleep(ms);
-        pinOpenMotor.high();
-
-        logger.info("Open shutter process done.");
+        
+        pinOpenMotor.pulse(ms, PinState.LOW);
     }
 
 }
