@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Spring Boot Thymeleaf Hello World Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" type="text/css"
+              href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <script type="text/javascript"
+        src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+
+        <div class="container">
+
+            <h3 th:text="#{timetable.header}"></h3>
+            <!--Table-->
+            <table id="scheduled-timings" class="table">
+                <!--Table head-->
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th th:text="#{timetable.openAt}"></th>
+                        <th th:text="#{timetable.duration}"></th>
+                        <th th:text="#{timetable.comment}"></th>
+                        <th th:text="#{timetable.createdAt}"></th>
+                        <th th:text="#{timetable.createdBy}"></th>
+                    </tr>
+                </thead>
+                <!-- Existing scheduled timings -->
+                <tbody>
+
+
+                    <div th:each="actObject,iterStat : ${scheduledMovements}">
+                        <tr>
+                            <th th:text="${iterStat.index + 1}" />
+                            <td th:text="${actObject.feedingStartTime}" />
+                            <td th:text="${actObject.feedingDuration}" />
+                            <td th:text="${actObject.comment}" />
+                            <td th:text="${actObject.createdAt}" />
+                            <td th:text="${actObject.createdBy}" />
+                            <td>
+                                <a class="btn btn-default" th:href="@{'/timetable/delete/' + ${actObject.id}}" th:text="#{timetable.delete}"></a></td>
+                                
+                        </tr>
+                    </div> 
+
+                    <!-- Inputs for new scheduled timings -->
+
+                    <form th:action="@{/timetable/add}" th:object="${newMovement}" method="POST">
+                        <tr>
+                            <th scope="row" th:text="#{timetable.addNew}"></th>
+                            <td><input type="text" th:field="*{feedingStartTime}"/></td>
+                            <td><input type="text" th:field="*{feedingDuration}"/></td>
+                            <td><input type="text" th:field="*{comment}"/></td>
+                            <td></td>
+                            <td></td>
+                            <td><input type="submit" th:value="#{timetable.add}"/></td>
+                        </tr>
+                    </form>
+                </tbody>
+                <!--Table body-->
+            </table>
+            <!--Table-->
+
+
+        </div>
+    </body>
+</html>
