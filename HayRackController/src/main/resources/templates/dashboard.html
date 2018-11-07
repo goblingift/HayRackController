@@ -1,0 +1,68 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Spring Boot Thymeleaf Hello World Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+        <link rel="stylesheet" type="text/css"
+              href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <script type="text/javascript"
+        src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+
+        <div>
+            <p style="font-size: large;">
+                <a th:text="#{dashboard.welcome_1}" />
+                <a th:text="${username}" />
+                <a th:text="#{dashboard.welcome_2}" />
+            </p>
+        </div>
+
+        <div>
+            <p style="font-size: smaller;">
+                <a th:text="${build_artifact}" />
+                <a th:text="${build_version}" />
+            </p>
+        </div>
+
+        <div>
+            <p>
+                <a class="btn btn-default" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
+            </p>
+        </div>
+
+        <div>
+            <p>
+                <a class="btn btn-default" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
+            </p>
+        </div>
+
+        <br>
+            <br>
+
+                <form th:action="@{/dashboard/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
+                    <table>
+                        <tr>
+                            <td>
+                                <label>
+                                    <span th:text="#{dashboard.duration}" />
+                                    <input type="text" th:field="*{duration}" th:value="500" />
+                                </label>
+                        </tr>
+                        <tr>
+                            <input type="radio" th:field = "*{direction}" th:value = "UP" th:text="#{dashboard.up}" />
+                            <input type="radio" th:field = "*{direction}" th:value = "DOWN" th:text="#{dashboard.down}" />
+                        </tr>
+                        <tr>
+                            <td><input type="submit" th:value="#{dashboard.manual_shutter_submit}"/></td>
+                        </tr>
+                    </table>
+                </form>
+
+                <div>
+                    <a class="btn btn-default" href="/timetable" th:text="#{dashboard.timetable}" />
+                </div>
+
+                </body>
+                </html>
