@@ -9,62 +9,87 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
+
     </head>
     <body>
 
-        <div class="container">
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item ">
+                    <a class="nav-link" th:href="@{/dashboard}">
+                        <i class="fas fa-home fa-2x"></i>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{/timetable}">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}">
+                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-            <h3 th:text="#{timetable.header}"></h3>
-            <!--Table-->
-            <table id="scheduled-timings" class="table">
-                <!--Table head-->
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th th:text="#{timetable.openAt}"></th>
-                        <th th:text="#{timetable.duration}"></th>
-                        <th th:text="#{timetable.comment}"></th>
-                        <th th:text="#{timetable.createdAt}"></th>
-                        <th th:text="#{timetable.createdBy}"></th>
-                    </tr>
-                </thead>
-                <!-- Existing scheduled timings -->
-                <tbody>
+
+        <div class="container" style="margin-top: 100px;">
 
 
-                    <div th:each="actObject,iterStat : ${scheduledMovements}">
+            <h2 th:text="#{timetable.header}"></h2>
+            <p th:text="#{timetable.subheader}"></p>
+            <div class="table-responsive">
+                <table id="scheduled-timings" class="table table-striped">
+                    <!--Table head-->
+                    <thead>
                         <tr>
-                            <th th:text="${iterStat.index + 1}" />
-                            <td th:text="${actObject.feedingStartTime}" />
-                            <td th:text="${actObject.feedingDuration}" />
-                            <td th:text="${actObject.comment}" />
-                            <td th:text="${actObject.createdAt}" />
-                            <td th:text="${actObject.createdBy}" />
-                            <td>
-                                <a class="btn btn-default" th:href="@{'/timetable/delete/' + ${actObject.id}}" th:text="#{timetable.delete}"></a></td>
-
+                            <th>#</th>
+                            <th th:text="#{timetable.openAt}"></th>
+                            <th th:text="#{timetable.duration}"></th>
+                            <th th:text="#{timetable.comment}"></th>
+                            <th th:text="#{timetable.createdAt}"></th>
+                            <th th:text="#{timetable.createdBy}"></th>
                         </tr>
-                    </div> 
+                    </thead>
+                    <!-- Existing scheduled timings -->
+                    <tbody>
+                        <div th:each="actObject,iterStat : ${scheduledMovements}">
+                            <tr>
+                                <th th:text="${iterStat.index + 1}" />
+                                <td th:text="${actObject.feedingStartTime}" />
+                                <td th:text="${actObject.feedingDuration}" />
+                                <td th:text="${actObject.comment}" />
+                                <td th:text="${actObject.createdAt}" />
+                                <td th:text="${actObject.createdBy}" />
+                                <td>
+                                    <a class="btn btn-default" th:href="@{'/timetable/delete/' + ${actObject.id}}" th:text="#{timetable.delete}"></a>
+                                </td>
 
-                    <!-- Inputs for new scheduled timings -->
+                            </tr>
+                        </div> 
 
-                    <form th:action="@{/timetable/add}" th:object="${newMovement}" method="POST">
-                        <tr>
-                            <th scope="row" th:text="#{timetable.addNew}"></th>
-                            <td><input type="text" th:field="*{feedingStartTime}"/></td>
-                            <td><input type="text" th:field="*{feedingDuration}"/></td>
-                            <td><input type="text" th:field="*{comment}"/></td>
-                            <td></td>
-                            <td></td>
-                            <td><input type="submit" th:value="#{timetable.add}"/></td>
-                        </tr>
-                    </form>
-                </tbody>
-                <!--Table body-->
-            </table>
-            <!--Table-->
+                        <!-- Inputs for new scheduled timings -->
 
-
+                        <form th:action="@{/timetable/add}" th:object="${newMovement}" method="POST">
+                            <tr>
+                                <th scope="row" th:text="#{timetable.addNew}"></th>
+                                <td><input type="text" th:field="*{feedingStartTime}"/></td>
+                                <td><input type="text" th:field="*{feedingDuration}"/></td>
+                                <td><input type="text" th:field="*{comment}"/></td>
+                                <td></td>
+                                <td></td>
+                                <td><input type="submit" th:value="#{timetable.add}"/></td>
+                            </tr>
+                        </form>
+                    </tbody>
+                    <!--Table body-->
+                </table>
+                <!--Table-->
+            </div>
         </div>
     </body>
 </html>

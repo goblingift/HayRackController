@@ -8,9 +8,21 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
         
     </head>
     <body>
+
+        
+        <div th:if="${#httpServletRequest.getParameter('logout')}" class="alert alert-primary alert-dismissible fade show"
+             role="alert" th:unless="${#httpServletRequest.getParameter('logout') == null}">
+            
+            <strong th:text="#{navbar.logout}"></strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
         <form th:action="@{/login}" method="POST" class="form-signin">
 
