@@ -3,66 +3,108 @@
         <title>Spring Boot Thymeleaf Hello World Example</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-        <link rel="stylesheet" type="text/css"
-              href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <script type="text/javascript"
-        src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- CSS and JS includes -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
 
     </head>
     <body>
 
-        <div>
-            <p style="font-size: large;">
-                <a th:text="#{dashboard.welcome_1}" />
-                <a th:text="${username}" />
-                <a th:text="#{dashboard.welcome_2}" />
-            </p>
-        </div>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{/dashboard}">
+                        <i class="fas fa-home fa-2x"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/timetable}">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}">
+                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-        <div>
-            <p style="font-size: smaller;">
-                <a th:text="${build_artifact}" />
-                <a th:text="${build_version}" />
-            </p>
-        </div>
+        <div class="container" style="margin-top: 100px;">
 
-        <div>
-            <p>
-                <a class="btn btn-default" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
-            </p>
-        </div>
+            <div th:if="${success_message != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
+                <strong th:text="#{${success_message}}"></strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-        <div>
-            <p>
-                <a class="btn btn-default" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
-            </p>
-        </div>
+            <div th:if="${error_message != null}" class="alert alert-dark alert-dismissible fade show" role="alert">
+                <p><strong th:text="#{${error_message}}"></strong></p>
+                <p><strong th:text="#{error_message_cause}"></strong></p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
-        <br>
+            <div>
+                <p style="font-size: large;">
+                    <a th:text="#{dashboard.welcome_1}" />
+                    <a th:text="${username}" />
+                    <a th:text="#{dashboard.welcome_2}" />
+                </p>
+            </div>
+
+            <div>
+                <p style="font-size: smaller;">
+                    <a th:text="${build_artifact}" />
+                    <a th:text="${build_version}" />
+                </p>
+            </div>
+
+            <div>
+                <p>
+                    <a class="btn btn-default" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
+                </p>
+            </div>
+
+            <div>
+                <p>
+                    <a class="btn btn-default" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
+                </p>
+            </div>
+
             <br>
+                <br>
 
-                <form th:action="@{/dashboard/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
-                    <table>
-                        <tr>
-                            <td>
-                                <label>
-                                    <span th:text="#{dashboard.duration}" />
-                                    <input type="text" th:field="*{duration}" th:value="500" />
-                                </label>
-                        </tr>
-                        <tr>
-                            <input type="radio" th:field = "*{direction}" th:value = "UP" th:text="#{dashboard.up}" />
-                            <input type="radio" th:field = "*{direction}" th:value = "DOWN" th:text="#{dashboard.down}" />
-                        </tr>
-                        <tr>
-                            <td><input type="submit" th:value="#{dashboard.manual_shutter_submit}"/></td>
-                        </tr>
-                    </table>
-                </form>
+                    <form th:action="@{/dashboard/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
+                        <table>
+                            <tr>
+                                <td>
+                                    <label>
+                                        <span th:text="#{dashboard.duration}" />
+                                        <input type="text" th:field="*{duration}" th:value="500" />
+                                    </label>
+                            </tr>
+                            <tr>
+                                <input type="radio" th:field = "*{direction}" th:value = "UP" th:text="#{dashboard.up}" />
+                                <input type="radio" th:field = "*{direction}" th:value = "DOWN" th:text="#{dashboard.down}" />
+                            </tr>
+                            <tr>
+                                <td><input type="submit" th:value="#{dashboard.manual_shutter_submit}"/></td>
+                            </tr>
+                        </table>
+                    </form>
 
-                <div>
-                    <a class="btn btn-default" href="/timetable" th:text="#{dashboard.timetable}" />
-                </div>
-
-                </body>
-                </html>
+                    <div>
+                        <a class="btn btn-default" href="/timetable" th:text="#{dashboard.timetable}" />
+                    </div>
+                    </div>
+                    </body>
+                    </html>

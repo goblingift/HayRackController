@@ -1,31 +1,47 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head>
         <title>Spring Boot Thymeleaf Hello World Example</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta charset="utf-8" />
 
-        <link rel="stylesheet" type="text/css"
-              href="webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <script type="text/javascript"
-        src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- CSS and JS includes -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
+        
     </head>
     <body>
+
+        
+        <div th:if="${#httpServletRequest.getParameter('logout')}" class="alert alert-primary alert-dismissible fade show"
+             role="alert" th:unless="${#httpServletRequest.getParameter('logout') == null}">
+            
+            <strong th:text="#{navbar.logout}"></strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
         <form th:action="@{/login}" method="POST" class="form-signin">
 
             <h3 class="form-heading" th:text="#{login.welcome_message}"></h3>
-            
+
             <div class="form-group ${error != null ? 'has-error' : ''}">
-                
+
                 <input name="username" type="text" class="form-control" th:placeholder="#{login.username}"/>
                 <input name="password" type="password" class="form-control" placeholder="Password"/>
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
                 <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="#{login.submit}"></button>
             </div>
-            
+
             <p th:text="${build_artifact} + ${build_version}" />
 
         </form>
+
+        <script src="../static/js/bootstrap.js" th:href="@{/js/bootstrap.js}"></script>
+
     </body>
 </html>

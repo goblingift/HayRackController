@@ -78,8 +78,11 @@ public class DashboardController {
 
         try {
             shutterController.openShutter();
-        } catch (InterruptedException ex) {
-            logger.warn("Exception thrown while opening shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterUp.success");
+        } catch (Exception e) {
+            logger.warn("Exception thrown while opening shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterUp.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
@@ -98,8 +101,11 @@ public class DashboardController {
 
         try {
             shutterController.closeShutter();
-        } catch (InterruptedException ex) {
-            logger.warn("Exception thrown while closing shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterDown.success");
+        } catch (Exception e) {
+            logger.warn("Exception thrown while closing shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterDown.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
@@ -126,8 +132,11 @@ public class DashboardController {
             } else if (shutterMovement.directionIsUp()) {
                 shutterController.openShutter(shutterMovement.getDuration());
             }
-        } catch (InterruptedException ex) {
-            logger.error("Exception thrown while manually trigger the shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterCustom.success");
+        } catch (Exception e) {
+            logger.error("Exception thrown while manually trigger the shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterCustom.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
