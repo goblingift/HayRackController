@@ -5,24 +5,31 @@
  */
 package gift.goblin.HayRackController.controller;
 
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.ds.fswebcam.FsWebcamDriver;
 import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.logging.Level;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controller which offers endpoints for all actions regarding the user
@@ -140,6 +147,41 @@ public class DashboardController {
         }
 
         return renderDashboard(model);
+    }
+
+    @GetMapping(
+            value = "/dashboard/webcam/webcam-one",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public @ResponseBody
+    byte[] getImageWithMediaType() throws IOException {
+
+        try {
+            Webcam.setDriver(new FsWebcamDriver());
+            Webcam webcam = Webcam.getDefault();
+
+            Dimension[] viewSizes = webcam.getViewSizes();
+
+            String sizes = Arrays.toString(viewSizes);
+            System.out.println("Available sizes: " + sizes);
+
+            Dimension fullHd = new Dimension(640, 480);
+            webcam.setViewSize(fullHd);
+
+            webcam.open();
+            BufferedImage image = webcam.getImage();
+
+//            ByteBuffer imageBytes = webcam.getImageBytes();
+
+            ImageIO.write(image, "PNG", new File("hello-world2.png"));
+            webcam.close();
+
+            return null;
+        } catch (Exception e) {
+            System.out.println("Exception while testing webcam!");
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
 }
