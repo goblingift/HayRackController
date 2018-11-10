@@ -5,19 +5,13 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.ds.fswebcam.FsWebcamDriver;
 import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.WebcamController;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +21,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -49,6 +43,9 @@ public class DashboardController {
     private ShutterController shutterController;
 
     @Autowired
+    private WebcamController webcamController;
+
+    @Autowired
     private BuildProperties buildProperties;
 
     /**
@@ -57,7 +54,7 @@ public class DashboardController {
      * @param model model with the used attributes in the view.
      * @return name of the view.
      */
-    @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard")
     public String renderDashboard(Model model) {
 
         String username = securityService.getUsernameOfCurrentUser();
@@ -78,7 +75,7 @@ public class DashboardController {
      * @param model
      * @return name of the view which should be rendered afterwards.
      */
-    @RequestMapping(value = "/dashboard/shutters-up", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard/shutters-up")
     public String shuttersUp(Model model) {
 
         logger.info("Manually triggered shutters down.");
@@ -101,7 +98,7 @@ public class DashboardController {
      * @param model
      * @return name of the view which should be rendered afterwards.
      */
-    @RequestMapping(value = "/dashboard/shutters-down", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard/shutters-down")
     public String shuttersDown(Model model) {
 
         logger.info("Manually triggered shutters down.");
@@ -127,7 +124,7 @@ public class DashboardController {
      * @param model
      * @return name of the view.
      */
-    @RequestMapping(value = "/dashboard/shutters-move-custom", method = RequestMethod.POST)
+    @PostMapping(value = "/dashboard/shutters-move-custom")
     public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
             Model model) {
 
@@ -150,38 +147,19 @@ public class DashboardController {
     }
 
     @GetMapping(
-            value = "/dashboard/webcam/webcam-one",
+            value = "/dashboard/webcam/webcam-{camNumber}/sd",
             produces = MediaType.IMAGE_JPEG_VALUE
     )
-    public @ResponseBody
-    byte[] getImageWithMediaType() throws IOException {
+    public @ResponseBody byte[] getWebcamPictureSD(@PathVariable int camNumber) throws IOException {
+        return webcamController.takePicture(camNumber, false);
+    }
 
-        try {
-            Webcam.setDriver(new FsWebcamDriver());
-            Webcam webcam = Webcam.getDefault();
-
-            Dimension[] viewSizes = webcam.getViewSizes();
-
-            String sizes = Arrays.toString(viewSizes);
-            System.out.println("Available sizes: " + sizes);
-
-            Dimension fullHd = new Dimension(640, 480);
-            webcam.setViewSize(fullHd);
-
-            webcam.open();
-            BufferedImage image = webcam.getImage();
-
-//            ByteBuffer imageBytes = webcam.getImageBytes();
-
-            ImageIO.write(image, "PNG", new File("hello-world2.png"));
-            webcam.close();
-
-            return null;
-        } catch (Exception e) {
-            System.out.println("Exception while testing webcam!");
-            System.out.println(e.getMessage());
-            return null;
-        }
+    @GetMapping(
+            value = "/dashboard/webcam/webcam-{camNumber}/hd",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public @ResponseBody byte[] getWebcamPictureHD(@PathVariable int camNumber) throws IOException {
+        return webcamController.takePicture(camNumber, true);
     }
 
 }
