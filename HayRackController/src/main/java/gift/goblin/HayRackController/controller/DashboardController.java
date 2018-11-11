@@ -66,6 +66,7 @@ public class DashboardController {
 
         model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 1_000));
 
+        model.addAttribute("webcam_count", webcamController.getWebcamCount());
         return "dashboard";
     }
 

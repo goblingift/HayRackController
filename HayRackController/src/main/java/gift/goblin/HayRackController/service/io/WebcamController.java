@@ -77,7 +77,8 @@ public class WebcamController {
     public byte[] takePicture(int camNumber, boolean resolutionHd) {
 
         try {
-            Webcam webcam = webcams.get(camNumber);
+            // subtract 1, cause lists are zero based
+            Webcam webcam = webcams.get(camNumber - 1);
             
             webcam.open();
             
@@ -87,7 +88,7 @@ public class WebcamController {
             ImageIO.write(image, "jpg", baos);
             baos.flush();
             byte[] imageInByte = baos.toByteArray();
-            logger.info("Successful took picture on cam {} - result size: ", camNumber, imageInByte.length);
+            logger.info("Successful took picture on cam {} - result size: {}", camNumber, imageInByte.length);
             baos.close();
             
             webcam.close();

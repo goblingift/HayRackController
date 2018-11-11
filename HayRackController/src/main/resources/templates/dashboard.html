@@ -26,6 +26,13 @@
                         <i class="fas fa-clipboard-list fa-2x"></i>
                     </a>
                 </li>
+
+                <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
+                    <a class="nav-link" th:href="@{${'/dashboard/webcam/webcam-' + i + '/hd'}}">
+                        <i class="fas fa-camera fa-2x"></i>
+                    </a>    
+                </li>
+
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
@@ -68,11 +75,18 @@
                 </p>
             </div>
 
-            <div>
-                <p>
-                    <a class="btn btn-default" href="/dashboard/webcam/webcam-1/sd" >Cam 1 SD</a>
-                </p>
+            <div th:each="i : ${#numbers.sequence( 1, webcam_count)}">
+                <div>
+                    <p>
+                        <a class="btn btn-default" th:href="@{${'/dashboard/webcam/webcam-' + i + '/sd'}}">link</a>
+                    </p>
+                    <p>
+                        <img th:src="@{${'/dashboard/webcam/webcam-' + i + '/sd'}}" title="webcam_img" />
+                    </p>
+                </div>
             </div>
+
+
             <div>
                 <p>
                     <a class="btn btn-default" href="/dashboard/webcam/webcam-1/hd" >Cam 1 HD</a>
@@ -113,9 +127,6 @@
                         </table>
                     </form>
 
-                    <div>
-                        <a class="btn btn-default" href="/timetable" th:text="#{dashboard.timetable}" />
-                    </div>
                     </div>
                     </body>
                     </html>
