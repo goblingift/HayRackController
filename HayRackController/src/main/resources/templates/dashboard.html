@@ -1,15 +1,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Spring Boot Thymeleaf Hello World Example</title>
+        <title>Hayrack</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-        <!-- CSS and JS includes -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+        <!-- CSS and JS includes -->
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
+        <link href="../static/css/custom.css" th:href="@{/css/custom.css}" rel="stylesheet" />
+        <link href="../static/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" />
+        <link href="../static/css/awesome-bootstrap-checkbox.css" th:href="@{/css/awesome-bootstrap-checkbox.css}" rel="stylesheet" />
+        <script src="../static/js/bootstrap.js" th:src="@{/js/bootstrap.js}"></script>
+        <script src="../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
 
     </head>
     <body>
@@ -32,8 +33,15 @@
                         <i class="fas fa-camera fa-2x"></i>
                     </a>    
                 </li>
-
             </ul>
+
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="light-grey-color" th:text="${build_version}" />
+                    <a class="light-grey-color" th:text="${build_artifact}" />
+                </li>
+            </ul>
+
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
@@ -68,40 +76,67 @@
                 </p>
             </div>
 
-            <div>
-                <p style="font-size: smaller;">
-                    <a th:text="${build_artifact}" />
-                    <a th:text="${build_version}" />
-                </p>
-            </div>
-
             <div th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                 <div>
                     <p>
-                        <a class="btn btn-default" th:href="@{${'/dashboard/webcam/webcam-' + i + '/sd'}}">link</a>
+                        <a th:text="${'Webcam ' + i}" />
                     </p>
                     <p>
-                        <img th:src="@{${'/dashboard/webcam/webcam-' + i + '/sd'}}" title="webcam_img" />
+                        <img th:id="${'webcam-prev-' + i}" th:title="${'Webcam ' + i}" />
+                        <i th:id="${'webcam-prev-icon-stop-' + i}" class="fas fa-stop-circle fa-2x"></i>
+                        <i th:id="${'webcam-prev-icon-play-' + i}" class="fas fa-play-circle fa-2x"></i>
+                    </p>
+                    <p>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" th:id="${'webcam-switch-' + i}">
+                                <label class="custom-control-label" th:for="${'webcam-switch-' + i}" th:text="#{dashboard.cam_refresh}"></label>
+                        </div>
                     </p>
                 </div>
-            </div>
+                <script th:inline="javascript">
+                    
+                    $("#webcam-prev-icon-play-" + [[${i}]]).hide();
+                    $("#webcam-prev-" + [[${i}]]).hide();
 
+                    $("#webcam-switch-" + [[${i}]]).change(function(){
+                        var checked = $(this).is(':checked');
+                        console.log(checked);
+                        
+                        if(checked) {
+                            $("#webcam-prev-icon-stop-" + [[${i}]]).hide();
+                            $("#webcam-prev-icon-play-" + [[${i}]]).show();
+                            $("#webcam-prev-" + [[${i}]]).show();
+                        } else {
+                            $("#webcam-prev-icon-stop-" + [[${i}]]).show();
+                            $("#webcam-prev-icon-play-" + [[${i}]]).hide();
+                            $("#webcam-prev-" + [[${i}]]).hide();
+                        }
+                    });
+                    
+                    
+                    window.setInterval(function () {
+                        
+                        var checkBoxChecked = $("#webcam-switch-" + [[${i}]]).is(':checked');
+                        
+                        if(checkBoxChecked) {
+                            
+                            var d = new Date();
+                            $("#webcam-prev-" + [[${i}]]).attr("src", "/dashboard/webcam/webcam-" + [[${i}]] + "/sd?t=" + d.getTime());
+                        }
+                    }, 2000);
+                </script>
+
+            </div>
 
             <div>
                 <p>
-                    <a class="btn btn-default" href="/dashboard/webcam/webcam-1/hd" >Cam 1 HD</a>
+                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
                 </p>
             </div>
 
             <div>
                 <p>
-                    <a class="btn btn-default" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
-                </p>
-            </div>
-
-            <div>
-                <p>
-                    <a class="btn btn-default" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
+                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
                 </p>
             </div>
 
