@@ -6,23 +6,24 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.WebcamController;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controller which offers endpoints for all actions regarding the user
@@ -42,6 +43,9 @@ public class DashboardController {
     private ShutterController shutterController;
 
     @Autowired
+    private WebcamController webcamController;
+
+    @Autowired
     private BuildProperties buildProperties;
 
     /**
@@ -50,7 +54,7 @@ public class DashboardController {
      * @param model model with the used attributes in the view.
      * @return name of the view.
      */
-    @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard")
     public String renderDashboard(Model model) {
 
         String username = securityService.getUsernameOfCurrentUser();
@@ -62,6 +66,7 @@ public class DashboardController {
 
         model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 1_000));
 
+        model.addAttribute("webcam_count", webcamController.getWebcamCount());
         return "dashboard";
     }
 
@@ -71,15 +76,18 @@ public class DashboardController {
      * @param model
      * @return name of the view which should be rendered afterwards.
      */
-    @RequestMapping(value = "/dashboard/shutters-up", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard/shutters-up")
     public String shuttersUp(Model model) {
 
         logger.info("Manually triggered shutters down.");
 
         try {
             shutterController.openShutter();
-        } catch (InterruptedException ex) {
-            logger.warn("Exception thrown while opening shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterUp.success");
+        } catch (Exception e) {
+            logger.warn("Exception thrown while opening shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterUp.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
@@ -91,15 +99,18 @@ public class DashboardController {
      * @param model
      * @return name of the view which should be rendered afterwards.
      */
-    @RequestMapping(value = "/dashboard/shutters-down", method = RequestMethod.GET)
+    @GetMapping(value = "/dashboard/shutters-down")
     public String shuttersDown(Model model) {
 
         logger.info("Manually triggered shutters down.");
 
         try {
             shutterController.closeShutter();
-        } catch (InterruptedException ex) {
-            logger.warn("Exception thrown while closing shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterDown.success");
+        } catch (Exception e) {
+            logger.warn("Exception thrown while closing shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterDown.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
@@ -114,7 +125,7 @@ public class DashboardController {
      * @param model
      * @return name of the view.
      */
-    @RequestMapping(value = "/dashboard/shutters-move-custom", method = RequestMethod.POST)
+    @PostMapping(value = "/dashboard/shutters-move-custom")
     public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
             Model model) {
 
@@ -126,11 +137,30 @@ public class DashboardController {
             } else if (shutterMovement.directionIsUp()) {
                 shutterController.openShutter(shutterMovement.getDuration());
             }
-        } catch (InterruptedException ex) {
-            logger.error("Exception thrown while manually trigger the shutters!", ex);
+            model.addAttribute("success_message", "dashboard.shutterCustom.success");
+        } catch (Exception e) {
+            logger.error("Exception thrown while manually trigger the shutters!", e);
+            model.addAttribute("error_message", "dashboard.shutterCustom.error");
+            model.addAttribute("error_message_cause", e.getCause().getMessage());
         }
 
         return renderDashboard(model);
+    }
+
+    @GetMapping(
+            value = "/dashboard/webcam/webcam-{camNumber}/sd",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public @ResponseBody byte[] getWebcamPictureSD(@PathVariable int camNumber) throws IOException {
+        return webcamController.takePicture(camNumber, false);
+    }
+
+    @GetMapping(
+            value = "/dashboard/webcam/webcam-{camNumber}/hd",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public @ResponseBody byte[] getWebcamPictureHD(@PathVariable int camNumber) throws IOException {
+        return webcamController.takePicture(camNumber, true);
     }
 
 }

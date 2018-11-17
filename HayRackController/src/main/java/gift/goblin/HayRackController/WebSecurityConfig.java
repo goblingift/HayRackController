@@ -14,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -41,7 +43,7 @@ import org.springframework.security.web.RedirectStrategy;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-    
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -51,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeRequests()
-                .antMatchers("/resources/**", "/registration", "/console/**").permitAll()
+                .antMatchers("/resources/**", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -74,9 +76,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             Authentication authentication) throws IOException {
 
         String redirectAfterLoginUrl = getRedirectAfterLoginUrl(authentication);
-        
+
         logger.info("Login successful, redirect user to: {}", redirectAfterLoginUrl);
-        
+
         redirectStrategy.sendRedirect(request, response, redirectAfterLoginUrl);
     }
 

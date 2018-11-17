@@ -9,7 +9,10 @@ import gift.goblin.HayRackController.database.security.model.User;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.service.security.UserService;
 import gift.goblin.HayRackController.service.validator.LoginValidator;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Controller which offers endpoints for registration and login.
+ *
  * @author andre
  */
 @Controller
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -31,6 +36,9 @@ public class UserController {
 
     @Autowired
     private LoginValidator loginValidator;
+
+    @Autowired
+    private BuildProperties buildProperties;
 
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registration(Model model) {
@@ -63,6 +71,10 @@ public class UserController {
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully.");
         }
+
+        model.addAttribute("build_artifact", buildProperties.getArtifact());
+        model.addAttribute("build_version", buildProperties.getVersion());
+        model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
         return "login";
     }
