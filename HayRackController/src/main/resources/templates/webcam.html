@@ -30,8 +30,15 @@
                         <i class="fas fa-camera fa-2x"></i>
                     </a>    
                 </li>
-
             </ul>
+
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="light-grey-color" th:text="${build_version}" />
+                    <a class="light-grey-color" th:text="${build_artifact}" />
+                </li>
+            </ul>
+
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
@@ -40,6 +47,8 @@
                 </li>
             </ul>
         </nav>
+        
+        
 
 
     </body>

@@ -6,7 +6,7 @@
     <groupId>gift.goblin</groupId>
     <artifactId>HayRackController</artifactId>
 
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
 
     <packaging>war</packaging>
 
@@ -117,7 +117,7 @@
             <url>https://oss.sonatype.org/content/groups/public</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
+                <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
     </repositories>
