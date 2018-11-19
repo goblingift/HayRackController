@@ -76,67 +76,48 @@
                 </p>
             </div>
 
-            <div th:each="i : ${#numbers.sequence( 1, webcam_count)}">
-                <div>
-                    <p>
-                        <a th:text="${'Webcam ' + i}" />
-                    </p>
-                    <p>
-                        <img th:id="${'webcam-prev-' + i}" th:title="${'Webcam ' + i}" />
-                        <i th:id="${'webcam-prev-icon-stop-' + i}" class="fas fa-stop-circle fa-2x"></i>
-                        <i th:id="${'webcam-prev-icon-play-' + i}" class="fas fa-play-circle fa-2x"></i>
-                    </p>
-                    <p>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" th:id="${'webcam-switch-' + i}">
-                                <label class="custom-control-label" th:for="${'webcam-switch-' + i}" th:text="#{dashboard.cam_refresh}"></label>
-                        </div>
-                    </p>
+            <div class="album">
+                <div class="container">
+                    <div class="row">
+
+                        <div class="card" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
+                            <img class="card-img-top"  th:id="${'webcam-prev-' + i}" th:title="${'Webcam ' + i}" th:src="@{/images/webcam_placeholder_small.png}" />
+                            <div class="card-body">
+                                <h5 class="card-title mx-auto" th:text="${'Webcam ' + i}"></h5>
+                                <p class="card-text">
+                                    <button th:id="${'webcam-reload-' + i}" class="btn btn-primary btn-lg">
+                                        <i class="fa fa-sync-alt fa-2x"></i>
+                                    </button>
+                                </p>
+                            </div>
+
+                            <script th:inline="javascript">
+
+                                $("#webcam-reload-" + [[${i}]]).on('click', function(event) {
+                                var d = new Date();
+                                $("#webcam-prev-" + [[${i}]]).attr("src", "/dashboard/webcam/webcam-" + [[${i}]] + "/sd?t=" + d.getTime());
+                                });
+                            </script>
+                        </div> 
+                    </div>
                 </div>
-                <script th:inline="javascript">
-                    
-                    $("#webcam-prev-icon-play-" + [[${i}]]).hide();
-                    $("#webcam-prev-" + [[${i}]]).hide();
-
-                    $("#webcam-switch-" + [[${i}]]).change(function(){
-                        var checked = $(this).is(':checked');
-                        console.log(checked);
-                        
-                        if(checked) {
-                            $("#webcam-prev-icon-stop-" + [[${i}]]).hide();
-                            $("#webcam-prev-icon-play-" + [[${i}]]).show();
-                            $("#webcam-prev-" + [[${i}]]).show();
-                        } else {
-                            $("#webcam-prev-icon-stop-" + [[${i}]]).show();
-                            $("#webcam-prev-icon-play-" + [[${i}]]).hide();
-                            $("#webcam-prev-" + [[${i}]]).hide();
-                        }
-                    });
-                    
-                    
-                    window.setInterval(function () {
-                        
-                        var checkBoxChecked = $("#webcam-switch-" + [[${i}]]).is(':checked');
-                        
-                        if(checkBoxChecked) {
-                            
-                            var d = new Date();
-                            $("#webcam-prev-" + [[${i}]]).attr("src", "/dashboard/webcam/webcam-" + [[${i}]] + "/sd?t=" + d.getTime());
-                        }
-                    }, 2000);
-                </script>
-
             </div>
 
             <div>
                 <p>
-                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-up" th:text="#{dashboard.up}" />
+                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-up">
+                        <i class="fas fa-teeth-open fa-2x"></i>
+                        <span th:text="#{dashboard.up}" /> 
+                    </a>
                 </p>
             </div>
 
             <div>
                 <p>
-                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-down" th:text="#{dashboard.down}" />
+                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-down">
+                        <i class="fas fa-hand-paper fa-2x"></i>
+                        <span th:text="#{dashboard.down}" /> 
+                    </a>
                 </p>
             </div>
 
@@ -144,24 +125,36 @@
                 <br>
 
                     <form th:action="@{/dashboard/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
-                        <table>
-                            <tr>
-                                <td>
-                                    <label>
-                                        <span th:text="#{dashboard.duration}" />
-                                        <input type="text" th:field="*{duration}" th:value="500" />
-                                    </label>
-                            </tr>
-                            <tr>
-                                <input type="radio" th:field = "*{direction}" th:value = "UP" th:text="#{dashboard.up}" />
-                                <input type="radio" th:field = "*{direction}" th:value = "DOWN" th:text="#{dashboard.down}" />
-                            </tr>
-                            <tr>
-                                <td><input type="submit" th:value="#{dashboard.manual_shutter_submit}"/></td>
-                            </tr>
-                        </table>
-                    </form>
 
+                        <div class="row justify-content-left">
+
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" th:field="*{duration}" th:placeholder="#{dashboard.enter_manual_value}" aria-describedby="label-addon-input-millis">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="label-addon-input-millis" th:text="#{dashboard.milliseconds}"></span>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="row custom-control custom-radio">
+                            <p>
+                                <input type="radio" id="radio-shutter-up" class="custom-control-input" th:field = "*{direction}" th:value = "UP" />
+                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-up" th:text="#{dashboard.up}"></label>
+                            </p>
+                        </div>
+                        <div class="row custom-control custom-radio">
+                            <p>
+                                <input type="radio" id="radio-shutter-down" class="custom-control-input" th:field = "*{direction}" th:value = "DOWN" />
+                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-down" th:text="#{dashboard.down}"></label>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <button text="doing" type="submit" class="btn btn-primary">
+                                    <a th:text="#{dashboard.manual_shutter_submit}" /> 
+                                </button>
+                            </p>
+                        </div>
+                    </form>
                     </div>
                     </body>
                     </html>
