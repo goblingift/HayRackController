@@ -6,7 +6,7 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.service.io.ShutterController;
-import gift.goblin.HayRackController.service.io.WebcamController;
+import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class DashboardController {
     private ShutterController shutterController;
 
     @Autowired
-    private WebcamController webcamController;
+    private WebcamDeviceService webcamService;
 
     @Autowired
     private BuildProperties buildProperties;
@@ -66,7 +66,7 @@ public class DashboardController {
 
         model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 1000));
 
-        model.addAttribute("webcam_count", webcamController.getWebcamCount());
+        model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "dashboard";
     }
 
@@ -152,7 +152,7 @@ public class DashboardController {
             produces = MediaType.IMAGE_JPEG_VALUE
     )
     public @ResponseBody byte[] getWebcamPictureSD(@PathVariable int camNumber) throws IOException {
-        return webcamController.takePicture(camNumber, false);
+        return webcamService.takePicture(camNumber, false);
     }
 
     @GetMapping(
@@ -160,7 +160,7 @@ public class DashboardController {
             produces = MediaType.IMAGE_JPEG_VALUE
     )
     public @ResponseBody byte[] getWebcamPictureHD(@PathVariable int camNumber) throws IOException {
-        return webcamController.takePicture(camNumber, true);
+        return webcamService.takePicture(camNumber, true);
     }
 
 }
