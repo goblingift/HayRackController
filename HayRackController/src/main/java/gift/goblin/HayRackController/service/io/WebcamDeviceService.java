@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import javax.annotation.PostConstruct;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class WebcamController {
+public class WebcamDeviceService {
 
     @Autowired
     ShutterController shutterController;
@@ -37,8 +38,8 @@ public class WebcamController {
 
     private List<Webcam> webcams = new ArrayList<>();
 
-    private Dimension hd = new Dimension(1280, 720);
-    private Dimension sd = new Dimension(640, 480);
+    private final Dimension dimensionHd = new Dimension(1280, 720);
+    private final Dimension dimensionSd = new Dimension(320, 240);
 
     /**
      * Setup the webcam- it is important, to use the correct webcam driver,
@@ -55,7 +56,13 @@ public class WebcamController {
             }
 
             webcams = Webcam.getWebcams();
-            webcams.stream().forEach(wc -> logger.info("Initialized webcam: {}", wc.getName()));
+
+            for (Webcam actWebcam : webcams) {
+                logger.info("Initialized webcam: {}", actWebcam.getName());
+                List<Dimension> dimensions = Arrays.asList(actWebcam.getViewSizes());
+                dimensions.stream().forEach(d -> logger.info("Available dimension: {} x {}", d.getWidth(), d.getHeight()));
+            }
+
         } catch (Exception e) {
             logger.error("Couldnt initialize webcams!", e);
         }
@@ -63,6 +70,25 @@ public class WebcamController {
 
     public int getWebcamCount() {
         return webcams.size();
+    }
+
+    /**
+     * Reads all available resolutions for the given webcam.
+     *
+     * @param webcamNumber for which webcam you want to read the available
+     * resolutions. 1 for the first webcam, 2 for the next.
+     * @return list with available dimensions. Can be empty, but not null.
+     */
+    public List<Dimension> getWebcamResolutions(int webcamNumber) {
+        List<Dimension> dimensions = new ArrayList<>();
+        try {
+            Webcam webcam = webcams.get(webcamNumber - 1);
+            dimensions = Arrays.asList(webcam.getViewSizes());
+        } catch (IndexOutOfBoundsException e) {
+            logger.error("Exception while getting webcam no. " + webcamNumber, e);
+        }
+
+        return dimensions;
     }
 
     /**
@@ -75,24 +101,41 @@ public class WebcamController {
      * @return the picture as byte array.
      */
     public byte[] takePicture(int camNumber, boolean resolutionHd) {
+        if (resolutionHd) {
+            return takePicture(camNumber, dimensionHd);
+        } else {
+            return takePicture(camNumber, dimensionSd);
+        }
+    }
+
+    public byte[] takePicture(int camNumber, Dimension dimension) {
 
         try {
             // subtract 1, cause lists are zero based
             Webcam webcam = webcams.get(camNumber - 1);
-            
-            webcam.open();
-            
-            BufferedImage image = webcam.getImage();
-            
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "jpg", baos);
-            baos.flush();
-            byte[] imageInByte = baos.toByteArray();
-            logger.info("Successful took picture on cam {} - result size: {}", camNumber, imageInByte.length);
-            baos.close();
-            
-            webcam.close();
-            return imageInByte;
+
+            if (!webcam.isOpen()) {
+                webcam.setViewSize(dimension);
+
+                webcam.open();
+                
+                BufferedImage image = webcam.getImage();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "jpg", baos);
+                baos.flush();
+                byte[] imageInByte = baos.toByteArray();
+                logger.info("Successful took picture on cam {} - result size: {} bytes, resolution: {}x{} pixel", camNumber, imageInByte.length,
+                        webcam.getViewSize().getWidth(), webcam.getViewSize().getHeight());
+                baos.close();
+
+                webcam.close();
+                return imageInByte;
+            } else {
+                logger.info("Webcam {} is already open- skip taking picture!");
+                return null;
+            }
+
         } catch (IOException e) {
             logger.error("Exception while takePicture from webcam #" + camNumber, e);
             return null;
