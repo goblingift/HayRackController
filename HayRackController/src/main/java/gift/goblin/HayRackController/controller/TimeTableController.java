@@ -6,6 +6,7 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
 import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
@@ -54,6 +55,9 @@ public class TimeTableController {
 
     @Autowired
     private DateAndTimeUtil dateAndTimeUtil;
+    
+    @Autowired
+    private WebcamDeviceService webcamService;
 
     @RequestMapping(value = "/timetable", method = RequestMethod.GET)
     public String renderTimetable(Model model) {
@@ -70,6 +74,7 @@ public class TimeTableController {
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);
         model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), 60, "-comment-"));
+        model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "timetable";
     }
 
@@ -83,7 +88,6 @@ public class TimeTableController {
 
         registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId, newMovement.getComment());
 
-//        scheduler.
         return renderTimetable(model);
     }
 
