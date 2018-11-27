@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.service.timetable;
+package gift.goblin.HayRackController.database.event;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.security.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,7 +39,7 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
         ScheduledShutterMovement newShutterMovement = new ScheduledShutterMovement(openAt, feedingDuration, comment);
         
         String usernameOfCurrentUser = securityService.getUsernameOfCurrentUser();
-        
+         
         newShutterMovement.setCreatedBy(usernameOfCurrentUser);
         newShutterMovement.setCreatedAt(LocalDateTime.now());
         ScheduledShutterMovement entity = repo.save(newShutterMovement);

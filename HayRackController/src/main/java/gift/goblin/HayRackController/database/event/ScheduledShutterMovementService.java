@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.service.timetable;
+package gift.goblin.HayRackController.database.event;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import java.time.LocalTime;
 import java.util.List;
 

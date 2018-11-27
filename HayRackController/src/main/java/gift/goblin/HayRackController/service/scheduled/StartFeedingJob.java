@@ -5,8 +5,9 @@
  */
 package gift.goblin.HayRackController.service.scheduled;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.security.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.database.event.FeedingEventService;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
@@ -56,12 +57,16 @@ public class StartFeedingJob implements Job {
     @Autowired
     private Scheduler scheduler;
 
+    @Autowired
+    private FeedingEventService feedingEventService;
+    
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
         logger.info("Start of feeding scheduled! Description: {}", jec.getTrigger().getDescription());
 
         try {
             shutterController.openShutter();
+            feedingEventService.addNewFeedingEvent(LocalDateTime.now());
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);
         }

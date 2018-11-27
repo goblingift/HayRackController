@@ -5,10 +5,10 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
-import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.database.event.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
 import java.time.LocalDateTime;
