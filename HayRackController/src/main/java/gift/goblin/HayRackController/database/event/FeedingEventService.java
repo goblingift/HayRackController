@@ -21,4 +21,12 @@ public interface FeedingEventService {
      */
     Long addNewFeedingEvent(LocalDateTime feedingStart, ScheduledShutterMovement scheduledShutterMovement);
     
+    /**
+     * Searches the latest feeding event entity for the given scheduled shutter movement
+     * entry and set the enddate to current date/time.
+     * @param scheduledShutterMovement the scheduled shutter movement entity.
+     * @return the primary key of the feeding entry entity.
+     */
+    Long finishFeedingEvent(ScheduledShutterMovement scheduledShutterMovement);
+    
 }

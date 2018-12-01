@@ -9,6 +9,9 @@ import gift.goblin.HayRackController.database.event.model.FeedingEvent;
 import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.event.repo.FeedingEventRepository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,18 @@ public class FeedingEventServiceImpl implements FeedingEventService {
         FeedingEvent savedEntity = repo.save(feedingEvent);
         logger.info("Created new feedingEvent in database: {}", savedEntity);
         return savedEntity.getFeedingEventId();
+    }
+
+    @Override
+    public Long finishFeedingEvent(ScheduledShutterMovement scheduledShutterMovement) {
+        
+        List<FeedingEvent> feedingEvents = scheduledShutterMovement.getFeedingEvents();
+        Optional<FeedingEvent> openFeedingEvent = feedingEvents.stream()
+                .filter(fe -> fe.getFeedingEnd() == null)
+                .sorted(Comparator.comparing(FeedingEvent::getFeedingStart).reversed())
+                .findFirst();
+        logger.info("Found open feeding event: {}", openFeedingEvent);
+        
     }
     
 }

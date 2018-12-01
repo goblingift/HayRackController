@@ -7,21 +7,25 @@ package gift.goblin.HayRackController.database.event.model;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
  * Entity for a scheduled shutter movement.
+ *
  * @author andre
  */
 @Entity
-@Table(name = "ScheduledShutterMovement")
-public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement>{
-    
+@Table(name = "scheduled_shutter_movement")
+public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement> {
+
     private Long id;
     private boolean isActive;
     private LocalTime feedingStartTime;
@@ -33,6 +37,8 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     private String createdBy;
     private LocalDateTime createdAt;
 
+    private List<FeedingEvent> feedingEvents;
+
     public ScheduledShutterMovement() {
     }
 
@@ -41,7 +47,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         this.feedingDuration = feedingDuration;
         this.comment = comment;
     }
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
@@ -100,6 +106,16 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         this.createdAt = createdAt;
     }
 
+    @OneToMany(mappedBy = "scheduledShutterMovement", targetEntity = FeedingEvent.class)
+    @ElementCollection(targetClass = FeedingEvent.class)
+    public List<FeedingEvent> getFeedingEvents() {
+        return feedingEvents;
+    }
+
+    public void setFeedingEvents(List<FeedingEvent> feedingEvents) {
+        this.feedingEvents = feedingEvents;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -152,5 +168,5 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     public int compareTo(ScheduledShutterMovement o) {
         return this.getFeedingStartTime().isBefore(o.getFeedingStartTime()) ? -1 : 1;
     }
-    
+
 }

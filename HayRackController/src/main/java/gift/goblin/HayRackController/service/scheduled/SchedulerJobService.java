@@ -52,11 +52,11 @@ public class SchedulerJobService {
         return newjobDetail;
     }
 
-    public JobDetail createStopFeedingJob(int id, long description) {
+    public JobDetail createStopFeedingJob(int id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StopFeedingJob.class)
                 .storeDurably()
                 .withIdentity(PREFIX_STOP_FEEDING_JOB + id)
-                .withDescription(description)
+                .withDescription("Job for stopping the feeding.")
                 .build();
 
         return newjobDetail;

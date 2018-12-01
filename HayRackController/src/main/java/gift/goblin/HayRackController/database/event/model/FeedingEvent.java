@@ -22,18 +22,15 @@ import javax.persistence.Table;
  * @author andre
  */
 @Entity
-@Table(name = "FeedingEvent")
+@Table
 public class FeedingEvent {
 
-    @Id
     private Long feedingEventId;
     private LocalDateTime feedingStart;
     private LocalDateTime feedingEnd;
-    
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "fk_scheduledShutterMovement", nullable = false)
+   
     private ScheduledShutterMovement scheduledShutterMovement;
-    
+        
     /**
      * Contains the feeding duration. Will be automatically
      * calculated when the feedingEnd was written.
@@ -45,8 +42,15 @@ public class FeedingEvent {
         this.scheduledShutterMovement = scheduledShutterMovement;
     }
 
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_scheduled_shutter_movement")
     public ScheduledShutterMovement getScheduledShutterMovement() {
         return scheduledShutterMovement;
+    }
+
+    public void setScheduledShutterMovement(ScheduledShutterMovement scheduledShutterMovement) {
+        this.scheduledShutterMovement = scheduledShutterMovement;
     }
     
     @Id

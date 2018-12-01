@@ -43,7 +43,7 @@ public class StartFeedingJob implements Job {
     private ShutterController shutterController;
 
     @Autowired
-    private SchedulerJobService schedulerJobFactory;
+    private SchedulerJobService schedulerJobService;
 
     @Autowired
     private StringUtils stringUtils;
@@ -62,17 +62,26 @@ public class StartFeedingJob implements Job {
     
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
-        logger.info("Start of feeding scheduled! Description: {}", jec.getTrigger().getDescription());
-
-        try {
-            shutterController.openShutter();
-            feedingEventService.addNewFeedingEvent(LocalDateTime.now());
-        } catch (InterruptedException ex) {
-            logger.error("Exception thrown while closing shutters!", ex);
-        }
         
         String jobKey = jec.getJobDetail().getKey().getName().toString();
         int jobId = stringUtils.getJobId(jobKey);
+        
+        logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
+        
+        try {
+            shutterController.openShutter();
+            
+            Optional<ScheduledShutterMovement> optEntity = repo.findById(new Long(jobId));
+            if (optEntity.isPresent()) {
+                feedingEventService.addNewFeedingEvent(LocalDateTime.now(), optEntity.get());
+            } else {
+                logger.warn("Couldnt find a ScheduledShutterMovement entity with id: {} - wont create log-entry.",
+                        jobKey);
+            }
+            
+        } catch (InterruptedException ex) {
+            logger.error("Exception thrown while closing shutters!", ex);
+        }
 
         createNewStopFeedingScheduler(jobId, jobKey);
     }
@@ -95,8 +104,8 @@ public class StartFeedingJob implements Job {
             ZonedDateTime zdt = stopFeedingDateTime.atZone(ZoneId.systemDefault());
             Date nextExecutionDate = Date.from(zdt.toInstant());
 
-            JobDetail stopFeedingJob = schedulerJobFactory.createStopFeedingJob(jobId);
-            Trigger stopTrigger = schedulerJobFactory.createStopFeedingTrigger(jobId, description, nextExecutionDate, stopFeedingJob);
+            JobDetail stopFeedingJob = schedulerJobService.createStopFeedingJob(jobId);
+            Trigger stopTrigger = schedulerJobService.createStopFeedingTrigger(jobId, description, nextExecutionDate, stopFeedingJob);
 
             try {
                 if (scheduler.checkExists(stopFeedingJob.getKey())) {
