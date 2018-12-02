@@ -132,7 +132,8 @@ public class WebcamDeviceService {
                 webcam.close();
                 return imageInByte;
             } else {
-                logger.info("Webcam {} is already open- skip taking picture!");
+                logger.info("Webcam {} is already open- skip taking picture and close !");
+                webcam.close();
                 return null;
             }
 
