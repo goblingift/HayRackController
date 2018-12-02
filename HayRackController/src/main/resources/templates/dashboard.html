@@ -23,13 +23,13 @@
                         <i class="fas fa-home fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/shutter-control}">
                         <i class="fas fa-toolbox fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/timetable}">
                         <i class="fas fa-clipboard-list fa-4x"></i>
@@ -86,24 +86,54 @@
                             <div class="card-body mx-auto">
                                 <h5 class="card-title" th:text="${'Webcam ' + i}"></h5>
                                 <p class="card-text">
-                                    <button th:id="${'webcam-reload-' + i}" class="btn btn-primary btn-lg">
-                                        <i class="fa fa-sync-alt fa-4x"></i>
+                                    <button th:id="${'webcam-reload-' + i}" th:cam-id="${i}" class="webcam-reload-btn btn btn-primary btn-lg">
+                                        <i th:id="${'webcam-reload-icon-' + i}" class="fa fa-sync-alt fa-4x"></i>
                                     </button>
                                 </p>
                             </div>
-
-                            <script th:inline="javascript">
-
-                                $("#webcam-reload-" + [[${i}]]).on('click', function(event) {
-                                var d = new Date();
-                                $("#webcam-prev-" + [[${i}]]).attr("src", "/dashboard/webcam/webcam-" + [[${i}]] + "/sd?t=" + d.getTime());
-                                });
-                            </script>
                         </div> 
+                        <script th:inline="javascript">
+
+                            $('body').on('click', '.webcam-reload-btn', function (e) {
+                                var reloadButton = $(this);
+                                var dimension = "320x240";
+                                var camNumber = reloadButton.attr("cam-id");
+                                var postUrl = "/webcams/image";
+                                var imgTag = $("#webcam-prev-" + camNumber);
+                                var reloadIcon = $("#webcam-reload-icon-" + camNumber);
+                                
+                                reloadButton.prop('disabled', true);
+                                reloadIcon.addClass("fa-spin");
+                                console.log('calling getImage with:' + dimension + camNumber);
+
+                                $.ajax({
+                                    url: postUrl,
+                                    method: 'POST',
+                                    cache: false,
+                                    //dataType: 'json',
+                                    data: {
+                                        dimension: dimension,
+                                        camNumber: camNumber
+                                    }
+                                })
+                                        .done(function (data) {
+                                            console.log("Successful loading image from webcam");
+                                            document.getElementById("webcam-prev-" + camNumber).src = "data:image/png;base64," + data;
+                                        })
+                                        .fail(function (xhr, ajaxOptions, thrownError) {
+                                            console.log("Error while loading image from webcam");
+                                        })
+                                        .always(function () {
+                                            reloadIcon.removeClass("fa-spin");
+                                            reloadButton.prop('disabled', false);
+                                        });
+                            });
+                        </script>
+
                     </div>
                 </div>
             </div>
 
 
-        </body>
-        </html>
+    </body>
+</html>
