@@ -40,9 +40,6 @@ public class DashboardController {
     private SecurityService securityService;
 
     @Autowired
-    private ShutterController shutterController;
-
-    @Autowired
     private WebcamDeviceService webcamService;
 
     @Autowired
@@ -64,88 +61,10 @@ public class DashboardController {
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-        model.addAttribute("shutterMovement", new ShutterMovement(ShutterMovement.DIRECTION_DOWN, 1000));
-
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "dashboard";
     }
 
-    /**
-     * Action-method, for opening the shutters.
-     *
-     * @param model
-     * @return name of the view which should be rendered afterwards.
-     */
-    @GetMapping(value = "/dashboard/shutters-up")
-    public String shuttersUp(Model model) {
-
-        logger.info("Manually triggered shutters down.");
-
-        try {
-            shutterController.openShutter();
-            model.addAttribute("success_message", "dashboard.shutterUp.success");
-        } catch (Exception e) {
-            logger.warn("Exception thrown while opening shutters!", e);
-            model.addAttribute("error_message", "dashboard.shutterUp.error");
-            model.addAttribute("error_message_cause", e.getCause().getMessage());
-        }
-
-        return renderDashboard(model);
-    }
-
-    /**
-     * Action-method, for closing the shutters.
-     *
-     * @param model
-     * @return name of the view which should be rendered afterwards.
-     */
-    @GetMapping(value = "/dashboard/shutters-down")
-    public String shuttersDown(Model model) {
-
-        logger.info("Manually triggered shutters down.");
-
-        try {
-            shutterController.closeShutter();
-            model.addAttribute("success_message", "dashboard.shutterDown.success");
-        } catch (Exception e) {
-            logger.warn("Exception thrown while closing shutters!", e);
-            model.addAttribute("error_message", "dashboard.shutterDown.error");
-            model.addAttribute("error_message_cause", e.getCause().getMessage());
-        }
-
-        return renderDashboard(model);
-    }
-
-    /**
-     * Custom shutter movement method, to manual trigger the shutters for a
-     * defined amount of time and direction.
-     *
-     * @param shutterMovement dto with the information, how long and which
-     * direction the shutters shall get moved.
-     * @param model
-     * @return name of the view.
-     */
-    @PostMapping(value = "/dashboard/shutters-move-custom")
-    public String shuttersMovementCustom(@ModelAttribute("shutterMovement") ShutterMovement shutterMovement,
-            Model model) {
-
-        logger.info("Manually triggered custom shutters movement, with param: {}", shutterMovement);
-
-        try {
-            if (shutterMovement.directionIsDown()) {
-                shutterController.closeShutter(shutterMovement.getDuration());
-            } else if (shutterMovement.directionIsUp()) {
-                shutterController.openShutter(shutterMovement.getDuration());
-            }
-            model.addAttribute("success_message", "dashboard.shutterCustom.success");
-        } catch (Exception e) {
-            logger.error("Exception thrown while manually trigger the shutters!", e);
-            model.addAttribute("error_message", "dashboard.shutterCustom.error");
-            model.addAttribute("error_message_cause", e.getCause().getMessage());
-        }
-
-        return renderDashboard(model);
-    }
 
     @GetMapping(
             value = "/dashboard/webcam/webcam-{camNumber}/sd",

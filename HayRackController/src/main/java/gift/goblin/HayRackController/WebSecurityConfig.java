@@ -54,17 +54,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 .authorizeRequests()
                 .antMatchers("/resources/**", "/css/**", "/js/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().access("isAuthenticated() or hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16')")
                 .and()
                 .formLogin()
-                .loginPage("/login")
-                .successHandler(this::loginSuccessHandler)
-                .failureHandler(this::loginFailureHandler)
-                .permitAll()
+                    .loginPage("/login")
+                    .successHandler(this::loginSuccessHandler)
+                    .failureHandler(this::loginFailureHandler)
+                    .permitAll()
                 .and()
                 .logout()
                 .permitAll();
-
+        
         // security config for using h2-console
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();

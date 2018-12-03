@@ -17,27 +17,34 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/dashboard}">
-                        <i class="fas fa-home fa-2x"></i>
+                        <i class="fas fa-home fa-4x"></i>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/shutter-control}">
+                        <i class="fas fa-toolbox fa-4x"></i>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/timetable}">
-                        <i class="fas fa-clipboard-list fa-2x"></i>
+                        <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <div th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                     <div th:if="${i eq camNumber}">
                         <li class="nav-item active">
                             <a class="nav-link" th:href="@{${'/webcams/' + i}}">
-                                <i class="fas fa-camera fa-2x"></i>
+                                <i class="fas fa-camera fa-4x"></i>
                             </a>    
                         </li>
                     </div>
                     <div th:unless="${i eq camNumber}">
                         <li class="nav-item">
                             <a class="nav-link" th:href="@{${'/webcams/' + i}}">
-                                <i class="fas fa-camera fa-2x"></i>
+                                <i class="fas fa-camera fa-4x"></i>
                             </a>    
                         </li>
                     </div>
@@ -55,7 +62,7 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                        <i class="fas fa-door-open fa-4x"></i>
                     </a>
                 </li>
             </ul>
@@ -66,17 +73,17 @@
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dimensionBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Dropdown button
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dimensionBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" th:text="#{webcam.choose_resolution}">
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dimensionBtn">
-                            <a th:each="i : ${dimensions}" class="dropdown-item" th:id="${'dd-dimension-' + i}" th:text="${i}" th:value="${i}"></a>
+                            <a th:each="i : ${dimensions}" href="#" class="dropdown-item" th:id="${'dd-dimension-' + i}" th:text="${i}" th:value="${i}"></a>
                         </div>
                     </div>
                 </li>
                 <li class="nav-item">
                     <button disabled th:id="webcam-reload" class="btn btn-primary btn-lg">
-                        <i th:id="current-resolution" class="fa fa-sync-alt fa-lg"></i>
+                        <i th:id="reload-image-icon" class="fa fa-sync-alt fa-lg"></i>
+                        <a id="last-resolution"></a>
                     </button>
                 </li>
             </ul>
@@ -86,46 +93,50 @@
             <img id="camPreview" src="" />
         </p>
 
-        
+
         <script th:inline="javascript">
 
-                                $('body').on('click', '.dropdown-item', function (e) {
-                                    var t = $(this);
-                                    var dimension = t.attr("value");
-                                    var camNumber = $('#camNumber').text();
-                                    var postUrl = "/webcams/image";
-                                    
-                                    console.log('calling getImage with:' + dimension + camNumber);
-                                    
-                                    $.ajax({
-                                            url: postUrl,
-                                            method: 'POST',
-                                            cache: false,
-                                            //dataType: 'json',
-                                            data: {
-                                                dimension: dimension,
-                                                camNumber: camNumber
-                                            }
-                                })
-                                .done(function (data) {
-                                    console.log("Successful loading image from webcam");
-                                    document.getElementById("camPreview").src = "data:image/png;base64," + data;
-                                    $("#webcam-reload").prop('disabled', false);
-                                    $("#current-resolution").text(dimension);
-                                    
-                                })
-                                .fail(function (xhr, ajaxOptions, thrownError) {
-                                    console.log("Error while loading image from webcam");
-                                    $("#webcam-reload").prop('disabled', true);
-                                    $("#current-resolution").text("");
-                                });
-                                });
-                                
-                                $( "#current-resolution" ).click(function() {
-                                  var actResolution = $(this).text();
-                                  $( "a[value='" + actResolution + "']" ).click();
-                                });
-                            </script>
+            $('body').on('click', '.dropdown-item', function (e) {
+                var t = $(this);
+                var dimension = t.attr("value");
+                var camNumber = $('#camNumber').text();
+                var postUrl = "/webcams/image";
+                
+                $("#reload-image-icon").addClass("fa-spin");
+                $("#dimensionBtn").prop('disabled', true);
+                $("#webcam-reload").prop('disabled', true);
+                console.log('calling getImage with:' + dimension + camNumber);
+                
+                $.ajax({
+                    url: postUrl,
+                    method: 'POST',
+                    cache: false,
+                    //dataType: 'json',
+                    data: {
+                        dimension: dimension,
+                        camNumber: camNumber
+                    }
+                })
+                        .done(function (data) {
+                            console.log("Successful loading image from webcam");
+                            document.getElementById("camPreview").src = "data:image/png;base64," + data;
+                        })
+                        .fail(function (xhr, ajaxOptions, thrownError) {
+                            console.log("Error while loading image from webcam");
+                        })
+                        .always(function () {
+                            $("#webcam-reload").prop('disabled', false);
+                            $("#dimensionBtn").prop('disabled', false);
+                            $("#last-resolution").text(dimension);
+                            $("#reload-image-icon").removeClass("fa-spin");
+                        });
+            });
+
+            $("#webcam-reload").click(function () {
+                var resolution = $("#last-resolution").text();
+                $("a[value='" + resolution + "']").click();
+            });
+        </script>
 
     </body>
 </html>

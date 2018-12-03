@@ -11,6 +11,9 @@ import gift.goblin.HayRackController.service.security.UserService;
 import gift.goblin.HayRackController.service.validator.LoginValidator;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Controller;
@@ -19,6 +22,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Controller which offers endpoints for registration and login.
@@ -39,6 +44,8 @@ public class UserController {
 
     @Autowired
     private BuildProperties buildProperties;
+    
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registration(Model model) {
@@ -71,6 +78,10 @@ public class UserController {
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully.");
         }
+        
+        HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes())
+                   .getRequest(); 
+         logger.info("External user viewed login-page: {}", request.getRemoteAddr());
 
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());

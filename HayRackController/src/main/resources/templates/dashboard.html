@@ -20,18 +20,25 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
                     <a class="nav-link" th:href="@{/dashboard}">
-                        <i class="fas fa-home fa-2x"></i>
+                        <i class="fas fa-home fa-4x"></i>
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/shutter-control}">
+                        <i class="fas fa-toolbox fa-4x"></i>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/timetable}">
-                        <i class="fas fa-clipboard-list fa-2x"></i>
+                        <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
 
                 <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                     <a class="nav-link" th:href="@{${'/webcams/' + i}}">
-                        <i class="fas fa-camera fa-2x"></i>
+                        <i class="fas fa-camera fa-4x"></i>
                     </a>    
                 </li>
             </ul>
@@ -46,20 +53,13 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                        <i class="fas fa-door-open fa-4x"></i>
                     </a>
                 </li>
             </ul>
         </nav>
 
         <div class="container" style="margin-top: 100px;">
-
-            <div th:if="${success_message != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
-                <strong th:text="#{${success_message}}"></strong>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
 
             <div th:if="${error_message != null}" class="alert alert-dark alert-dismissible fade show" role="alert">
                 <p><strong th:text="#{${error_message}}"></strong></p>
@@ -83,79 +83,57 @@
 
                         <div class="card" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                             <img class="card-img-top"  th:id="${'webcam-prev-' + i}" th:title="${'Webcam ' + i}" th:src="@{/images/webcam_placeholder_small.png}" />
-                            <div class="card-body">
-                                <h5 class="card-title mx-auto" th:text="${'Webcam ' + i}"></h5>
+                            <div class="card-body mx-auto">
+                                <h5 class="card-title" th:text="${'Webcam ' + i}"></h5>
                                 <p class="card-text">
-                                    <button th:id="${'webcam-reload-' + i}" class="btn btn-primary btn-lg">
-                                        <i class="fa fa-sync-alt fa-2x"></i>
+                                    <button th:id="${'webcam-reload-' + i}" th:cam-id="${i}" class="webcam-reload-btn btn btn-primary btn-lg">
+                                        <i th:id="${'webcam-reload-icon-' + i}" class="fa fa-sync-alt fa-4x"></i>
                                     </button>
                                 </p>
                             </div>
-
-                            <script th:inline="javascript">
-
-                                $("#webcam-reload-" + [[${i}]]).on('click', function(event) {
-                                var d = new Date();
-                                $("#webcam-prev-" + [[${i}]]).attr("src", "/dashboard/webcam/webcam-" + [[${i}]] + "/sd?t=" + d.getTime());
-                                });
-                            </script>
                         </div> 
+                        <script th:inline="javascript">
+
+                            $('body').on('click', '.webcam-reload-btn', function (e) {
+                                var reloadButton = $(this);
+                                var dimension = "320x240";
+                                var camNumber = reloadButton.attr("cam-id");
+                                var postUrl = "/webcams/image";
+                                var imgTag = $("#webcam-prev-" + camNumber);
+                                var reloadIcon = $("#webcam-reload-icon-" + camNumber);
+                                
+                                reloadButton.prop('disabled', true);
+                                reloadIcon.addClass("fa-spin");
+                                console.log('calling getImage with:' + dimension + camNumber);
+
+                                $.ajax({
+                                    url: postUrl,
+                                    method: 'POST',
+                                    cache: false,
+                                    //dataType: 'json',
+                                    data: {
+                                        dimension: dimension,
+                                        camNumber: camNumber
+                                    }
+                                })
+                                        .done(function (data) {
+                                            console.log("Successful loading image from webcam");
+                                            document.getElementById("webcam-prev-" + camNumber).src = "data:image/png;base64," + data;
+                                        })
+                                        .fail(function (xhr, ajaxOptions, thrownError) {
+                                            console.log("Error while loading image from webcam");
+                                        })
+                                        .always(function () {
+                                            reloadIcon.removeClass("fa-spin");
+                                            reloadButton.prop('disabled', false);
+                                        });
+                            });
+                        </script>
+
                     </div>
                 </div>
             </div>
 
-            <div>
-                <p>
-                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-up">
-                        <i class="fas fa-teeth-open fa-2x"></i>
-                        <span th:text="#{dashboard.up}" /> 
-                    </a>
-                </p>
-            </div>
 
-            <div>
-                <p>
-                    <a class="btn btn-lg btn-info" href="/dashboard/shutters-down">
-                        <i class="fas fa-hand-paper fa-2x"></i>
-                        <span th:text="#{dashboard.down}" /> 
-                    </a>
-                </p>
-            </div>
-
-            <br>
-                <br>
-
-                    <form th:action="@{/dashboard/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
-
-                        <div class="row justify-content-left">
-
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" th:field="*{duration}" th:placeholder="#{dashboard.enter_manual_value}" aria-describedby="label-addon-input-millis">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" id="label-addon-input-millis" th:text="#{dashboard.milliseconds}"></span>
-                                    </div>
-                            </div>
-                        </div>
-                        <div class="row custom-control custom-radio">
-                            <p>
-                                <input type="radio" id="radio-shutter-up" class="custom-control-input" th:field = "*{direction}" th:value = "UP" />
-                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-up" th:text="#{dashboard.up}"></label>
-                            </p>
-                        </div>
-                        <div class="row custom-control custom-radio">
-                            <p>
-                                <input type="radio" id="radio-shutter-down" class="custom-control-input" th:field = "*{direction}" th:value = "DOWN" />
-                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-down" th:text="#{dashboard.down}"></label>
-                            </p>
-                        </div>
-                        <div>
-                            <p>
-                                <button text="doing" type="submit" class="btn btn-primary">
-                                    <a th:text="#{dashboard.manual_shutter_submit}" /> 
-                                </button>
-                            </p>
-                        </div>
-                    </form>
-                    </div>
-                    </body>
-                    </html>
+    </body>
+</html>

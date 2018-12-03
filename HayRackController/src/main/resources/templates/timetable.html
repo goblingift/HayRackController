@@ -17,18 +17,25 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/dashboard}">
-                        <i class="fas fa-home fa-2x"></i>
+                        <i class="fas fa-home fa-4x"></i>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/shutter-control}">
+                        <i class="fas fa-toolbox fa-4x"></i>
+                    </a>
+                </li>
+                
                 <li class="nav-item active">
                     <a class="nav-link" th:href="@{/timetable}">
-                        <i class="fas fa-clipboard-list fa-2x"></i>
+                        <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
 
                 <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                     <a class="nav-link" th:href="@{${'/webcams/' + i}}">
-                        <i class="fas fa-camera fa-2x"></i>
+                        <i class="fas fa-camera fa-4x"></i>
                     </a>    
                 </li>
             </ul>
@@ -43,7 +50,7 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt fa-2x"></i>
+                        <i class="fas fa-door-open fa-4x"></i>
                     </a>
                 </li>
             </ul>
