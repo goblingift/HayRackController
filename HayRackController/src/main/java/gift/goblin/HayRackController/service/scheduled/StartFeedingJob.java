@@ -5,8 +5,9 @@
  */
 package gift.goblin.HayRackController.service.scheduled;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.security.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.database.event.FeedingEventService;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
@@ -42,7 +43,7 @@ public class StartFeedingJob implements Job {
     private ShutterController shutterController;
 
     @Autowired
-    private SchedulerJobService schedulerJobFactory;
+    private SchedulerJobService schedulerJobService;
 
     @Autowired
     private StringUtils stringUtils;
@@ -51,36 +52,43 @@ public class StartFeedingJob implements Job {
     private DateAndTimeUtil dateAndTimeUtil;
 
     @Autowired
-    ScheduledShutterMovementRepository repo;
+    ScheduledShutterMovementRepository scheduledShutterMovementRepo;
 
     @Autowired
     private Scheduler scheduler;
 
+    @Autowired
+    private FeedingEventService feedingEventService;
+
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
-        logger.info("Start of feeding scheduled! Description: {}", jec.getTrigger().getDescription());
+
+        String jobKey = jec.getJobDetail().getKey().getName().toString();
+        int jobId = stringUtils.getJobId(jobKey);
+
+        logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
 
         try {
             shutterController.openShutter();
+            feedingEventService.addNewFeedingEvent(jobId);
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);
         }
-        
-        String jobKey = jec.getJobDetail().getKey().getName().toString();
-        int jobId = stringUtils.getJobId(jobKey);
 
         createNewStopFeedingScheduler(jobId, jobKey);
     }
 
     /**
-     * Creates a scheduler for stopping the feeding (Closing the shutters again).
+     * Creates a scheduler for stopping the feeding (Closing the shutters
+     * again).
+     *
      * @param nextExecutionDateTime DateTime when the shutters will be closed.
      * @param jobId id of the job.
      * @param description description, like 'dinner*.
      */
     private void createNewStopFeedingScheduler(int jobId, String description) {
 
-        Optional<ScheduledShutterMovement> optEntity = repo.findById(new Long(jobId));
+        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(new Long(jobId));
         if (optEntity.isPresent()) {
             ScheduledShutterMovement entity = optEntity.get();
             Integer feedingDuration = entity.getFeedingDuration();
@@ -90,14 +98,14 @@ public class StartFeedingJob implements Job {
             ZonedDateTime zdt = stopFeedingDateTime.atZone(ZoneId.systemDefault());
             Date nextExecutionDate = Date.from(zdt.toInstant());
 
-            JobDetail stopFeedingJob = schedulerJobFactory.createStopFeedingJob(jobId);
-            Trigger stopTrigger = schedulerJobFactory.createStopFeedingTrigger(jobId, description, nextExecutionDate, stopFeedingJob);
+            JobDetail stopFeedingJob = schedulerJobService.createStopFeedingJob(jobId);
+            Trigger stopTrigger = schedulerJobService.createStopFeedingTrigger(jobId, description, nextExecutionDate, stopFeedingJob);
 
             try {
                 if (scheduler.checkExists(stopFeedingJob.getKey())) {
                     scheduler.deleteJob(stopFeedingJob.getKey());
                 }
-                
+
                 scheduler.scheduleJob(stopFeedingJob, stopTrigger);
                 logger.info("Successful created new scheduler for stop feeding. Next execution: {}", stopFeedingDateTime);
             } catch (SchedulerException ex) {
