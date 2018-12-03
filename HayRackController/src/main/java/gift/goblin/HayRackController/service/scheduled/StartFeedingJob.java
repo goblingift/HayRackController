@@ -52,33 +52,25 @@ public class StartFeedingJob implements Job {
     private DateAndTimeUtil dateAndTimeUtil;
 
     @Autowired
-    ScheduledShutterMovementRepository repo;
+    ScheduledShutterMovementRepository scheduledShutterMovementRepo;
 
     @Autowired
     private Scheduler scheduler;
 
     @Autowired
     private FeedingEventService feedingEventService;
-    
+
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
-        
+
         String jobKey = jec.getJobDetail().getKey().getName().toString();
         int jobId = stringUtils.getJobId(jobKey);
-        
+
         logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
-        
+
         try {
             shutterController.openShutter();
-            
-            Optional<ScheduledShutterMovement> optEntity = repo.findById(new Long(jobId));
-            if (optEntity.isPresent()) {
-                feedingEventService.addNewFeedingEvent(LocalDateTime.now(), optEntity.get());
-            } else {
-                logger.warn("Couldnt find a ScheduledShutterMovement entity with id: {} - wont create log-entry.",
-                        jobKey);
-            }
-            
+            feedingEventService.addNewFeedingEvent(jobId);
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);
         }
@@ -87,14 +79,16 @@ public class StartFeedingJob implements Job {
     }
 
     /**
-     * Creates a scheduler for stopping the feeding (Closing the shutters again).
+     * Creates a scheduler for stopping the feeding (Closing the shutters
+     * again).
+     *
      * @param nextExecutionDateTime DateTime when the shutters will be closed.
      * @param jobId id of the job.
      * @param description description, like 'dinner*.
      */
     private void createNewStopFeedingScheduler(int jobId, String description) {
 
-        Optional<ScheduledShutterMovement> optEntity = repo.findById(new Long(jobId));
+        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(new Long(jobId));
         if (optEntity.isPresent()) {
             ScheduledShutterMovement entity = optEntity.get();
             Integer feedingDuration = entity.getFeedingDuration();
@@ -111,7 +105,7 @@ public class StartFeedingJob implements Job {
                 if (scheduler.checkExists(stopFeedingJob.getKey())) {
                     scheduler.deleteJob(stopFeedingJob.getKey());
                 }
-                
+
                 scheduler.scheduleJob(stopFeedingJob, stopTrigger);
                 logger.info("Successful created new scheduler for stop feeding. Next execution: {}", stopFeedingDateTime);
             } catch (SchedulerException ex) {

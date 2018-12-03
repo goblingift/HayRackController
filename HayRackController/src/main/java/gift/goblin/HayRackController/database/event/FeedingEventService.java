@@ -16,17 +16,15 @@ public interface FeedingEventService {
     
     /**
      * Create a new feeding event entry in database.
-     * @param feedingStart the start-time for the feeding event.
      * @return the primary key of the created entity.
      */
-    Long addNewFeedingEvent(LocalDateTime feedingStart, ScheduledShutterMovement scheduledShutterMovement);
+    Long addNewFeedingEvent(int jobId);
     
     /**
-     * Searches the latest feeding event entity for the given scheduled shutter movement
-     * entry and set the enddate to current date/time.
-     * @param scheduledShutterMovement the scheduled shutter movement entity.
+     * Searches the latest feeding event entity for the given jobId
+     * and set the enddate to current date/time.
      * @return the primary key of the feeding entry entity.
      */
-    Long finishFeedingEvent(ScheduledShutterMovement scheduledShutterMovement);
+    Long finishFeedingEvent(int jobId);
     
 }

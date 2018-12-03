@@ -37,6 +37,9 @@ public class FeedingEvent {
      */
     private Long feedingDurationMs;
 
+    public FeedingEvent() {
+    }
+
     public FeedingEvent(LocalDateTime feedingStart, ScheduledShutterMovement scheduledShutterMovement) {
         this.feedingStart = feedingStart;
         this.scheduledShutterMovement = scheduledShutterMovement;
@@ -77,14 +80,13 @@ public class FeedingEvent {
 
     public void setFeedingEnd(LocalDateTime feedingEnd) {
         this.feedingEnd = feedingEnd;
-        setFeedingDurationMs(this.feedingStart.until(feedingEnd, ChronoUnit.MILLIS));
     }
 
     public Long getFeedingDurationMs() {
         return feedingDurationMs;
     }
 
-    private void setFeedingDurationMs(Long feedingDurationMs) {
+    public void setFeedingDurationMs(Long feedingDurationMs) {
         this.feedingDurationMs = feedingDurationMs;
     }
 
