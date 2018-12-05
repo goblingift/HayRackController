@@ -51,7 +51,7 @@ public class DashboardController {
      * @param model model with the used attributes in the view.
      * @return name of the view.
      */
-    @GetMapping(value = "/dashboard")
+    @GetMapping(value = {"/", "/dashboard"})
     public String renderDashboard(Model model) {
 
         String username = securityService.getUsernameOfCurrentUser();

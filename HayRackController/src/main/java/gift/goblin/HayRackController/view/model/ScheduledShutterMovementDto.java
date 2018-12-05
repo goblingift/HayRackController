@@ -19,25 +19,22 @@ public class ScheduledShutterMovementDto {
      * Feeding duration in minutes.
      */
     private String feedingDuration;
-    private String comment;
     private String createdBy;
     private String createdAt;
 
     public ScheduledShutterMovementDto() {
     }
 
-    public ScheduledShutterMovementDto(String feedingStartTime, String feedingDuration, String comment) {
+    public ScheduledShutterMovementDto(String feedingStartTime, String feedingDuration) {
         this.feedingStartTime = feedingStartTime;
         this.feedingDuration = feedingDuration;
-        this.comment = comment;
     }
 
-    public ScheduledShutterMovementDto(String id, boolean isActive, String feedingStartTime, String feedingDuration, String comment, String createdBy, String createdAt) {
+    public ScheduledShutterMovementDto(String id, boolean isActive, String feedingStartTime, String feedingDuration, String createdBy, String createdAt) {
         this.id = id;
         this.isActive = isActive;
         this.feedingStartTime = feedingStartTime;
         this.feedingDuration = feedingDuration;
-        this.comment = comment;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
     }
@@ -76,14 +73,6 @@ public class ScheduledShutterMovementDto {
         this.feedingDuration = feedingDuration;
     }
     
-    public String getComment() {
-        return comment;
-    }
-    
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-    
     public String getCreatedBy() {
         return createdBy;
     }
@@ -103,7 +92,7 @@ public class ScheduledShutterMovementDto {
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
 }

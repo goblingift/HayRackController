@@ -70,7 +70,6 @@
                             <th>#</th>
                             <th th:text="#{timetable.openAt}"></th>
                             <th th:text="#{timetable.duration}"></th>
-                            <th th:text="#{timetable.comment}"></th>
                             <th th:text="#{timetable.createdAt}"></th>
                             <th th:text="#{timetable.createdBy}"></th>
                         </tr>
@@ -82,7 +81,6 @@
                                 <th th:text="${iterStat.index + 1}" />
                                 <td th:text="${actObject.feedingStartTime}" />
                                 <td th:text="${actObject.feedingDuration}" />
-                                <td th:text="${actObject.comment}" />
                                 <td th:text="${actObject.createdAt}" />
                                 <td th:text="${actObject.createdBy}" />
                                 <td>
@@ -99,7 +97,6 @@
                                 <th scope="row" th:text="#{timetable.addNew}"></th>
                                 <td><input type="text" th:field="*{feedingStartTime}"/></td>
                                 <td><input type="text" th:field="*{feedingDuration}"/></td>
-                                <td><input type="text" th:field="*{comment}"/></td>
                                 <td></td>
                                 <td></td>
                                 <td><input type="submit" th:value="#{timetable.add}"/></td>

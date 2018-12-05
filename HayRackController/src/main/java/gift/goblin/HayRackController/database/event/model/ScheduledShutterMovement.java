@@ -34,7 +34,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
      * Feeding duration in minutes.
      */
     private Integer feedingDuration;
-    private String comment;
     private String createdBy;
     private LocalDateTime createdAt;
 
@@ -43,10 +42,9 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     public ScheduledShutterMovement() {
     }
 
-    public ScheduledShutterMovement(LocalTime feedingStartTime, Integer feedingDuration, String comment) {
+    public ScheduledShutterMovement(LocalTime feedingStartTime, Integer feedingDuration) {
         this.feedingStartTime = feedingStartTime;
         this.feedingDuration = feedingDuration;
-        this.comment = comment;
     }
 
     @Id
@@ -81,14 +79,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
 
     public void setFeedingDuration(Integer feedingDuration) {
         this.feedingDuration = feedingDuration;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public String getCreatedBy() {
@@ -139,9 +129,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         if (this.isActive != other.isActive) {
             return false;
         }
-        if (!Objects.equals(this.comment, other.comment)) {
-            return false;
-        }
         if (!Objects.equals(this.createdBy, other.createdBy)) {
             return false;
         }
@@ -162,7 +149,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovement{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", comment=" + comment + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovement{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
     @Override
