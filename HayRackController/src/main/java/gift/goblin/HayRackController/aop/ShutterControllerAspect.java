@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.aop;
 
-import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.IOController;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,7 +25,7 @@ public class ShutterControllerAspect {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ShutterController shutterController;
+    private IOController shutterController;
 
     @Around("@annotation(gift.goblin.HayRackController.aop.RequiresRaspberry)")
     public void around(ProceedingJoinPoint joinPoint) throws Throwable {

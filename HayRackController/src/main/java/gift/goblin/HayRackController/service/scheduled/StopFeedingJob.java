@@ -7,7 +7,7 @@ package gift.goblin.HayRackController.service.scheduled;
 
 import gift.goblin.HayRackController.database.event.FeedingEventService;
 import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
-import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.tools.StringUtils;
 import java.util.logging.Level;
 import org.quartz.Job;
@@ -28,7 +28,7 @@ public class StopFeedingJob implements Job {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ShutterController shutterController;
+    private IOController ioController;
 
     @Autowired
     ScheduledShutterMovementRepository repo;
@@ -48,7 +48,8 @@ public class StopFeedingJob implements Job {
         logger.info("End of feeding scheduled! Job-Id: {}", jobId);
 
         try {
-            shutterController.closeShutter();
+            ioController.triggerRelayLight(false);
+            ioController.closeShutter();
             feedingEventService.finishFeedingEvent(jobId);
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);
