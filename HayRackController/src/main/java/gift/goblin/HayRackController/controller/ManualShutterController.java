@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.view.model.ShutterMovement;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class ManualShutterController {
     private WebcamDeviceService webcamService;
 
     @Autowired
-    private ShutterController shutterController;
+    private IOController shutterController;
 
     /**
      * Default render method.

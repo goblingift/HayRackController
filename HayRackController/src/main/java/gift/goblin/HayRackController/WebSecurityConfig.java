@@ -54,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 .authorizeRequests()
                 .antMatchers("/resources/**", "/css/**", "/js/**").permitAll()
-                .anyRequest().access("isAuthenticated() or hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16')")
+                .anyRequest().access("isAuthenticated() or hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16') or hasIpAddress('127.0.0.1')")
                 .and()
                 .formLogin()
                     .loginPage("/login")

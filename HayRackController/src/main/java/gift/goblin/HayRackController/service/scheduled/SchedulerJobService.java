@@ -41,6 +41,17 @@ public class SchedulerJobService {
 
     @Autowired
     private Scheduler scheduler;
+    
+    /**
+     * Checks if there is a running stop feeding job is scheduled.
+     * @return True if a stop feeding job is scheduled (Its feeding time right now),
+     * false if otherwise.
+     */
+    public boolean stopFeedingJobActive() {
+//        scheduler.checkExists(jobKey)
+// todo!
+return false;
+    }
 
     public JobDetail createStartFeedingJob(int id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StartFeedingJob.class)
@@ -67,16 +78,14 @@ public class SchedulerJobService {
      * will repeat itself every 24 hours!
      *
      * @param id unique id for this trigger.
-     * @param description description of this trigger, like breakfast, dinner.
      * @param nextExecutionDate the next Date when this trigger will be
      * scheduled.
      * @param jobDetail for which job this trigger shall be used.
      * @return
      */
-    public SimpleTrigger createStartFeedingTrigger(int id, String description, Date nextExecutionDate, JobDetail jobDetail) {
+    public SimpleTrigger createStartFeedingTrigger(int id, Date nextExecutionDate, JobDetail jobDetail) {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(PREFIX_START_FEEDING_TRIGGER + id, GROUP_START_TRIGGERS)
-                .withDescription(description)
                 .startAt(nextExecutionDate)
                 .withSchedule(simpleSchedule().repeatForever().withIntervalInHours(24))
                 .build();

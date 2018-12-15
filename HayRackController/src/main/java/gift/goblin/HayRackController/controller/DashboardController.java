@@ -5,10 +5,8 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.service.io.ShutterController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.security.SecurityService;
-import gift.goblin.HayRackController.view.model.ShutterMovement;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -20,9 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -51,7 +47,7 @@ public class DashboardController {
      * @param model model with the used attributes in the view.
      * @return name of the view.
      */
-    @GetMapping(value = "/dashboard")
+    @GetMapping(value = {"/", "/dashboard"})
     public String renderDashboard(Model model) {
 
         String username = securityService.getUsernameOfCurrentUser();

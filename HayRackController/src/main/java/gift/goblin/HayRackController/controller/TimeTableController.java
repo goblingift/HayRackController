@@ -5,10 +5,10 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.database.security.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
-import gift.goblin.HayRackController.service.timetable.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.database.event.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
 import java.time.LocalDateTime;
@@ -69,11 +69,11 @@ public class TimeTableController {
         }
 
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
-                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getComment(), s.getCreatedBy(), s.getCreatedAt().toString()))
+                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);
-        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), 60, "-comment-"));
+        model.addAttribute("newMovement", new ScheduledShutterMovement(LocalTime.now(), 60));
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "timetable";
     }
@@ -84,9 +84,9 @@ public class TimeTableController {
         logger.info("Called adding new schedule with object: {}", newMovement);
 
         Long newShutterMovementId = scheduledShutterMovementService
-                .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration(), newMovement.getComment());
+                .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration());
 
-        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId, newMovement.getComment());
+        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId);
 
         return renderTimetable(model);
     }
@@ -100,7 +100,7 @@ public class TimeTableController {
         return renderTimetable(model);
     }
 
-    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId, String triggerDescription) {
+    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId) {
 
         LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
 
@@ -108,7 +108,7 @@ public class TimeTableController {
         Date nextExecutionDate = Date.from(zdt.toInstant());
 
         JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId.intValue());
-        SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), triggerDescription, nextExecutionDate, jobDetail);
+        SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), nextExecutionDate, jobDetail);
 
         try {
             scheduler.scheduleJob(jobDetail, newTrigger);

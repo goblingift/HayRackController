@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class WebcamDeviceService {
 
     @Autowired
-    ShutterController shutterController;
+    IOController shutterController;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
