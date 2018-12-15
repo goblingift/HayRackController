@@ -25,21 +25,27 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- *
+ * Has access to the GPIO pins of the raspberry device.
  * @author andre
  */
 @Component
-public class ShutterController {
+public class IOController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private GpioController gpioController;
     private boolean raspberryInitialized;
-
+    
+    private static final int OPENING_CLOSING_TIME_MS = 30_000;
+    
     private GpioPinDigitalOutput pinCloseMotor;
+    
     private GpioPinDigitalOutput pinOpenMotor;
 
-    private static final int OPENING_CLOSING_TIME_MS = 30_000;
+    /**
+     * Pin which access the brightness sensor.
+     */
+    private GpioPinDigitalInput pinBrightnessSensor;
 
     /**
      * Pin for the 230V to 12V transformator
@@ -52,6 +58,11 @@ public class ShutterController {
      */
     private GpioPinDigitalOutput pinLightAndSound;
 
+    /**
+     * Pin for the external relay, which switches the indoor light.
+     */
+    private GpioPinDigitalOutput pinRelayLight;
+    
 //<editor-fold defaultstate="collapsed" desc="setup pins">
     @PostConstruct
     private void setupPins() {
@@ -62,6 +73,8 @@ public class ShutterController {
             setupOpenShutter();
             setupCloseShutter();
             setup12VTransformator();
+            setupRelayLight();
+            setupBrightnessSensor();
 
             raspberryInitialized = true;
             logger.info("Raspberry PI successful initialized!");
@@ -83,6 +96,8 @@ public class ShutterController {
         gpioController.unprovisionPin(pinOpenMotor);
         gpioController.unprovisionPin(pin12VTransformator);
         gpioController.unprovisionPin(pinLightAndSound);
+        gpioController.unprovisionPin(pinRelayLight);
+        gpioController.unprovisionPin(pinBrightnessSensor);
     }
 
     /**
@@ -92,6 +107,18 @@ public class ShutterController {
     private void setup12VTransformator() {
         pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay #1, 12V transformator", PinState.HIGH);
         pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
+    }
+    
+    @RequiresRaspberry
+    private void setupRelayLight() {
+        pinRelayLight = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_23, "External Relay, Light", PinState.LOW);
+        pinRelayLight.setShutdownOptions(true, PinState.LOW);
+    }
+    
+    @RequiresRaspberry
+    private void setupBrightnessSensor() {
+        pinBrightnessSensor = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_22);
+        pinBrightnessSensor.setShutdownOptions(true, PinState.LOW);
     }
 
     @RequiresRaspberry
@@ -191,6 +218,22 @@ public class ShutterController {
         pin12VTransformator.high();
 
     }
+    
+    /**
+     * Triggers the relay to power on the light.
+     * @param turnOn true if you wanna turn the light on, false if otherwise.
+     */
+    @RequiresRaspberry
+    public void triggerRelayLight(boolean turnOn) {
+        
+        if (turnOn) {
+            logger.info("Triggered relay light to: ON");
+            pinRelayLight.high();
+        } else {
+            pinRelayLight.low();
+            logger.info("Triggered relay light to: OFF");
+        }
+    }
 
     /**
      * Closes the shutter for x milliseconds.
@@ -220,4 +263,16 @@ public class ShutterController {
         pinOpenMotor.pulse(ms, PinState.LOW);
     }
 
+    /**
+     * Measures the brightness with the brightness sensor.
+     * @return true if its bright, false if dark.
+     */
+    @RequiresRaspberry
+    public boolean daylightDetected() {
+        boolean daylightDetected = pinBrightnessSensor.isHigh();
+        logger.debug("Measured pin state of brighness-sensor- is bright: {}", daylightDetected);
+        
+        return daylightDetected;
+    }
+    
 }

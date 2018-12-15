@@ -8,7 +8,7 @@ package gift.goblin.HayRackController.service.scheduled;
 import gift.goblin.HayRackController.database.event.FeedingEventService;
 import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
-import gift.goblin.HayRackController.service.io.ShutterController;
+import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
 import java.time.LocalDateTime;
@@ -40,7 +40,7 @@ public class StartFeedingJob implements Job {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ShutterController shutterController;
+    private IOController ioController;
 
     @Autowired
     private SchedulerJobService schedulerJobService;
@@ -69,7 +69,8 @@ public class StartFeedingJob implements Job {
         logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
 
         try {
-            shutterController.openShutter();
+            ioController.openShutter();
+            ioController.triggerRelayLight(true);
             feedingEventService.addNewFeedingEvent(jobId);
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);

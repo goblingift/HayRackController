@@ -41,6 +41,17 @@ public class SchedulerJobService {
 
     @Autowired
     private Scheduler scheduler;
+    
+    /**
+     * Checks if there is a running stop feeding job is scheduled.
+     * @return True if a stop feeding job is scheduled (Its feeding time right now),
+     * false if otherwise.
+     */
+    public boolean stopFeedingJobActive() {
+//        scheduler.checkExists(jobKey)
+// todo!
+return false;
+    }
 
     public JobDetail createStartFeedingJob(int id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StartFeedingJob.class)
