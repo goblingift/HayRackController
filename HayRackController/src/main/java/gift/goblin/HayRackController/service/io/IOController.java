@@ -18,28 +18,45 @@ import com.pi4j.io.gpio.trigger.GpioBlinkStateTrigger;
 import com.pi4j.io.gpio.trigger.GpioBlinkStopStateTrigger;
 import com.pi4j.io.gpio.trigger.GpioSetStateTrigger;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
+import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Has access to the GPIO pins of the raspberry device.
+ *
  * @author andre
  */
 @Component
 public class IOController {
 
+    private static final int OPENING_CLOSING_TIME_MS = 30_000;
+
+    private static final int PIN_NO_TEMP_SENSOR = 21;
+    private static final int PIN_NO_BRIGHTNESS_SENSOR = 22;
+    private static final int PIN_NO_EXTERNAL_RELAY_LIGHT = 23;
+    private static final int PIN_NO_12V_TRANSFORMATOR = 24;
+    private static final int PIN_NO_LIGHT_AND_SOUND = 25;
+    private static final int PIN_NO_RELAY_OPEN_MOTOR = 28;
+    private static final int PIN_NO_RELAY_CLOSE_MOTOR = 29;
+
+    @Autowired
+    private TempSensorReader tempSensorReader;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private GpioController gpioController;
     private boolean raspberryInitialized;
-    
-    private static final int OPENING_CLOSING_TIME_MS = 30_000;
-    
+
     private GpioPinDigitalOutput pinCloseMotor;
-    
+
     private GpioPinDigitalOutput pinOpenMotor;
 
     /**
@@ -62,7 +79,7 @@ public class IOController {
      * Pin for the external relay, which switches the indoor light.
      */
     private GpioPinDigitalOutput pinRelayLight;
-    
+
 //<editor-fold defaultstate="collapsed" desc="setup pins">
     @PostConstruct
     private void setupPins() {
@@ -105,25 +122,28 @@ public class IOController {
      */
     @RequiresRaspberry
     private void setup12VTransformator() {
-        pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_24, "Relay #1, 12V transformator", PinState.HIGH);
+        pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_12V_TRANSFORMATOR),
+                "Relay #1, 12V transformator", PinState.HIGH);
         pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
-    
+
     @RequiresRaspberry
     private void setupRelayLight() {
-        pinRelayLight = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_23, "External Relay, Light", PinState.LOW);
+        pinRelayLight = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_EXTERNAL_RELAY_LIGHT),
+                "External Relay, Light", PinState.LOW);
         pinRelayLight.setShutdownOptions(true, PinState.LOW);
     }
-    
+
     @RequiresRaspberry
     private void setupBrightnessSensor() {
-        pinBrightnessSensor = gpioController.provisionDigitalInputPin(RaspiPin.GPIO_22);
+        pinBrightnessSensor = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BRIGHTNESS_SENSOR));
         pinBrightnessSensor.setShutdownOptions(true, PinState.LOW);
     }
 
     @RequiresRaspberry
     private void setupVisualAndAudioOutputs() {
-        pinLightAndSound = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_25, "Relay #2, Light and Sound", PinState.HIGH);
+        pinLightAndSound = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LIGHT_AND_SOUND),
+                "Relay #2, Light and Sound", PinState.HIGH);
         pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
 
@@ -132,9 +152,10 @@ public class IOController {
      */
     @RequiresRaspberry
     private void setupOpenShutter() {
-        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_28, "Relay #3, Open motor", PinState.HIGH);
+        pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_OPEN_MOTOR),
+                "Relay #3, Open motor", PinState.HIGH);
         pinOpenMotor.setShutdownOptions(true, PinState.HIGH);
-        pinOpenMotor.addListener(new GpioPinListenerDigital()  {
+        pinOpenMotor.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
                 logger.info("Changed pinstate of pin# {} to state: {}", event.getPin().getName(), event.getState().getValue());
@@ -147,9 +168,10 @@ public class IOController {
      */
     @RequiresRaspberry
     private void setupCloseShutter() {
-        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.GPIO_29, "Relay #4, Close motor", PinState.HIGH);
+        pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_CLOSE_MOTOR),
+                "Relay #4, Close motor", PinState.HIGH);
         pinCloseMotor.setShutdownOptions(true, PinState.HIGH);
-        pinCloseMotor.addListener(new GpioPinListenerDigital()  {
+        pinCloseMotor.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
                 logger.info("Changed pinstate of pin# {} to state: {}", event.getPin().getName(), event.getState().getValue());
@@ -177,7 +199,7 @@ public class IOController {
             pinLightAndSound.high();
             Thread.sleep(500);
         }
-        
+
         // trigger shutter motors after the sound and lights was played
         openShutter(OPENING_CLOSING_TIME_MS);
 
@@ -218,14 +240,15 @@ public class IOController {
         pin12VTransformator.high();
 
     }
-    
+
     /**
      * Triggers the relay to power on the light.
+     *
      * @param turnOn true if you wanna turn the light on, false if otherwise.
      */
     @RequiresRaspberry
     public void triggerRelayLight(boolean turnOn) {
-        
+
         if (turnOn) {
             logger.info("Triggered relay light to: ON");
             pinRelayLight.high();
@@ -245,7 +268,7 @@ public class IOController {
     @RequiresRaspberry
     public void closeShutter(int ms) throws InterruptedException {
         logger.info("Trigger closing shutter motors. Give em power for {} milliseconds", ms);
-        
+
         pinCloseMotor.pulse(ms, PinState.LOW);
     }
 
@@ -259,20 +282,44 @@ public class IOController {
     @RequiresRaspberry
     public void openShutter(int ms) throws InterruptedException {
         logger.info("Trigger opening shutter motors. Give em power for {} milliseconds", ms);
-        
+
         pinOpenMotor.pulse(ms, PinState.LOW);
     }
 
     /**
      * Measures the brightness with the brightness sensor.
+     *
      * @return true if its bright, false if dark.
      */
     @RequiresRaspberry
     public boolean daylightDetected() {
         boolean daylightDetected = pinBrightnessSensor.isHigh();
         logger.debug("Measured pin state of brighness-sensor- is bright: {}", daylightDetected);
-        
+
         return daylightDetected;
     }
-    
+
+    /**
+     * Measures the temperature and humidity.
+     *
+     * @return Optional, cause the measurement of this values isnt guaranteed.
+     */
+    @RequiresRaspberry
+    public Optional<TemperatureAndHumidity> measureTempAndHumidity() {
+        
+        Optional<TemperatureAndHumidity> returnValue = Optional.empty();
+        
+        try {
+            Optional<Map<String, Float>> optTempAndHumidityMap = tempSensorReader.getTempAndHumidity(PIN_NO_TEMP_SENSOR);
+            if (optTempAndHumidityMap.isPresent()) {
+                returnValue = Optional.of(new TemperatureAndHumidity(optTempAndHumidityMap.get()));
+            }
+        } catch (InterruptedException ex) {
+            logger.error("InterruptedException thrown while measureTempAndHumidity!", ex);
+            return Optional.empty();
+        }
+        
+        return returnValue;
+    }
+
 }
