@@ -5,30 +5,44 @@
  */
 package gift.goblin.HayRackController.service.scheduled;
 
+import gift.goblin.HayRackController.database.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.util.Optional;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Scheduled job, which measures several sensors, logs the results
+ * Scheduled job, which measures temp sensors, logs the results
  * and triggers following actions.
  * @author andre
  */
 @Component
-public class SensoricJob implements Job {
+public class TemperatureMeasurementJob implements Job {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Autowired
     IOController iOController;
     
+    @Autowired
+    TemperatureMeasurementService temperatureMeasurementService;
+    
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        // todo
-
+        logger.debug("Execution of temperature measurement job triggered.");
+        
+        Optional<TemperatureAndHumidity> optTempAndHumidity = iOController.measureTempAndHumidity();
+        if (optTempAndHumidity.isPresent()) {
+            temperatureMeasurementService.saveTemperatureMeasurement(optTempAndHumidity.get());
+        } else {
+            logger.error("Couldnt read temperature and humidity- wont save any values to database!");
+        }
     }
     
     /**

@@ -7,6 +7,7 @@ package gift.goblin.HayRackController.service.scheduled;
 
 import java.util.Date;
 import java.util.logging.Level;
+import javax.annotation.PostConstruct;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -36,23 +37,32 @@ public class SchedulerJobService {
     public static final String PREFIX_STOP_FEEDING_TRIGGER = "stop_feeding_trigger_";
     public static final String GROUP_START_TRIGGERS = "start_feeding_triggers";
     public static final String GROUP_STOP_TRIGGERS = "stop_feeding_triggers";
+    public static final String ID_TEMP_MEASUREMENT_JOB = "temperature_measurement_job";
+    public static final String GROUP_SENSORS = "sensors";
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private Scheduler scheduler;
-    
-    /**
-     * Checks if there is a running stop feeding job is scheduled.
-     * @return True if a stop feeding job is scheduled (Its feeding time right now),
-     * false if otherwise.
-     */
-    public boolean stopFeedingJobActive() {
-//        scheduler.checkExists(jobKey)
-// todo!
-return false;
-    }
 
+    /**
+     * Will start all schedulers, which shall get started automatically.
+     */
+    @PostConstruct
+    private void startImpliciteSchedulers() {
+        
+        JobDetail temperatureMeasurementJob = createTemperatureMeasurementJob();
+        SimpleTrigger temperatureMeasurementTrigger = createTemperatureMeasurementTrigger(temperatureMeasurementJob);
+
+        try {
+            scheduler.scheduleJob(temperatureMeasurementJob, temperatureMeasurementTrigger);
+            logger.info("Successful registered scheduler for temperature measurement.");
+        } catch (SchedulerException ex) {
+            logger.error("Couldnt register new scheduled job for temperature measurement!", ex);
+        }
+        
+    }
+    
     public JobDetail createStartFeedingJob(int id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StartFeedingJob.class)
                 .storeDurably()
@@ -72,7 +82,33 @@ return false;
 
         return newjobDetail;
     }
+    
+    private JobDetail createTemperatureMeasurementJob() {
+        JobDetail newjobDetail = JobBuilder.newJob().ofType(TemperatureMeasurementJob.class)
+                .storeDurably()
+                .withIdentity(ID_TEMP_MEASUREMENT_JOB)
+                .withDescription("Job for measurement of temperature and humidity.")
+                .build();
 
+        return newjobDetail;
+    }
+
+    /**
+     * Creates a trigger for the temperature measurement.
+     * By default, it will repeat itself every 15 minutes.
+     * @param jobDetail - just give the JobDetail object of the temp-measurement.
+     * @return trigger object
+     */
+    private SimpleTrigger createTemperatureMeasurementTrigger(JobDetail jobDetail) {
+        SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
+                .withIdentity(ID_TEMP_MEASUREMENT_JOB, GROUP_SENSORS)
+                .startNow()
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(15))
+                .build();
+
+        return trigger;
+    }
+    
     /**
      * Creates a new trigger to start the feeding on the hay-rack. This trigger
      * will repeat itself every 24 hours!

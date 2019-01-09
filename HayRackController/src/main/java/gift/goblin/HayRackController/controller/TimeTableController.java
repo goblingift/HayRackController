@@ -83,10 +83,12 @@ public class TimeTableController {
 
         logger.info("Called adding new schedule with object: {}", newMovement);
 
+        // Add database entry
         Long newShutterMovementId = scheduledShutterMovementService
                 .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration());
 
-        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId);
+        // Register scheduled job
+        registerStartFeedingJob(newMovement.getFeedingStartTime(), newShutterMovementId);
 
         return renderTimetable(model);
     }
@@ -100,7 +102,7 @@ public class TimeTableController {
         return renderTimetable(model);
     }
 
-    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId) {
+    private void registerStartFeedingJob(LocalTime localTime, Long schedulerId) {
 
         LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
 
