@@ -6,6 +6,8 @@
 package gift.goblin.HayRackController.service.scheduled;
 
 import gift.goblin.HayRackController.service.io.IOController;
+import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import java.util.Optional;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -30,10 +32,24 @@ public class SensoricJob implements Job {
     }
     
     /**
+     * Measure temperature and humidity, store the data into the
+     * database and trigger following tasks.
+     */
+    private void handleTempSensor() {
+        
+        Optional<TemperatureAndHumidity> optTempAndHumidity = iOController.measureTempAndHumidity();
+        
+        if (optTempAndHumidity.isPresent()) {
+            
+        }
+        
+    }
+    
+    /**
      * Measures the brightness and does following tasks.
      * So if its feeding time and its dark, power on the indoor-lights.
      */
-    private void measureBrightness() {
+    private void handleBrightnessSensor() {
         
         boolean daylightDetected = iOController.daylightDetected();
         
