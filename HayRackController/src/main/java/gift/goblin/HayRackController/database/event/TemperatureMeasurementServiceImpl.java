@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Service bean which implements several methods regarding the temperature and
  * humidity measurement.
  * @author andre
  */
+@Service
 public class TemperatureMeasurementServiceImpl implements TemperatureMeasurementService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());

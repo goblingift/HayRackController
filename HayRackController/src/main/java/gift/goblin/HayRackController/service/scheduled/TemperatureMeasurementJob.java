@@ -38,40 +38,21 @@ public class TemperatureMeasurementJob implements Job {
         logger.debug("Execution of temperature measurement job triggered.");
         
         Optional<TemperatureAndHumidity> optTempAndHumidity = iOController.measureTempAndHumidity();
-        if (optTempAndHumidity.isPresent()) {
-            temperatureMeasurementService.saveTemperatureMeasurement(optTempAndHumidity.get());
-        } else {
-            logger.error("Couldnt read temperature and humidity- wont save any values to database!");
-        }
-    }
-    
-    /**
-     * Measure temperature and humidity, store the data into the
-     * database and trigger following tasks.
-     */
-    private void handleTempSensor() {
         
-        Optional<TemperatureAndHumidity> optTempAndHumidity = iOController.measureTempAndHumidity();
-        
-        if (optTempAndHumidity.isPresent()) {
+        // null-check: Will only be null, if executed in NO-RASPBERRY environment
+        if (optTempAndHumidity == null) {
+            logger.info("Temperature measurement returns null value- fake data, cause its no RASPBERRY-machine.");
             
+            TemperatureAndHumidity fakeData = new TemperatureAndHumidity(36.0F, 96.8F, 8.5F, 2);
+            temperatureMeasurementService.saveTemperatureMeasurement(fakeData);
+        } else {
+            if (optTempAndHumidity.isPresent()) {
+                temperatureMeasurementService.saveTemperatureMeasurement(optTempAndHumidity.get());
+            } else {
+                logger.error("Couldnt read temperature and humidity- wont save any values to database!");
+            }
         }
         
     }
-    
-    /**
-     * Measures the brightness and does following tasks.
-     * So if its feeding time and its dark, power on the indoor-lights.
-     */
-    private void handleBrightnessSensor() {
-        
-        boolean daylightDetected = iOController.daylightDetected();
-        
-        // todo
-        
-    }
-    
-    
-    
     
 }
