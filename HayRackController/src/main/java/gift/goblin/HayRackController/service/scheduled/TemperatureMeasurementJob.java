@@ -43,7 +43,7 @@ public class TemperatureMeasurementJob implements Job {
         if (optTempAndHumidity == null) {
             logger.info("Temperature measurement returns null value- fake data, cause its no RASPBERRY-machine.");
             
-            TemperatureAndHumidity fakeData = new TemperatureAndHumidity(36.0F, 96.8F, 8.5F, 2);
+            TemperatureAndHumidity fakeData = new TemperatureAndHumidity(36.0F, 96.8F, 8.5F);
             temperatureMeasurementService.saveTemperatureMeasurement(fakeData);
         } else {
             if (optTempAndHumidity.isPresent()) {

@@ -20,4 +20,9 @@ public interface TemperatureMeasurementService {
      */
     void saveTemperatureMeasurement(TemperatureAndHumidity tempAndHumidity);
     
+    /**
+     * Reads the latest temperature measurement from the database.
+     * @return the latest temperature measurement.
+     */
+    TemperatureAndHumidity getLatestMeasurement();
 }

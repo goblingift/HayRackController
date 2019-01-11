@@ -6,6 +6,7 @@
 package gift.goblin.HayRackController.database.event.repo;
 
 import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -13,5 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author andre
  */
 public interface TemperatureMeasurementRepository extends JpaRepository<TemperatureMeasurement, Long>{
+    
+    List<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
     
 }

@@ -17,16 +17,14 @@ public class TemperatureAndHumidity {
     private float temperature;
     private float temperatureFahrenheit;
     private float humidity;
-    private int readAttempts;
 
     public TemperatureAndHumidity() {
     }
 
-    public TemperatureAndHumidity(float temperature, float temperatureFahrenheit, float humidity, int readAttempts) {
+    public TemperatureAndHumidity(float temperature, float temperatureFahrenheit, float humidity) {
         this.temperature = temperature;
         this.temperatureFahrenheit = temperatureFahrenheit;
         this.humidity = humidity;
-        this.readAttempts = readAttempts;
     }
     
     /**
@@ -38,7 +36,6 @@ public class TemperatureAndHumidity {
         this.temperature = map.getOrDefault(TempSensorReader.KEY_TEMPERATURE, 0.0F);
         this.temperatureFahrenheit = map.getOrDefault(TempSensorReader.KEY_TEMPERATURE_FAHRENHEIT, 0.0F);
         this.humidity = map.getOrDefault(TempSensorReader.KEY_HUMIDITY, 0.0F);
-        this.readAttempts = Float.valueOf(map.getOrDefault("attempts", 0.0F)).intValue();
     }
 
     //<editor-fold defaultstate="collapsed" desc="getterSetter">

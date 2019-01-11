@@ -35,6 +35,12 @@
                         <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/temperature}">
+                        <i class="fas fa-thermometer-half fa-4x"></i>
+                    </a>
+                </li>
 
                 <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                     <a class="nav-link" th:href="@{${'/webcams/' + i}}">
