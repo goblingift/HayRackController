@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.service.io.dto;
 
-import gift.goblin.HayRackController.service.io.TempSensorReader;
+import gift.goblin.HayRackController.service.io.IOController;
 import java.util.Map;
 
 /**
@@ -33,9 +33,9 @@ public class TemperatureAndHumidity {
      */
     public TemperatureAndHumidity(Map<String, Float> map) {
         
-        this.temperature = map.getOrDefault(TempSensorReader.KEY_TEMPERATURE, 0.0F);
-        this.temperatureFahrenheit = map.getOrDefault(TempSensorReader.KEY_TEMPERATURE_FAHRENHEIT, 0.0F);
-        this.humidity = map.getOrDefault(TempSensorReader.KEY_HUMIDITY, 0.0F);
+        this.temperature = map.getOrDefault(IOController.KEY_TEMPERATURE, 0.0F);
+        this.temperatureFahrenheit = map.getOrDefault(IOController.KEY_TEMPERATURE_FAHRENHEIT, 0.0F);
+        this.humidity = map.getOrDefault(IOController.KEY_HUMIDITY, 0.0F);
     }
 
     //<editor-fold defaultstate="collapsed" desc="getterSetter">

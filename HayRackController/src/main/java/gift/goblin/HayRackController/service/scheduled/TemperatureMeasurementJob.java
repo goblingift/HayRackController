@@ -18,41 +18,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Scheduled job, which measures temp sensors, logs the results
- * and triggers following actions.
+ * Scheduled job, which measures temp sensors, logs the results and triggers
+ * following actions.
+ *
  * @author andre
  */
 @Component
 public class TemperatureMeasurementJob implements Job {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     IOController iOController;
-    
+
     @Autowired
     TemperatureMeasurementService temperatureMeasurementService;
-    
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        logger.debug("Execution of temperature measurement job triggered.");
-        
-        Optional<TemperatureAndHumidity> optTempAndHumidity = iOController.measureTempAndHumidity();
-        
+
+        Optional<TemperatureAndHumidity> measuredResult = iOController.getTempAndHumidity();
+
         // null-check: Will only be null, if executed in NO-RASPBERRY environment
-        if (optTempAndHumidity == null) {
+        if (measuredResult == null) {
             logger.info("Temperature measurement returns null value- fake data, cause its no RASPBERRY-machine.");
-            
             TemperatureAndHumidity fakeData = new TemperatureAndHumidity(36.0F, 96.8F, 8.5F);
             temperatureMeasurementService.saveTemperatureMeasurement(fakeData);
         } else {
-            if (optTempAndHumidity.isPresent()) {
-                temperatureMeasurementService.saveTemperatureMeasurement(optTempAndHumidity.get());
-            } else {
-                logger.error("Couldnt read temperature and humidity- wont save any values to database!");
-            }
+            temperatureMeasurementService.saveTemperatureMeasurement(measuredResult.get());
         }
-        
+
     }
-    
+
 }
