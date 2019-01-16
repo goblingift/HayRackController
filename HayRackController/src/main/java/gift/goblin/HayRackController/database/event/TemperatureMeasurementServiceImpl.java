@@ -5,9 +5,11 @@
  */
 package gift.goblin.HayRackController.database.event;
 
+import gift.goblin.HayRackController.controller.dto.CalendarEvent;
 import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
 import gift.goblin.HayRackController.database.event.repo.TemperatureMeasurementRepository;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.slf4j.Logger;
@@ -48,6 +50,15 @@ public class TemperatureMeasurementServiceImpl implements TemperatureMeasurement
         TemperatureAndHumidity returnValue = new TemperatureAndHumidity(firstResult.getTemperature(), firstResult.getTemperatureFahrenheit(), firstResult.getHumidity());
         
         return returnValue;
+    }
+
+    @Override
+    public List<TemperatureMeasurement> getTemperatureMeasurements(LocalDate startDate, LocalDate endDate) {
+        
+        List<TemperatureMeasurement> result = repo.findByMeasuredAtAfterAndMeasuredAtBefore(startDate.atStartOfDay(), endDate.atStartOfDay());
+        logger.info("Result of calling findByMeasuredAtAfterAndMeasuredAtBefore: {}", result);
+        
+        return result;
     }
     
 }
