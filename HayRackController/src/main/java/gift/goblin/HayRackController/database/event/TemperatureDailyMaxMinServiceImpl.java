@@ -6,8 +6,11 @@
 package gift.goblin.HayRackController.database.event;
 
 import gift.goblin.HayRackController.database.event.model.TemperatureDailyMaxMin;
+import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
 import gift.goblin.HayRackController.database.event.repo.TemperatureDailyMaxMinRepository;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +33,28 @@ public class TemperatureDailyMaxMinServiceImpl implements TemperatureDailyMaxMin
     public float getMinTemperature(LocalDate localDate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public List<TemperatureMeasurement> getMaxTemperatures(LocalDate from, LocalDate to) {
+        return getDailyValues(from, to, true);
+    }
+    
+    @Override
+    public List<TemperatureMeasurement> getMinTemperatures(LocalDate from, LocalDate to) {
+        return getDailyValues(from, to, false);
+    }
+    
+    private List<TemperatureMeasurement> getDailyValues(LocalDate from, LocalDate to, boolean findMaxValues) {
+        
+        List<TemperatureDailyMaxMin> temperatureMeasurements = repo.findByDateBetween(from, to);
+        
+        List<TemperatureMeasurement> results = temperatureMeasurements.stream()
+                .map(td -> findMaxValues ? td.getMax() : td.getMin())
+                .collect(Collectors.toList());
+        
+        return results;
+    }
+
     
     
 }

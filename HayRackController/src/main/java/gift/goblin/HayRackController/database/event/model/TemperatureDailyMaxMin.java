@@ -28,11 +28,11 @@ public class TemperatureDailyMaxMin {
     private Long id;
     
     @OneToOne(optional = false)
-    @JoinColumn(name = "temperateMeasurementId", nullable = false)
+    @JoinColumn(name = "fk_temperateMeasurementId_min", nullable = false)
     private TemperatureMeasurement min;
     
     @OneToOne(optional = false)
-    @JoinColumn(name = "temperateMeasurementId", nullable = false)
+    @JoinColumn(name = "fk_temperateMeasurementId_max", nullable = false)
     private TemperatureMeasurement max;
     
     private LocalDate date;

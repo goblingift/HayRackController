@@ -55,7 +55,7 @@ public class TemperatureMeasurementServiceImpl implements TemperatureMeasurement
     @Override
     public List<TemperatureMeasurement> getTemperatureMeasurements(LocalDate startDate, LocalDate endDate) {
         
-        List<TemperatureMeasurement> result = repo.findByMeasuredAtAfterAndMeasuredAtBefore(startDate.atStartOfDay(), endDate.atStartOfDay());
+        List<TemperatureMeasurement> result = repo.findByMeasuredAtBetween(startDate.atStartOfDay(), endDate.atStartOfDay());
         logger.info("Result of calling findByMeasuredAtAfterAndMeasuredAtBefore: {}", result);
         
         return result;

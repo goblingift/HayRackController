@@ -18,6 +18,6 @@ public interface TemperatureMeasurementRepository extends JpaRepository<Temperat
     
     List<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
     
-    List<TemperatureMeasurement> findByMeasuredAtAfterAndMeasuredAtBefore(LocalDateTime after, LocalDateTime before);
+    List<TemperatureMeasurement> findByMeasuredAtBetween(LocalDateTime after, LocalDateTime before);
     
 }

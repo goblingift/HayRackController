@@ -117,30 +117,15 @@
         <script th:inline="javascript">
             
             $(document).ready(function() {
-              // Fetch our events
-              $.ajax({
-                  url: "/temperature/events",
-                method: "GET",
-                datatype: "json"
-              }).done(function(response) {
-                  
-                  console.log("RESULT AFTER WS CALL");
-                  console.log(response);
-                  
-                // Parse our events into an event object for FullCalendar
-                var events = [];
-                $.each(response, function(idx, e) {
-                  events.push({
-                    start: e.date,
-                    title: e.title
-                  });
-                });
+                
                 $('#calendar').fullCalendar({
-                  events: events
+                  eventSources: [
+                    {
+                      url: '/temperature/events'
+                    }
+                  ]
                 });
-              });
             });
-            
         </script>
         
     </body>
