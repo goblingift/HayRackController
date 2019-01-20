@@ -28,8 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -59,7 +61,7 @@ public class TimeTableController {
     @Autowired
     private WebcamDeviceService webcamService;
 
-    @RequestMapping(value = "/timetable", method = RequestMethod.GET)
+    @GetMapping(value = "/timetable")
     public String renderTimetable(Model model) {
 
         List<ScheduledShutterMovement> scheduledMovements = scheduledShutterMovementService.readAllStoredShutterMovementSchedules();
@@ -78,20 +80,22 @@ public class TimeTableController {
         return "timetable";
     }
 
-    @RequestMapping(value = "/timetable/add", method = RequestMethod.POST)
+    @PostMapping(value = "/timetable/add")
     public String addNewSchedule(@ModelAttribute("newMovement") ScheduledShutterMovement newMovement, BindingResult bindingResult, Model model) {
 
         logger.info("Called adding new schedule with object: {}", newMovement);
 
+        // Add database entry
         Long newShutterMovementId = scheduledShutterMovementService
                 .addNewShutterMovement(newMovement.getFeedingStartTime(), newMovement.getFeedingDuration());
 
-        registerShutdownSchedule(newMovement.getFeedingStartTime(), newShutterMovementId);
+        // Register scheduled job
+        registerStartFeedingJob(newMovement.getFeedingStartTime(), newShutterMovementId);
 
         return renderTimetable(model);
     }
 
-    @RequestMapping(value = "/timetable/delete/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/timetable/delete/{id}")
     public String deleteEntry(@PathVariable("id") String id, Model model) {
 
         scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
@@ -100,7 +104,7 @@ public class TimeTableController {
         return renderTimetable(model);
     }
 
-    private void registerShutdownSchedule(LocalTime localTime, Long schedulerId) {
+    private void registerStartFeedingJob(LocalTime localTime, Long schedulerId) {
 
         LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
 
