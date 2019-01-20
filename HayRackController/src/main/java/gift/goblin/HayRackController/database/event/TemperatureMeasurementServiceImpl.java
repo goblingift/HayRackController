@@ -12,6 +12,7 @@ import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +45,16 @@ public class TemperatureMeasurementServiceImpl implements TemperatureMeasurement
     @Override
     public TemperatureAndHumidity getLatestMeasurement() {
         
-        List<TemperatureMeasurement> resultList = repo.findTop1ByOrderByMeasuredAtDesc();
-        TemperatureMeasurement firstResult = resultList.get(resultList.size()-1);
-        logger.debug("Result after calling findTop1ByOrderByMeasuredAtDesc: {}", firstResult);
+        Optional<TemperatureMeasurement> optResult = repo.findTop1ByOrderByMeasuredAtDesc();
+        logger.debug("Result after calling findTop1ByOrderByMeasuredAtDesc: {}", optResult);
         
-        TemperatureAndHumidity returnValue = new TemperatureAndHumidity(firstResult.getTemperature(), firstResult.getTemperatureFahrenheit(), firstResult.getHumidity());
-        
-        return returnValue;
+        if (optResult.isPresent()) {
+            TemperatureAndHumidity returnValue = new TemperatureAndHumidity(optResult.get().getTemperature(),
+                    optResult.get().getTemperatureFahrenheit(), optResult.get().getHumidity());
+            return returnValue;
+        } else {
+            return null;
+        }
     }
 
     @Override

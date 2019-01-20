@@ -8,6 +8,7 @@ package gift.goblin.HayRackController.database.event.repo;
 import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TemperatureMeasurementRepository extends JpaRepository<TemperatureMeasurement, Long>{
     
-    List<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
+    Optional<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
     
     List<TemperatureMeasurement> findByMeasuredAtBetween(LocalDateTime after, LocalDateTime before);
     
