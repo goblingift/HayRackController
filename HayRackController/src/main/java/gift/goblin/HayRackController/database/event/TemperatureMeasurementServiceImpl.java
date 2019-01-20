@@ -31,13 +31,14 @@ public class TemperatureMeasurementServiceImpl implements TemperatureMeasurement
     TemperatureMeasurementRepository repo;
     
     @Override
-    public void saveTemperatureMeasurement(TemperatureAndHumidity tempAndHumidity) {
+    public TemperatureMeasurement saveTemperatureMeasurement(TemperatureAndHumidity tempAndHumidity) {
         
         TemperatureMeasurement temperatureMeasurement = new TemperatureMeasurement(tempAndHumidity.getTemperature(), tempAndHumidity.getTemperatureFahrenheit(),
                 tempAndHumidity.getHumidity(), LocalDateTime.now());
         
         TemperatureMeasurement savedEntity = repo.save(temperatureMeasurement);
         logger.info("Temperature-Measurement: Successful created entry: {}", savedEntity);
+        return savedEntity;
     }
 
     @Override

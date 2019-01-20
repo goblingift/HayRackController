@@ -90,24 +90,6 @@
 
             <h2 th:text="#{temperature.table.header}"></h2>
             <p th:text="#{temperature.table.subheader}"></p>
-            <div class="table-responsive">
-                <table id="" class="table table-striped">
-                    <!--Table head-->
-                    <thead>
-                        <tr>
-                            <th th:text="#{temperature.table.date}"></th>
-                            <th th:text="#{temperature.table.time}"></th>
-                            <th th:text="#{temperature.table.temperature}"></th>
-                            <th th:text="#{temperature.table.humidity}"></th>
-                        </tr>
-                    </thead>
-                    <!-- Existing scheduled timings -->
-                    <tbody>
-                    </tbody>
-                    <!--Table body-->
-                </table>
-                <!--Table-->
-            </div>
             
             <div id='calendar'></div>
             
@@ -121,7 +103,7 @@
                 $('#calendar').fullCalendar({
                   eventSources: [
                     {
-                      url: '/temperature/events'
+                      url: '/temperature/events/max-and-min'
                     }
                   ]
                 });

@@ -37,6 +37,19 @@ public class TemperatureDailyMaxMin {
     
     private LocalDate date;
 
+    public TemperatureDailyMaxMin() {
+    }
+
+    public TemperatureDailyMaxMin(LocalDate date) {
+        this.date = date;
+    }
+    
+    public TemperatureDailyMaxMin(TemperatureMeasurement min, TemperatureMeasurement max, LocalDate date) {
+        this.min = min;
+        this.max = max;
+        this.date = date;
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="getterSetter">
     public TemperatureMeasurement getMin() {
         return min;

@@ -8,6 +8,7 @@ package gift.goblin.HayRackController.database.event;
 import gift.goblin.HayRackController.database.event.model.TemperatureDailyMaxMin;
 import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
 import gift.goblin.HayRackController.database.event.repo.TemperatureDailyMaxMinRepository;
+import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +54,28 @@ public class TemperatureDailyMaxMinServiceImpl implements TemperatureDailyMaxMin
                 .collect(Collectors.toList());
         
         return results;
+    }
+
+    @Override
+    public void tryToStoreTemperature(TemperatureMeasurement temperatureAndHumidity) {
+        
+        TemperatureDailyMaxMin dailyEntry = repo.findByDate(LocalDate.now());
+        
+        // If no entry was found from today, create a new one
+        if (dailyEntry == null) {
+            dailyEntry = new TemperatureDailyMaxMin(temperatureAndHumidity, temperatureAndHumidity, LocalDate.now());
+        } else {
+            float oldTemperature = dailyEntry.getMin().getTemperature();
+            
+            if (temperatureAndHumidity.getTemperature() > oldTemperature) {
+                dailyEntry.setMax(temperatureAndHumidity);
+            }
+            if (temperatureAndHumidity.getTemperature() < oldTemperature) {
+                dailyEntry.setMin(temperatureAndHumidity);
+            }
+        }
+        
+        repo.saveAndFlush(dailyEntry);
     }
 
     

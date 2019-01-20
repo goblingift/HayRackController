@@ -95,21 +95,24 @@ public class TemperatureController {
     public List<CalendarEvent> getEventsMaxMin(@RequestParam(value = "start", required = false) String startDate,
             @RequestParam(value = "end", required = false) String endDate) {
 
-        logger.info("The calendar plugin wants to get max and min results for: start={}, end={}", startDate, endDate);
+        logger.debug("The calendar plugin wants to get max and min results for: start={}, end={}", startDate, endDate);
         
         LocalDate startDateParsed = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
         LocalDate endDateParsed = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
         
         List<TemperatureMeasurement> minTemperatures = temperatureDailyMaxMinService.getMinTemperatures(startDateParsed, endDateParsed);
+        logger.debug("Found {} minimum-temperature entries.", minTemperatures.size());
+        
         List<TemperatureMeasurement> maxTemperatures = temperatureDailyMaxMinService.getMaxTemperatures(startDateParsed, endDateParsed);
+        logger.debug("Found {} maximum-temperature entries.", maxTemperatures.size());
         
         List<CalendarEvent> minCalendarEvents = minTemperatures.stream()
-                .map(tm -> new CalendarEvent("MIN", DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
+                .map(tm -> new CalendarEvent("MIN: " + tm.getTemperature(), DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
                         CalendarEvent.COLOR_LOWEST_TEMP, CalendarEvent.DEFAULT_TEXTCOLOR))
                 .collect(Collectors.toList());
         
         List<CalendarEvent> maxCalendarEvents = maxTemperatures.stream()
-                .map(tm -> new CalendarEvent("MAX", DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
+                .map(tm -> new CalendarEvent("MAX: " + tm.getTemperature(), DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
                         CalendarEvent.COLOR_HIGHEST_TEMP, CalendarEvent.DEFAULT_TEXTCOLOR))
                 .collect(Collectors.toList());
         

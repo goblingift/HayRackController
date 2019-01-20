@@ -21,8 +21,9 @@ public interface TemperatureMeasurementService {
      * Stores the temperature and humidity with an auto-generated timestamp into
      * the database.
      * @param tempAndHumidity 
+     * @return the created entity.
      */
-    void saveTemperatureMeasurement(TemperatureAndHumidity tempAndHumidity);
+    TemperatureMeasurement saveTemperatureMeasurement(TemperatureAndHumidity tempAndHumidity);
     
     /**
      * Reads the latest temperature measurement from the database.
