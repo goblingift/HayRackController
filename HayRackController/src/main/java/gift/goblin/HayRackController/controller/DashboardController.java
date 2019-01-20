@@ -5,7 +5,9 @@
  */
 package gift.goblin.HayRackController.controller;
 
+import gift.goblin.HayRackController.database.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
+import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import java.io.IOException;
 import java.time.ZoneId;
@@ -40,6 +42,9 @@ public class DashboardController {
 
     @Autowired
     private BuildProperties buildProperties;
+    
+    @Autowired
+    private TemperatureMeasurementService temperatureMeasurementService;
 
     /**
      * Default render method for the dashboard.
@@ -52,11 +57,10 @@ public class DashboardController {
 
         String username = securityService.getUsernameOfCurrentUser();
         model.addAttribute("username", username);
-
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-
+        model.addAttribute("temperature", temperatureMeasurementService.getLatestMeasurement());
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "dashboard";
     }

@@ -20,17 +20,17 @@ import org.springframework.context.annotation.Configuration;
  */
 @Aspect
 @Configuration
-public class ShutterControllerAspect {
+public class RaspberryHardwareAOP {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private IOController shutterController;
+    private IOController ioController;
 
     @Around("@annotation(gift.goblin.HayRackController.aop.RequiresRaspberry)")
     public void around(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        if (shutterController.isRaspberryInitialized()) {
+        if (ioController.isRaspberryInitialized()) {
             joinPoint.proceed();
         } else {
             logger.warn("Raspberry isnt initialized! Skip method call: {}", joinPoint.getSignature().getName());

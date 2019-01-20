@@ -5,12 +5,14 @@
  */
 package gift.goblin.HayRackController.database.event;
 
+import gift.goblin.HayRackController.database.event.model.FeedingEvent;
 import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,14 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
     @Override
     public void deleteScheduledMovement(Long id) {
         
-        repo.deleteById(id);
+        // Remove all foreign-key relationships of triggered feedingEvent entries
+        Optional<ScheduledShutterMovement> optScheduledShutterMovement = repo.findById(id);
+        if (optScheduledShutterMovement.isPresent()) {
+            List<FeedingEvent> feedingEvents = optScheduledShutterMovement.get().getFeedingEvents();
+            feedingEvents.stream().forEach(fe -> fe.setScheduledShutterMovement(null));
+        }
+
+        repo.delete(optScheduledShutterMovement.get());
         logger.info("Successful deleted shutter movement entry with id: {}", id);
     }
 

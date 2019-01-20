@@ -44,9 +44,9 @@ public class FeedingEvent {
         this.feedingStart = feedingStart;
         this.scheduledShutterMovement = scheduledShutterMovement;
     }
-
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "fk_scheduled_shutter_movement")
     public ScheduledShutterMovement getScheduledShutterMovement() {
         return scheduledShutterMovement;
