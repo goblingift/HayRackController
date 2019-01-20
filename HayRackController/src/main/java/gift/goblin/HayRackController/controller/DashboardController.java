@@ -54,14 +54,21 @@ public class DashboardController {
      */
     @GetMapping(value = {"/", "/dashboard"})
     public String renderDashboard(Model model) {
-
+        
+        TemperatureAndHumidity latestMeasurement = temperatureMeasurementService.getLatestMeasurement();
+        if (latestMeasurement != null) {
+            model.addAttribute("temperature", latestMeasurement);
+        } else {
+            model.addAttribute("temperature", new TemperatureAndHumidity(99, 99, 99));
+        }
+        
         String username = securityService.getUsernameOfCurrentUser();
         model.addAttribute("username", username);
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        model.addAttribute("temperature", temperatureMeasurementService.getLatestMeasurement());
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
+        
         return "dashboard";
     }
 

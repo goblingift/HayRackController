@@ -10,6 +10,7 @@ import gift.goblin.HayRackController.database.event.TemperatureDailyMaxMinServic
 import gift.goblin.HayRackController.database.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
+import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -51,7 +52,13 @@ public class TemperatureController {
     @GetMapping(value = "/temperature")
     public String renderDashboard(Model model) {
 
-        model.addAttribute("temperature", temperatureMeasurementService.getLatestMeasurement());
+        TemperatureAndHumidity latestMeasurement = temperatureMeasurementService.getLatestMeasurement();
+        if (latestMeasurement != null) {
+            model.addAttribute("temperature", latestMeasurement);
+        } else {
+            model.addAttribute("temperature", new TemperatureAndHumidity(99, 99, 99));
+        }
+
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "temperature";
     }
@@ -77,7 +84,7 @@ public class TemperatureController {
                 .map(tm -> new CalendarEvent(DateTimeFormatter.ISO_DATE_TIME.format(tm.getMeasuredAt()),
                         DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt())))
                 .collect(Collectors.toList());
-        
+
         return calendarEvents;
     }
 
@@ -96,29 +103,29 @@ public class TemperatureController {
             @RequestParam(value = "end", required = false) String endDate) {
 
         logger.debug("The calendar plugin wants to get max and min results for: start={}, end={}", startDate, endDate);
-        
+
         LocalDate startDateParsed = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
         LocalDate endDateParsed = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
-        
+
         List<TemperatureMeasurement> minTemperatures = temperatureDailyMaxMinService.getMinTemperatures(startDateParsed, endDateParsed);
         logger.debug("Found {} minimum-temperature entries.", minTemperatures.size());
-        
+
         List<TemperatureMeasurement> maxTemperatures = temperatureDailyMaxMinService.getMaxTemperatures(startDateParsed, endDateParsed);
         logger.debug("Found {} maximum-temperature entries.", maxTemperatures.size());
-        
+
         List<CalendarEvent> minCalendarEvents = minTemperatures.stream()
                 .map(tm -> new CalendarEvent("MIN: " + tm.getTemperature(), DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
                         CalendarEvent.COLOR_LOWEST_TEMP, CalendarEvent.DEFAULT_TEXTCOLOR))
                 .collect(Collectors.toList());
-        
+
         List<CalendarEvent> maxCalendarEvents = maxTemperatures.stream()
                 .map(tm -> new CalendarEvent("MAX: " + tm.getTemperature(), DateTimeFormatter.ISO_DATE.format(tm.getMeasuredAt()),
                         CalendarEvent.COLOR_HIGHEST_TEMP, CalendarEvent.DEFAULT_TEXTCOLOR))
                 .collect(Collectors.toList());
-        
+
         List<CalendarEvent> allEvents = Stream.concat(minCalendarEvents.stream(), maxCalendarEvents.stream())
                 .collect(Collectors.toList());
-        
+
         return allEvents;
     }
 
