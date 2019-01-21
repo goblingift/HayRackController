@@ -9,6 +9,7 @@ import gift.goblin.HayRackController.database.event.model.ScheduledShutterMoveme
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
 import gift.goblin.HayRackController.database.event.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -48,6 +50,9 @@ public class TimeTableController {
 
     @Autowired
     private ScheduledShutterMovementService scheduledShutterMovementService;
+    
+    @Autowired
+    ScheduledShutterMovementRepository repo;
 
     @Autowired
     private SchedulerJobService schedulerJobService;
@@ -91,15 +96,31 @@ public class TimeTableController {
 
         // Register scheduled job
         registerStartFeedingJob(newMovement.getFeedingStartTime(), newShutterMovementId);
+        
+        model.addAttribute("added_time", newMovement.getFeedingStartTime());
+        model.addAttribute("success_message", "timetable.addNew.success");
 
         return renderTimetable(model);
     }
 
     @GetMapping(value = "/timetable/delete/{id}")
     public String deleteEntry(@PathVariable("id") String id, Model model) {
-
-        scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
-        schedulerJobService.deleteStartFeedingJob(Integer.valueOf(id));
+        
+        try {
+            Optional<ScheduledShutterMovement> optScheduledShutterMovement = repo.findById(Long.valueOf(id));
+            if (optScheduledShutterMovement.isPresent()) {
+                LocalTime feedingStartTime = optScheduledShutterMovement.get().getFeedingStartTime();
+                
+                scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
+                schedulerJobService.deleteStartFeedingJob(Integer.valueOf(id));
+                
+                model.addAttribute("deleted_time", feedingStartTime);
+                model.addAttribute("success_message", "timetable.delete.success");
+            }
+            
+        } catch (Exception e) {
+            logger.error("Exception thrown while try to delete scheduled entry with id: {}", id);
+        }
         
         return renderTimetable(model);
     }
