@@ -4,7 +4,7 @@ Copyright (C) 2019 Andre Kessler (https://github.com/goblingift) - all rights re
 
 Nobody (Except the copyright owner above) has the permission to modify, publish, distribute, sublicense and/or sell copies of this Software.
 
-**Licenses from used 3rd party libraries** (Every single library starts with a #-character):
+**Licenses from used 3rd party libraries** (Every single library is written bold):
 
 #### Webcam Capture API by Bartosz Firyn (https://github.com/sarxos):
 ```
