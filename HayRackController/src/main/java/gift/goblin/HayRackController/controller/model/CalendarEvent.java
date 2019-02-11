@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.controller.dto;
+package gift.goblin.HayRackController.controller.model;
 
 import java.util.Objects;
 

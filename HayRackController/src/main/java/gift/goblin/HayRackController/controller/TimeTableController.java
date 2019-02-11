@@ -11,7 +11,7 @@ import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
 import gift.goblin.HayRackController.service.event.ScheduledShutterMovementService;
 import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
-import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
+import gift.goblin.HayRackController.controller.model.ScheduledShutterMovementDto;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;

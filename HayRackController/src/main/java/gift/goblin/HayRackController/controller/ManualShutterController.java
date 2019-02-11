@@ -7,7 +7,7 @@ package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
-import gift.goblin.HayRackController.view.model.ShutterMovement;
+import gift.goblin.HayRackController.controller.model.ShutterMovement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

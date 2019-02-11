@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,29 +17,27 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(entityManagerFactoryRef = "embeddedEntityManagerFactory",
-    transactionManagerRef = "embeddedTransactionManager", basePackages = {"gift.goblin.HayRackController.database.embedded.repo"})
-public class EmbeddedDatabaseConfig {
+@EnableJpaRepositories(entityManagerFactoryRef = "backupEntityManagerFactory",
+    transactionManagerRef = "backupTransactionManager", basePackages = {"gift.goblin.HayRackController.database.backup.repo"})
+public class BackupDatabaseConfig {
 
-  @Primary
-  @Bean(name = "embeddedDataSource")
-  @ConfigurationProperties(prefix = "embedded.datasource")
+  @Bean(name = "backupDataSource")
+  @ConfigurationProperties(prefix = "backup.datasource")
   public DataSource dataSource() {
     return DataSourceBuilder.create().build();
   }
 
-  @Primary
-  @Bean(name = "embeddedEntityManagerFactory")
-  public LocalContainerEntityManagerFactoryBean embeddedEntityManagerFactory(
-      EntityManagerFactoryBuilder builder, @Qualifier("embeddedDataSource") DataSource dataSource) {
+  @Bean(name = "backupEntityManagerFactory")
+  public LocalContainerEntityManagerFactoryBean backupEntityManagerFactory(
+      EntityManagerFactoryBuilder builder, @Qualifier("backupDataSource") DataSource dataSource) {
     return builder.dataSource(dataSource).packages("gift.goblin.HayRackController.database.model")
         .build();
   }
 
-  @Primary
-  @Bean(name = "embeddedTransactionManager")
-  public PlatformTransactionManager embeddedTransactionManager(
-      @Qualifier("embeddedEntityManagerFactory") EntityManagerFactory embeddedEntityManagerFactory) {
-    return new JpaTransactionManager(embeddedEntityManagerFactory);
+  @Bean(name = "backupTransactionManager")
+  public PlatformTransactionManager backupTransactionManager(
+      @Qualifier("backupEntityManagerFactory") EntityManagerFactory backupEntityManagerFactory) {
+    return new JpaTransactionManager(backupEntityManagerFactory);
   }
+
 }

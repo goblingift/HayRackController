@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.database.security.repo;
+package gift.goblin.HayRackController.database.embedded.repo.user;
 
 import gift.goblin.HayRackController.database.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

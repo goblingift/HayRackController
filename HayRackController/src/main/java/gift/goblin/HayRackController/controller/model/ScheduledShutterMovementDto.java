@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.view.model;
+package gift.goblin.HayRackController.controller.model;
 
 /**
  * Form dto, which contains information about scheduled shutter movements

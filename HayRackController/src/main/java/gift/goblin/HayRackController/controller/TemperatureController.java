@@ -5,13 +5,15 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.controller.dto.CalendarEvent;
+import gift.goblin.HayRackController.controller.model.CalendarEvent;
+import gift.goblin.HayRackController.database.backup.repo.event.TemperatureMeasurementBackupRepository;
 import gift.goblin.HayRackController.service.event.TemperatureDailyMaxMinService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -48,7 +50,7 @@ public class TemperatureController {
 
     @Autowired
     private WebcamDeviceService webcamService;
-
+    
     @GetMapping(value = "/temperature")
     public String renderDashboard(Model model) {
 
@@ -62,7 +64,7 @@ public class TemperatureController {
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         return "temperature";
     }
-
+    
     /**
      * Returns a list of all temperature events for the given date period.
      *

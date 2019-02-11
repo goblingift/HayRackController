@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.service.event;
 
-import gift.goblin.HayRackController.controller.dto.CalendarEvent;
+import gift.goblin.HayRackController.controller.model.CalendarEvent;
 import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import gift.goblin.HayRackController.database.embedded.repo.event.TemperatureMeasurementRepository;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
