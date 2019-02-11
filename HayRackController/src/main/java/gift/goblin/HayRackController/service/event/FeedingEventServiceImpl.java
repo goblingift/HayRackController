@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.database.event;
+package gift.goblin.HayRackController.service.event;
 
-import gift.goblin.HayRackController.database.event.model.FeedingEvent;
-import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.event.repo.FeedingEventRepository;
-import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.database.model.event.FeedingEvent;
+import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.embedded.repo.event.FeedingEventRepository;
+import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;

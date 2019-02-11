@@ -5,9 +5,9 @@
  */
 package gift.goblin.HayRackController.service.scheduled;
 
-import gift.goblin.HayRackController.database.event.FeedingEventService;
-import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
-import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.service.event.FeedingEventService;
+import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;

@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.database.event.repo;
+package gift.goblin.HayRackController.database.embedded.repo.event;
 
-import gift.goblin.HayRackController.database.event.model.TemperatureDailyMaxMin;
-import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
+import gift.goblin.HayRackController.database.model.event.TemperatureDailyMaxMin;
+import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

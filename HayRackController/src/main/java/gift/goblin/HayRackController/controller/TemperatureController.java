@@ -6,9 +6,9 @@
 package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.controller.dto.CalendarEvent;
-import gift.goblin.HayRackController.database.event.TemperatureDailyMaxMinService;
-import gift.goblin.HayRackController.database.event.TemperatureMeasurementService;
-import gift.goblin.HayRackController.database.event.model.TemperatureMeasurement;
+import gift.goblin.HayRackController.service.event.TemperatureDailyMaxMinService;
+import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
+import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import java.time.LocalDate;

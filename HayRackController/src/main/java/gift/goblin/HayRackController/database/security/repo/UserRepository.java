@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.database.security.repo;
 
-import gift.goblin.HayRackController.database.security.model.User;
+import gift.goblin.HayRackController.database.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
