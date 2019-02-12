@@ -76,7 +76,7 @@ public class TimeTableController {
         }
 
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
-                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
+                s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);

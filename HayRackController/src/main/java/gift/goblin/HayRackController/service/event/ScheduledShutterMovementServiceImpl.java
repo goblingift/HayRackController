@@ -5,6 +5,7 @@
  */
 package gift.goblin.HayRackController.service.event;
 
+import gift.goblin.HayRackController.database.backup.repo.event.ScheduledShutterMovementBackupRepository;
 import gift.goblin.HayRackController.database.model.event.FeedingEvent;
 import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
@@ -31,6 +32,9 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
     ScheduledShutterMovementRepository repo;
     
     @Autowired
+    ScheduledShutterMovementBackupRepository backupRepo;
+    
+    @Autowired
     SecurityService securityService;
     
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,6 +50,9 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
         newShutterMovement.setCreatedAt(LocalDateTime.now());
         ScheduledShutterMovement entity = repo.save(newShutterMovement);
         logger.info("Successful added new scheduled Movement: {}", newShutterMovement);
+        
+        ScheduledShutterMovement savedBackupEntity = backupRepo.save(entity);
+        logger.info("Successful added new scheduled movement to backup db: {}", savedBackupEntity);
         
         return entity.getId();
     }

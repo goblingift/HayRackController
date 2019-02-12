@@ -28,7 +28,6 @@ import javax.persistence.Table;
 public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement> {
 
     private Long id;
-    private boolean isActive;
     private LocalTime feedingStartTime;
     /**
      * Feeding duration in minutes.
@@ -55,14 +54,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public boolean isIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public LocalTime getFeedingStartTime() {
@@ -126,9 +117,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
             return false;
         }
         final ScheduledShutterMovement other = (ScheduledShutterMovement) obj;
-        if (this.isActive != other.isActive) {
-            return false;
-        }
         if (!Objects.equals(this.createdBy, other.createdBy)) {
             return false;
         }
@@ -149,7 +137,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovement{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovement{" + "id=" + id + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
     @Override

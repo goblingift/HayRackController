@@ -13,7 +13,6 @@ package gift.goblin.HayRackController.controller.model;
 public class ScheduledShutterMovementDto {
     
     private String id;
-    private boolean isActive;
     private String feedingStartTime;
     /**
      * Feeding duration in minutes.
@@ -30,9 +29,8 @@ public class ScheduledShutterMovementDto {
         this.feedingDuration = feedingDuration;
     }
 
-    public ScheduledShutterMovementDto(String id, boolean isActive, String feedingStartTime, String feedingDuration, String createdBy, String createdAt) {
+    public ScheduledShutterMovementDto(String id, String feedingStartTime, String feedingDuration, String createdBy, String createdAt) {
         this.id = id;
-        this.isActive = isActive;
         this.feedingStartTime = feedingStartTime;
         this.feedingDuration = feedingDuration;
         this.createdBy = createdBy;
@@ -49,14 +47,6 @@ public class ScheduledShutterMovementDto {
         this.id = id;
     }
    
-    public boolean isIsActive() {
-        return isActive;
-    }
-    
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
-    }
-
     public String getFeedingStartTime() {
         return feedingStartTime;
     }
@@ -92,7 +82,7 @@ public class ScheduledShutterMovementDto {
 
     @Override
     public String toString() {
-        return "ScheduledShutterMovementDto{" + "id=" + id + ", isActive=" + isActive + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
+        return "ScheduledShutterMovementDto{" + "id=" + id + ", feedingStartTime=" + feedingStartTime + ", feedingDuration=" + feedingDuration + ", createdBy=" + createdBy + ", createdAt=" + createdAt + '}';
     }
 
 }
