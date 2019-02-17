@@ -38,6 +38,7 @@ public class SchedulerJobService {
     public static final String GROUP_START_TRIGGERS = "start_feeding_triggers";
     public static final String GROUP_STOP_TRIGGERS = "stop_feeding_triggers";
     public static final String ID_TEMP_MEASUREMENT_JOB = "temperature_measurement_job";
+    public static final String ID_DB_SYNC_JOB = "db_sync_job";
     public static final String GROUP_SENSORS = "sensors";
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -53,12 +54,20 @@ public class SchedulerJobService {
         
         JobDetail temperatureMeasurementJob = createTemperatureMeasurementJob();
         SimpleTrigger temperatureMeasurementTrigger = createTemperatureMeasurementTrigger(temperatureMeasurementJob);
-
         try {
             scheduler.scheduleJob(temperatureMeasurementJob, temperatureMeasurementTrigger);
             logger.info("Successful registered scheduler for temperature measurement.");
         } catch (SchedulerException ex) {
             logger.error("Couldnt register new scheduled job for temperature measurement!", ex);
+        }
+
+        JobDetail databaseSyncJob = createDatabaseSyncJob();
+        SimpleTrigger databaseSyncTrigger = createDatabaseSyncTrigger(databaseSyncJob);
+        try {
+            scheduler.scheduleJob(databaseSyncJob, databaseSyncTrigger);
+            logger.info("Successful registered scheduler for database sync.");
+        } catch (SchedulerException ex) {
+            logger.error("Couldnt register new scheduled job for database sync!", ex);
         }
         
     }
@@ -83,14 +92,34 @@ public class SchedulerJobService {
         return newjobDetail;
     }
     
+    private  JobDetail createDatabaseSyncJob() {
+        JobDetail jobDetail = JobBuilder.newJob().ofType(DatabaseSyncJob.class)
+                .storeDurably()
+                .withIdentity(ID_DB_SYNC_JOB)
+                .withDescription("Job for syncing entries from embedded database to backup database.")
+                .build();
+
+        return jobDetail;
+    }
+    
+    private SimpleTrigger createDatabaseSyncTrigger(JobDetail jobDetail) {
+        SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
+                .withIdentity(ID_DB_SYNC_JOB)
+                .startNow()
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(1))
+                .build();
+
+        return trigger;
+    }
+    
     private JobDetail createTemperatureMeasurementJob() {
-        JobDetail newjobDetail = JobBuilder.newJob().ofType(TemperatureMeasurementJob.class)
+        JobDetail jobDetail = JobBuilder.newJob().ofType(TemperatureMeasurementJob.class)
                 .storeDurably()
                 .withIdentity(ID_TEMP_MEASUREMENT_JOB)
                 .withDescription("Job for measurement of temperature and humidity.")
                 .build();
 
-        return newjobDetail;
+        return jobDetail;
     }
 
     /**
@@ -103,7 +132,7 @@ public class SchedulerJobService {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(ID_TEMP_MEASUREMENT_JOB, GROUP_SENSORS)
                 .startNow()
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(15))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(1))
                 .build();
 
         return trigger;

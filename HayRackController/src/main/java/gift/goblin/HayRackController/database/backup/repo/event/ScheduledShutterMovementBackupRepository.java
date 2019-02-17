@@ -7,6 +7,8 @@ package gift.goblin.HayRackController.database.backup.repo.event;
 
 import gift.goblin.HayRackController.database.embedded.repo.event.*;
 import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -14,5 +16,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author andre
  */
 public interface ScheduledShutterMovementBackupRepository extends JpaRepository<ScheduledShutterMovement, Long> {
+    
+    Optional<TemperatureMeasurement> findTop1ByOrderByCreatedAtDesc();
     
 }

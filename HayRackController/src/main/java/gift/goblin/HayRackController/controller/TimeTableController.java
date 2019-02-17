@@ -71,10 +71,6 @@ public class TimeTableController {
 
         List<ScheduledShutterMovement> scheduledMovements = scheduledShutterMovementService.readAllStoredShutterMovementSchedules();
 
-        for (ScheduledShutterMovement actSchedule : scheduledMovements) {
-            logger.info(actSchedule.toString());
-        }
-
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
                 s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());

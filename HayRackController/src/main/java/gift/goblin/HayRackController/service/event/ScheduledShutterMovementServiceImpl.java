@@ -51,9 +51,6 @@ public class ScheduledShutterMovementServiceImpl implements ScheduledShutterMove
         ScheduledShutterMovement entity = repo.save(newShutterMovement);
         logger.info("Successful added new scheduled Movement: {}", newShutterMovement);
         
-        ScheduledShutterMovement savedBackupEntity = backupRepo.save(entity);
-        logger.info("Successful added new scheduled movement to backup db: {}", savedBackupEntity);
-        
         return entity.getId();
     }
 

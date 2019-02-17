@@ -6,6 +6,9 @@
 package gift.goblin.HayRackController.database.backup.repo.event;
 
 import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -14,4 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TemperatureMeasurementBackupRepository extends JpaRepository<TemperatureMeasurement, Long> {
     
+    Optional<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
+    
+    List<TemperatureMeasurement> findAllWithMeasuredAtAfter(LocalDateTime after); 
 }
