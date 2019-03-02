@@ -8,7 +8,9 @@ package gift.goblin.HayRackController.service.io;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
@@ -44,7 +46,8 @@ public class IOController {
 
     private static final int OPENING_CLOSING_TIME_MS = 30_000;
 
-    public static final int PIN_NO_TEMP_SENSOR = 21;
+    private static final int PIN_NO_TEMP_SENSOR = 7;
+    private static final int PIN_NO_TEMP_VOLTAGE = 0;
     private static final int PIN_NO_BRIGHTNESS_SENSOR = 22;
     private static final int PIN_NO_EXTERNAL_RELAY_LIGHT = 23;
     private static final int PIN_NO_12V_TRANSFORMATOR = 24;
@@ -82,9 +85,14 @@ public class IOController {
      */
     private GpioPinDigitalOutput pinRelayLight;
     
+    /**
+     * Pin for powering the temperature sensor.
+     */
+    private GpioPinDigitalOutput pinTempSensorVoltage;
+
     private static final int TEMPSENSOR_MAX_TIMINGS = 85;
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
-    private static final int TEMPSENSOR_MAX_READ_ATTEMPTS = 20;
+    private static final int TEMPSENSOR_MAX_READ_ATTEMPTS = 5;
 
     public static final String KEY_TEMPERATURE = "temp";
     public static final String KEY_TEMPERATURE_FAHRENHEIT = "tempFahrenheit";
@@ -102,6 +110,7 @@ public class IOController {
             setup12VTransformator();
             setupRelayLight();
             setupBrightnessSensor();
+            setupPinsTemperatureSensor();
 
             raspberryInitialized = true;
             logger.info("Raspberry PI successful initialized!");
@@ -125,21 +134,14 @@ public class IOController {
         gpioController.unprovisionPin(pinLightAndSound);
         gpioController.unprovisionPin(pinRelayLight);
         gpioController.unprovisionPin(pinBrightnessSensor);
+        gpioController.unprovisionPin(pinTempSensorVoltage);
     }
 
+    @RequiresRaspberry
     private void setupPinsTemperatureSensor() {
 
-        // setup wiringPi
-        try {
-            if (Gpio.wiringPiSetup() == -1) {
-                logger.warn("WiringPI initialization in TempSensorReader failed!");
-                return;
-            }
-
-            GpioUtil.export(3, GpioUtil.DIRECTION_OUT);
-        } catch (java.lang.UnsatisfiedLinkError e) {
-            logger.warn("Couldnt initialize TempSensorReader: {}", e.getMessage());
-        }
+        pinTempSensorVoltage = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_TEMP_VOLTAGE),
+                PinState.LOW);
     }
 
     /**
@@ -326,8 +328,9 @@ public class IOController {
 
     /**
      * Measure the temperature and humidity.
-     * @return Optional with the result, empty optional if measurement failure or
-     * null value, if no raspberry was initialized.
+     *
+     * @return Optional with the result, empty optional if measurement failure
+     * or null value, if no raspberry was initialized.
      */
     public Optional<TemperatureAndHumidity> getTempAndHumidity() {
 
@@ -335,15 +338,15 @@ public class IOController {
         if (!raspberryInitialized) {
             return null;
         }
-        
+
         Optional<TemperatureAndHumidity> measuredResult = Optional.empty();
 
         for (int i = 1; i <= TEMPSENSOR_MAX_READ_ATTEMPTS && !measuredResult.isPresent(); i++) {
             measuredResult = measureTempSensorValues(PIN_NO_TEMP_SENSOR);
             if (!measuredResult.isPresent()) {
-                logger.debug("Couldnt read values from temperature sensor, try again!");
+                logger.debug("Couldnt read values from temperature sensor, take a nap of 5 seconds and try again!");
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                     logger.error("Exception thrown while try to sleep for temp-sensor!", ex);
                 }
@@ -360,6 +363,10 @@ public class IOController {
     }
 
     private Optional<TemperatureAndHumidity> measureTempSensorValues(final int pin) {
+        
+        // Power on the temperature sensor
+        pinTempSensorVoltage.high();
+        Gpio.delay(5000);
 
         Optional<TemperatureAndHumidity> returnValue = Optional.empty();
         int laststate = Gpio.HIGH;
@@ -369,7 +376,7 @@ public class IOController {
         Gpio.pinMode(pin, Gpio.OUTPUT);
         Gpio.digitalWrite(pin, Gpio.LOW);
         Gpio.delay(18);
-
+        
         Gpio.digitalWrite(pin, Gpio.HIGH);
         Gpio.delayMicroseconds(7);
         Gpio.pinMode(pin, Gpio.INPUT);
@@ -421,6 +428,9 @@ public class IOController {
         } else {
             System.out.println("Data not good, skip");
         }
+        
+        // Power off the temperature sensor
+        pinTempSensorVoltage.low();
 
         return returnValue;
     }

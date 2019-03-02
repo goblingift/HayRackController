@@ -132,7 +132,7 @@ public class SchedulerJobService {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(ID_TEMP_MEASUREMENT_JOB, GROUP_SENSORS)
                 .startNow()
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(1))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(10))
                 .build();
 
         return trigger;
