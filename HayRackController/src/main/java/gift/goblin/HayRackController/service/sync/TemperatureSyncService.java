@@ -52,7 +52,9 @@ public class TemperatureSyncService {
         }
         
         List<TemperatureMeasurement> syncedEntries = backupRepo.saveAll(syncEntries);
-        logger.info("Successful synced {} new entries from embedded-db to backup-db.", syncedEntries.size());
+        if (!syncedEntries.isEmpty()) {
+            logger.info("Successful synced {} new entries from embedded-db to backup-db.", syncedEntries.size());
+        }
     }
 
     /**

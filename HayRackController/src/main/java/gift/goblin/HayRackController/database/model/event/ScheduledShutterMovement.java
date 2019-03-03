@@ -101,7 +101,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + Objects.hashCode(this.id);
+        hash = 47 * hash + Objects.hashCode(this.feedingStartTime);
         return hash;
     }
 
@@ -117,23 +117,13 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
             return false;
         }
         final ScheduledShutterMovement other = (ScheduledShutterMovement) obj;
-        if (!Objects.equals(this.createdBy, other.createdBy)) {
-            return false;
-        }
-        if (!Objects.equals(this.id, other.id)) {
-            return false;
-        }
         if (!Objects.equals(this.feedingStartTime, other.feedingStartTime)) {
-            return false;
-        }
-        if (!Objects.equals(this.feedingDuration, other.feedingDuration)) {
-            return false;
-        }
-        if (!Objects.equals(this.createdAt, other.createdAt)) {
             return false;
         }
         return true;
     }
+
+    
 
     @Override
     public String toString() {

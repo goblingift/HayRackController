@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Controller for the timetable view, where you can see the scheduled timings
@@ -122,12 +120,8 @@ public class TimeTableController {
     }
 
     private void registerStartFeedingJob(LocalTime localTime, Long schedulerId) {
-
-        LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
-
-        ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
-        Date nextExecutionDate = Date.from(zdt.toInstant());
-
+        
+        Date nextExecutionDate = dateAndTimeUtil.getNextExecutionDate(localTime);
         JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId.intValue());
         SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), nextExecutionDate, jobDetail);
 
