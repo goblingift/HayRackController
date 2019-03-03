@@ -38,16 +38,21 @@ public class TemperatureSyncService {
      * the backup database.
      */
     public void backupValues() {
-
+        
+        List<TemperatureMeasurement> syncEntries;
         Optional<TemperatureMeasurement> optLatestEntry = backupRepo.findTop1ByOrderByMeasuredAtDesc();
         if (optLatestEntry.isPresent()) {
             TemperatureMeasurement latestEntry = optLatestEntry.get();
-            LocalDateTime latestMeasuredAt = latestEntry.getMeasuredAt();
-
-            List<TemperatureMeasurement> newEntries = embeddedRepo.findAllWithMeasuredAtAfter(latestMeasuredAt);
-            List<TemperatureMeasurement> syncedEntries = embeddedRepo.saveAll(newEntries);
-            logger.info("Successful synced {} new entries from embedded-db to backup-db.", syncedEntries);
+            LocalDateTime from = latestEntry.getMeasuredAt();
+            
+            syncEntries = embeddedRepo.findByMeasuredAtAfter(from);
+        } else {
+            // just take all entries
+             syncEntries = embeddedRepo.findAll();
         }
+        
+        List<TemperatureMeasurement> syncedEntries = backupRepo.saveAll(syncEntries);
+        logger.info("Successful synced {} new entries from embedded-db to backup-db.", syncedEntries.size());
     }
 
     /**

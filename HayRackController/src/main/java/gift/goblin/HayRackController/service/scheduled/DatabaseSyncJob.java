@@ -34,6 +34,7 @@ public class DatabaseSyncJob implements Job{
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         temperatureSyncService.backupValues();
+        scheduledShutterMovementSyncService.backupValues();
     }
     
 }

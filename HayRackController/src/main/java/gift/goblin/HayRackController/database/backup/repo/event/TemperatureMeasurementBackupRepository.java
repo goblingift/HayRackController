@@ -19,5 +19,5 @@ public interface TemperatureMeasurementBackupRepository extends JpaRepository<Te
     
     Optional<TemperatureMeasurement> findTop1ByOrderByMeasuredAtDesc();
     
-    List<TemperatureMeasurement> findAllWithMeasuredAtAfter(LocalDateTime after); 
+    List<TemperatureMeasurement> findByMeasuredAtAfter(LocalDateTime after); 
 }

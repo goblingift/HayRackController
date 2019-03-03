@@ -23,10 +23,10 @@ public class ScheduledShutterMovementSyncService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ScheduledShutterMovementBackupRepository scheduledShutterBackupRepo;
+    ScheduledShutterMovementBackupRepository backupRepo;
 
     @Autowired
-    ScheduledShutterMovementRepository scheduledShutterRepo;
+    ScheduledShutterMovementRepository embeddedRepo;
 
     /**
      * Prefills the embedded database, by removing all entries in the embedded-db
@@ -34,23 +34,24 @@ public class ScheduledShutterMovementSyncService {
      */
     public void prefillEmbeddedDatabase() {
         logger.info("DatabaseSyncJob starts syncing the scheduled shutter movements");
-        List<ScheduledShutterMovement> backupEntries = scheduledShutterBackupRepo.findAll();
+        List<ScheduledShutterMovement> backupEntries = backupRepo.findAll();
         
-        scheduledShutterRepo.deleteAll();
-        scheduledShutterRepo.saveAll(backupEntries);
+        embeddedRepo.deleteAll();
+        embeddedRepo.saveAll(backupEntries);
         logger.info("Finished prefill scheduledShutterMovements from backup-db ({} entries)"
-                + " to the backup-db.", backupEntries);
+                + " to the backup-db.", backupEntries.size());
     }
     
     /**
-     * If there is at least one entry in the embedded database, with a newer createdAt
-     * date, then remove all entries in the backup-db and replace them with the values
-     * in the embedded-db.
+     * Just remove all entries of the backup-db with these from the embedded-db.
      */
     public void backupValues() {
         
+        backupRepo.deleteAll();
         
-        
+        List<ScheduledShutterMovement> embeddedEntries = embeddedRepo.findAll();
+        List<ScheduledShutterMovement> backupedEntries = backupRepo.saveAll(embeddedEntries);
+        logger.info("Successful backuped {} ScheduledShutterMovement entries from embedded-db to backup-db.", backupedEntries.size());
     }
 
 }
