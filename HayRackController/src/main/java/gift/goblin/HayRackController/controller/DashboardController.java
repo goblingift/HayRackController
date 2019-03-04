@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.database.event.TemperatureMeasurementService;
+import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.security.SecurityService;

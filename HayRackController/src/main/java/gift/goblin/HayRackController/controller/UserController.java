@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.database.security.model.User;
+import gift.goblin.HayRackController.database.model.user.User;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import gift.goblin.HayRackController.service.security.UserService;
 import gift.goblin.HayRackController.service.validator.LoginValidator;

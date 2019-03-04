@@ -8,6 +8,9 @@ package gift.goblin.HayRackController.service.tools;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,12 @@ public class DateAndTimeUtil {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Calculates the next execution datetime, based on the time.
+     * Basically, just returns a datetime with the given time today or tomorrow (If time already passed).
+     * @param localTime
+     * @return 
+     */
     public LocalDateTime getNextExecutionDateTime(LocalTime localTime) {
         if (localTime.isBefore(LocalTime.now())) {
             // Next execution will be tomorrow
@@ -35,6 +44,21 @@ public class DateAndTimeUtil {
             logger.debug("Next execution will be today: {}", nextExecutionToday);
             return nextExecutionToday;
         }
+    }
+    
+    /**
+     * Calculates the next execution datetime, based on the time.
+     * Basically, just returns a datetime with the given time today or tomorrow (If time already passed).
+     * @param localTime
+     * @return the next execution datetime, converted as Date with ZoneId from system default.
+     */
+    public Date getNextExecutionDate(LocalTime localTime) {
+        
+        LocalDateTime nextExecutionDateTime = getNextExecutionDateTime(localTime);
+        ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
+        Date nextExecutionDate = Date.from(zdt.toInstant());
+        
+        return nextExecutionDate;
     }
 
     /**

@@ -5,9 +5,9 @@
  */
 package gift.goblin.HayRackController.service.security;
 
-import gift.goblin.HayRackController.database.security.model.Role;
-import gift.goblin.HayRackController.database.security.model.User;
-import gift.goblin.HayRackController.database.security.repo.UserRepository;
+import gift.goblin.HayRackController.database.model.user.Role;
+import gift.goblin.HayRackController.database.model.user.User;
+import gift.goblin.HayRackController.database.embedded.repo.user.UserRepository;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
