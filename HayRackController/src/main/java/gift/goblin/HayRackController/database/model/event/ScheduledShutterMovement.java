@@ -120,10 +120,12 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         if (!Objects.equals(this.feedingStartTime, other.feedingStartTime)) {
             return false;
         }
+        if (!Objects.equals(this.feedingDuration, other.feedingDuration)) {
+            return false;
+        }
         return true;
     }
 
-    
 
     @Override
     public String toString() {
