@@ -3,18 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.service.security;
+package gift.goblin.HayRackController.database.embedded.repo.user;
 
 import gift.goblin.HayRackController.database.model.user.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- *
+ * Contains basic methods for accessing the user table.
  * @author andre
  */
-public interface UserService {
-    
-    void save(User user);
-    
+public interface UserRepository extends JpaRepository<User,Long>{
     User findByUsername(String username);
-    
 }

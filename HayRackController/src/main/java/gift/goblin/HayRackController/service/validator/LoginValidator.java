@@ -5,7 +5,7 @@
  */
 package gift.goblin.HayRackController.service.validator;
 
-import gift.goblin.HayRackController.database.security.model.User;
+import gift.goblin.HayRackController.database.model.user.User;
 import gift.goblin.HayRackController.service.security.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

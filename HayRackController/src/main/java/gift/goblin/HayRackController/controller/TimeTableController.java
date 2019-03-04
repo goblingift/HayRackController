@@ -5,13 +5,13 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.database.event.model.ScheduledShutterMovement;
+import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.scheduled.SchedulerJobService;
-import gift.goblin.HayRackController.database.event.ScheduledShutterMovementService;
-import gift.goblin.HayRackController.database.event.repo.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.service.event.ScheduledShutterMovementService;
+import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
-import gift.goblin.HayRackController.view.model.ScheduledShutterMovementDto;
+import gift.goblin.HayRackController.controller.model.ScheduledShutterMovementDto;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Controller for the timetable view, where you can see the scheduled timings
@@ -71,12 +69,8 @@ public class TimeTableController {
 
         List<ScheduledShutterMovement> scheduledMovements = scheduledShutterMovementService.readAllStoredShutterMovementSchedules();
 
-        for (ScheduledShutterMovement actSchedule : scheduledMovements) {
-            logger.info(actSchedule.toString());
-        }
-
         List<ScheduledShutterMovementDto> shutterMovementDtos = scheduledMovements.stream().map((ScheduledShutterMovement s) -> new ScheduledShutterMovementDto(s.getId().toString(),
-                s.isIsActive(), s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
+                s.getFeedingStartTime().toString(), s.getFeedingDuration().toString(), s.getCreatedBy(), s.getCreatedAt().toString()))
                 .collect(Collectors.toList());
 
         model.addAttribute("scheduledMovements", shutterMovementDtos);
@@ -126,12 +120,8 @@ public class TimeTableController {
     }
 
     private void registerStartFeedingJob(LocalTime localTime, Long schedulerId) {
-
-        LocalDateTime nextExecutionDateTime = dateAndTimeUtil.getNextExecutionDateTime(localTime);
-
-        ZonedDateTime zdt = nextExecutionDateTime.atZone(ZoneId.systemDefault());
-        Date nextExecutionDate = Date.from(zdt.toInstant());
-
+        
+        Date nextExecutionDate = dateAndTimeUtil.getNextExecutionDate(localTime);
         JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId.intValue());
         SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), nextExecutionDate, jobDetail);
 
