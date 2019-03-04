@@ -40,6 +40,10 @@ public class SchedulerJobService {
     public static final String ID_TEMP_MEASUREMENT_JOB = "temperature_measurement_job";
     public static final String ID_DB_SYNC_JOB = "db_sync_job";
     public static final String GROUP_SENSORS = "sensors";
+    
+    public static final int INTERVAL_TEMP_MEASUREMENT = 10;
+    public static final int INTERVAL_DATABASE_SYNC = 10;
+    
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -106,7 +110,7 @@ public class SchedulerJobService {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(ID_DB_SYNC_JOB)
                 .startNow()
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(1))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(INTERVAL_DATABASE_SYNC))
                 .build();
 
         return trigger;
@@ -132,7 +136,7 @@ public class SchedulerJobService {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(ID_TEMP_MEASUREMENT_JOB, GROUP_SENSORS)
                 .startNow()
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(1))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInMinutes(INTERVAL_TEMP_MEASUREMENT))
                 .build();
 
         return trigger;
