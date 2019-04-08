@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class TemperatureSyncService {
+public class TemperatureSyncService implements SynchronizedDatabase {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -37,6 +37,7 @@ public class TemperatureSyncService {
      * Backup the latest measured temperature values from embedded database to
      * the backup database.
      */
+    @Override
     public void backupValues() {
         
         List<TemperatureMeasurement> syncEntries;
@@ -60,6 +61,7 @@ public class TemperatureSyncService {
     /**
      * Prefills the embedded-db with all entries of the backup-db.
      */
+    @Override
     public void prefillEmbeddedDatabase() {
         logger.info("Fetch all temperature-measurement entries from backup-db");
         List<TemperatureMeasurement> tempBackupEntries = backupRepo.findAll();

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.HayRackController.database.embedded.repo.event;
+package gift.goblin.HayRackController.database.backup.repo.event;
 
 import gift.goblin.HayRackController.database.model.event.TemperatureDailyMaxMin;
 import java.time.LocalDate;
@@ -15,12 +15,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author andre
  */
-public interface TemperatureDailyMaxMinRepository extends JpaRepository<TemperatureDailyMaxMin, Long> {
+public interface TemperatureDailyMaxMinBackupRepository extends JpaRepository<TemperatureDailyMaxMin, Long> {
     
     Optional<TemperatureDailyMaxMin> findByDate(LocalDate localDate);
     
     List<TemperatureDailyMaxMin> findByDateBetween(LocalDate firstDate, LocalDate lastDate);
-    
-    Optional<TemperatureDailyMaxMin> findTop1ByOrderByDateDesc();
     
 }
