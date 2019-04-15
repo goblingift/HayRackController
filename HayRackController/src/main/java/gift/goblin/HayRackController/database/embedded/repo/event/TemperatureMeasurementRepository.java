@@ -22,4 +22,6 @@ public interface TemperatureMeasurementRepository extends JpaRepository<Temperat
     List<TemperatureMeasurement> findByMeasuredAtBetween(LocalDateTime after, LocalDateTime before);
     
     List<TemperatureMeasurement> findByMeasuredAtAfter(LocalDateTime after); 
+    
+    Optional<TemperatureMeasurement> findByTemperatureAndMeasuredAt(float temperature, LocalDateTime ldt);
 }
