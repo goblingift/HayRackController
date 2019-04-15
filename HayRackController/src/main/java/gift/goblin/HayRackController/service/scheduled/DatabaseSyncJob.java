@@ -8,6 +8,7 @@ import gift.goblin.HayRackController.database.backup.repo.event.ScheduledShutter
 import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
 import gift.goblin.HayRackController.service.sync.ScheduledShutterMovementSyncService;
+import gift.goblin.HayRackController.service.sync.TemperatureDailyMaxMinSyncService;
 import gift.goblin.HayRackController.service.sync.TemperatureSyncService;
 import java.util.List;
 import org.quartz.Job;
@@ -31,10 +32,14 @@ public class DatabaseSyncJob implements Job{
     @Autowired
     ScheduledShutterMovementSyncService scheduledShutterMovementSyncService;
     
+    @Autowired
+    TemperatureDailyMaxMinSyncService temperatureDailyMaxMinSyncService;
+    
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         temperatureSyncService.backupValues();
         scheduledShutterMovementSyncService.backupValues();
+        temperatureDailyMaxMinSyncService.backupValues();
     }
     
 }

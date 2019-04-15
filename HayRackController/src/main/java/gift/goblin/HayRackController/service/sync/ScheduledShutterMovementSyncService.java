@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class ScheduledShutterMovementSyncService {
+public class ScheduledShutterMovementSyncService implements SynchronizedDatabase {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,6 +51,7 @@ public class ScheduledShutterMovementSyncService {
      * Prefills the embedded database, by removing all entries in the
      * embedded-db and copying all entries from the backup-db.
      */
+    @Override
     public void prefillEmbeddedDatabase() {
         logger.info("DatabaseSyncJob starts syncing the scheduled shutter movements");
         List<ScheduledShutterMovement> backupEntries = backupRepo.findAll();
@@ -76,6 +77,7 @@ public class ScheduledShutterMovementSyncService {
      * Adds new entries of the embedded database to backup database. Also
      * removes entries which exists only at backup database.
      */
+    @Override
     public void backupValues() {
 
         List<ScheduledShutterMovement> embeddedEntries = embeddedRepo.findAll();
