@@ -2,3 +2,9 @@
 a.light-grey-color {
     color: #9a9da036 !important;
 }
+
+.goblin-logo-small {
+    max-height: 40px;
+    background: transparent;
+    border: none;
+}

@@ -18,7 +18,7 @@
 
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/dashboard}">
                         <i class="fas fa-home fa-4x"></i>
                     </a>
@@ -41,7 +41,7 @@
                         <i class="fas fa-thermometer-half fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
                     <a class="nav-link" th:href="@{${'/webcams/' + i}}">
                         <i class="fas fa-camera fa-4x"></i>
@@ -57,7 +57,7 @@
             </ul>
 
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <li class="nav-item active">
                     <a class="nav-link" th:href="@{/settings}">
                         <i class="fas fa-cogs fa-4x"></i>
                     </a>
@@ -82,65 +82,20 @@
 
             <div>
                 <p style="font-size: large;">
-                    <a th:text="#{dashboard.welcome_1}" />
-                    <a th:text="${username}" />
-                    <a th:text="#{dashboard.welcome_2}" />
+                    <h2>
+                        <a th:text="#{settings.header}" />
+                    </h2>
                 </p>
-            </div>
 
-            <div class="album">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="card" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
-                            <img class="card-img-top"  th:id="${'webcam-prev-' + i}" th:title="${'Webcam ' + i}" th:src="@{/images/webcam_placeholder_small.png}" />
-                            <div class="card-body mx-auto">
-                                <h5 class="card-title" th:text="${'Webcam ' + i}"></h5>
-                                <p class="card-text">
-                                    <button th:id="${'webcam-reload-' + i}" th:cam-id="${i}" class="webcam-reload-btn btn btn-primary btn-lg">
-                                        <i th:id="${'webcam-reload-icon-' + i}" class="fa fa-sync-alt fa-4x"></i>
-                                    </button>
-                                </p>
-                            </div>
-                        </div> 
-                        <script th:inline="javascript">
-
-                            $('body').on('click', '.webcam-reload-btn', function (e) {
-                                var reloadButton = $(this);
-                                var dimension = "320x240";
-                                var camNumber = reloadButton.attr("cam-id");
-                                var postUrl = "/webcams/image";
-                                var imgTag = $("#webcam-prev-" + camNumber);
-                                var reloadIcon = $("#webcam-reload-icon-" + camNumber);
-                                
-                                reloadButton.prop('disabled', true);
-                                reloadIcon.addClass("fa-spin");
-                                console.log('calling getImage with:' + dimension + camNumber);
-
-                                $.ajax({
-                                    url: postUrl,
-                                    method: 'POST',
-                                    cache: false,
-                                    //dataType: 'json',
-                                    data: {
-                                        dimension: dimension,
-                                        camNumber: camNumber
-                                    }
-                                })
-                                        .done(function (data) {
-                                            console.log("Successful loading image from webcam");
-                                            document.getElementById("webcam-prev-" + camNumber).src = "data:image/png;base64," + data;
-                                        })
-                                        .fail(function (xhr, ajaxOptions, thrownError) {
-                                            console.log("Error while loading image from webcam");
-                                        })
-                                        .always(function () {
-                                            reloadIcon.removeClass("fa-spin");
-                                            reloadButton.prop('disabled', false);
-                                        });
-                            });
-                        </script>
-
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><a th:text="#{settings.header_sound}" /></h5>
+                        <div class="form-group blu-margin">
+                            <select class="form-control" th:field="${sounds.id}"  id="dropOperator">
+                                <option value="0">select operator</option>
+                                <option th:each="sound : ${sounds}" th:value="${sound.id}" th:text="${sound.name}"></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
