@@ -23,6 +23,7 @@ import com.pi4j.wiringpi.Gpio;
 import com.pi4j.wiringpi.GpioUtil;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.io.model.Playlist;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -251,21 +252,22 @@ public class IOController {
         // trigger shutter motors to the same time as the sound and lights
         closeShutter(OPENING_CLOSING_TIME_MS);
 
-        for (int i = 0; i < (OPENING_CLOSING_TIME_MS / 1000 / 2); i++) {
+        Playlist track = Playlist.getRandomPlaylist();
+        
+        for (int i = 0; i < track.getREPEATS(); i++) {
             pinLightAndSound.low();
-            Thread.sleep(500);
+            Thread.sleep(track.getPLAYTIME_1());
             pinLightAndSound.high();
-            Thread.sleep(500);
+            Thread.sleep(track.getWAITTIME_1());
 
             pinLightAndSound.low();
-            Thread.sleep(150);
+            Thread.sleep(track.getPLAYTIME_2());
             pinLightAndSound.high();
-            Thread.sleep(150);
+            Thread.sleep(track.getWAITTIME_2());
         }
 
         // power off 12v transformator
         pin12VTransformator.high();
-
     }
 
     /**

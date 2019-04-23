@@ -5,13 +5,19 @@
  */
 package gift.goblin.HayRackController.controller;
 
+import gift.goblin.HayRackController.controller.model.Settings;
+import gift.goblin.HayRackController.controller.model.Soundtitle;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +68,13 @@ public class SettingsController {
             model.addAttribute("temperature", new TemperatureAndHumidity(99, 99, 99));
         }
         
+        List<Soundtitle> availableSounds = generateAvailableSounds();
+        model.addAttribute("sounds", availableSounds);
         
+        Settings settings = new Settings();
+        settings.setSelectedSound("99");
         
+        model.addAttribute("settings", settings);
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -72,6 +83,16 @@ public class SettingsController {
         return "settings";
     }
 
-
+    private List<Soundtitle> generateAvailableSounds() {
+        
+        List<Playlist> tracks = Playlist.getVALUES();
+        
+        List<Soundtitle> soundtitles = tracks.stream()
+                .map(t -> new Soundtitle(String.valueOf(t.getId()), t.getTitle()))
+                .collect(Collectors.toList());
+        soundtitles.add(new Soundtitle("99", "random"));
+        
+        return soundtitles;
+    }
 
 }

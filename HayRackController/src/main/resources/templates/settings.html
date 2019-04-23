@@ -80,42 +80,45 @@
                 </button>
             </div>
 
-            <div>
-                <p style="font-size: large;">
-                    <h2>
-                        <a th:text="#{settings.header}" />
-                    </h2>
-                </p>
+            <form action="#" th:action="@{/settings/save}" th:object="${settings}" method="post">
+                <div>
+                    <p style="font-size: large;">
+                        <h2>
+                            <a th:text="#{settings.header}" />
+                        </h2>
+                    </p>
 
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><a th:text="#{settings.header_sound}" /></h5>
-                        <div class="form-group blu-margin">
-                            <select class="form-control" th:field="${sounds.id}"  id="dropOperator">
-                                <option value="0">select operator</option>
-                                <option th:each="sound : ${sounds}" th:value="${sound.id}" th:text="${sound.name}"></option>
-                            </select>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><a th:text="#{settings.header_sound}" /></h5>
+                            <div class="form-group blu-margin">
+                                <select class="form-control" th:field="*{selectedSound}">
+                                    <option th:each="sound : ${sounds}" th:value="${sound.id}" th:text="${sound.title}"></option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    
+                    <input type="submit" value="Submit"/>
+            </form>
+        </div>
 
-            <!-- Footer -->
-            <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
-                <ul class="navbar-nav mr-auto">
-                </ul>
+        <!-- Footer -->
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
+            <ul class="navbar-nav mr-auto">
+            </ul>
 
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="light-grey-color" th:text="${build_version}" />
-                        <a class="light-grey-color" th:text="${build_artifact}" />
-                        <img class="goblin-logo-small" height="20px" th:src="@{/images/goblin_shadow_cropped.png}" />
-                    </li>
-                </ul>
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="light-grey-color" th:text="${build_version}" />
+                    <a class="light-grey-color" th:text="${build_artifact}" />
+                    <img class="goblin-logo-small" height="20px" th:src="@{/images/goblin_shadow_cropped.png}" />
+                </li>
+            </ul>
 
-                <ul class="navbar-nav ml-auto">
-                </ul>
-            </nav>
+            <ul class="navbar-nav ml-auto">
+            </ul>
+        </nav>
 
     </body>
 </html>
