@@ -102,55 +102,86 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                
+
                                 <div class="row justify-content-between">
                                     <div class="col">
                                         <h5 class="card-title"><a th:text="#{settings.header_sounds}" /></h5>
                                     </div>
                                 </div>
-                                
-                                <div class="row justify-content-between">
+
+                                <div class="row justify-content-between align-items-center">
                                     <div class="col-6">
-                                        <select class="form-control" th:field="*{selectedSound}">
+                                        <select class="form-control" th:id="dd-sound" th:field="*{selectedSound}">
                                             <option th:each="sound : ${sounds}" th:value="${sound.id}" th:text="${sound.title}"></option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="col">
-                                        <button class="btn btn-md btn-primary btn-block" type="submit" th:text="#{login.submit}">
-                                            <i class="fa fa-play-circle fa-4x">bla</i>
+                                        <button type="button" th:id="play-button" class="btn btn-primary btn-lg">
+                                            <i th:id="play-button-icon" class="fa fa-play-circle fa-lg"></i>
                                         </button>
                                     </div>
-                                    
+
                                     <div class="col">
-                                        <button class="btn btn-md btn-primary btn-block" type="submit" th:text="#{login.submit}"></button>
+                                        <button class="btn btn-lg btn-info"><i class="fa fa-save fa-2x"></i></button>
                                     </div>
+
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
                 </div>
 
-                        </form>
-                    </div>
+            </form>
+        </div>
 
-                    <!-- Footer -->
-                    <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
-                        <ul class="navbar-nav mr-auto">
-                        </ul>
+        <!-- Footer -->
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
+            <ul class="navbar-nav mr-auto">
+            </ul>
 
-                        <ul class="navbar-nav mx-auto">
-                            <li class="nav-item">
-                                <a class="light-grey-color" th:text="${build_version}" />
-                                <a class="light-grey-color" th:text="${build_artifact}" />
-                                <img class="goblin-logo-small" height="20px" th:src="@{/images/goblin_shadow_cropped.png}" />
-                            </li>
-                        </ul>
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="light-grey-color" th:text="${build_version}" />
+                    <a class="light-grey-color" th:text="${build_artifact}" />
+                    <img class="goblin-logo-small" height="20px" th:src="@{/images/goblin_shadow_cropped.png}" />
+                </li>
+            </ul>
 
-                        <ul class="navbar-nav ml-auto">
-                        </ul>
-                    </nav>
+            <ul class="navbar-nav ml-auto">
+            </ul>
+        </nav>
 
-                    </body>
-                    </html>
+
+        <script th:inline="javascript">
+
+            $("#play-button").click(function () {
+                $("#webcam-reload").prop('disabled', true);
+                var selectedSound = $('#dd-sound').children("option:selected").val();
+                var postUrl = "/settings/play-sound";
+                
+                $.ajax({
+                url: postUrl,
+                        method: 'POST',
+                        cache: false,
+                        data: {
+                            soundId: selectedSound
+                        }
+                })
+                        .done(function (data) {
+                            console.log("Finished with playing sound");
+                        })
+                        .fail(function (xhr, ajaxOptions, thrownError) {
+                            console.log("Error while playing sound");
+                        })
+                        .always(function () {
+                            $("#webcam-reload").prop('disabled', false);
+                        });
+                });
+
+        </script>
+
+
+    </body>
+</html>

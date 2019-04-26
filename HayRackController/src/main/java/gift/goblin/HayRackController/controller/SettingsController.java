@@ -9,15 +9,19 @@ import gift.goblin.HayRackController.controller.model.Settings;
 import gift.goblin.HayRackController.controller.model.Soundtitle;
 import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
+import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.security.SecurityService;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -58,6 +63,9 @@ public class SettingsController {
 
     @Autowired
     private ConfigurationService configurationService;
+    
+    @Autowired
+    private IOController iOController;
     
     /**
      * Default render method for the dashboard.
@@ -106,6 +114,23 @@ public class SettingsController {
         soundtitles.add(new Soundtitle("99", "random"));
         
         return soundtitles;
+    }
+    
+    @PostMapping(value = "/settings/play-sound")
+    public @ResponseBody
+    void playSound(@RequestParam("soundId") String soundId) throws IOException, InterruptedException {
+        logger.info("play sound:" + soundId);
+        
+        if (soundId.equals("99")) {
+            iOController.playSoundAndLight(Playlist.getRandomPlaylist());
+        } else {
+            Optional<Playlist> optPlaylist = Playlist.findById(Integer.parseInt(soundId));
+            if (optPlaylist.isPresent()) {
+                iOController.playSoundAndLight(optPlaylist.get());
+            } else {
+                throw new IllegalArgumentException("Unknown soundId:" + soundId);
+            }
+        }
     }
 
 }

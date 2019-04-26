@@ -239,21 +239,37 @@ public class IOController {
      * Triggers the closing logic, which powers the motor to close the shutters.
      * Including warn lights and warn sounds.
      *
+     * @param track Contains the optional track. If empty, will play random one.
      * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
-    public void closeShutter() throws InterruptedException {
-        logger.info("Close shutters triggered! Relay will be triggered in 5 seconds! Warn lights & sounds will be activated!");
+    public void closeShutter(Optional<Playlist> track) throws InterruptedException {
+        logger.info("Close shutters triggered!");
+
+        if (!track.isPresent()) {
+            track = Optional.of(Playlist.getRandomPlaylist());
+        }
+        
+        closeShutter(OPENING_CLOSING_TIME_MS);
+        
+        playSoundAndLight(track.get());
+    }
+    
+    /**
+     * Triggers the 12V transformator with the given rhytm, to make sound and light
+     * effects.
+     * @param track contains playtime and waittimes.
+     * @throws InterruptedException if the sleeping goes wrong.
+     */
+    @RequiresRaspberry
+    public void playSoundAndLight(Playlist track) throws InterruptedException {
+        
+        logger.info("Start playing sound and light for track: {}", track.getTitle());
 
         // power on 12v transformator
         pin12VTransformator.low();
 
-        // trigger shutter motors to the same time as the sound and lights
-        closeShutter(OPENING_CLOSING_TIME_MS);
-
-        Playlist track = Playlist.getRandomPlaylist();
-        
         for (int i = 0; i < track.getREPEATS(); i++) {
             pinLightAndSound.low();
             Thread.sleep(track.getPLAYTIME_1());
@@ -268,7 +284,9 @@ public class IOController {
 
         // power off 12v transformator
         pin12VTransformator.high();
+        
     }
+    
 
     /**
      * Triggers the relay to power on the light.

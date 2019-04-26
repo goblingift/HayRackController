@@ -9,20 +9,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 
 /**
  * Defines several enums, which contains sequences (Playtimes and waittimes)
  * for the sound-modules.
  * @author andre
  */
-public enum Playlist {
+public enum Playlist implements Supplier<Playlist> {
     
-    TRACK_1(1, "track_1", 500, 500, 150, 150, 15),
+    TRACK_1(1, "track_1", 500, 500, 150, 150, 10),
     TRACK_2(2, "track_2", 100, 50, 100, 300, 20),
     TRACK_3(3, "track_3", 500, 50, 500, 50, 10),
     TRACK_4(4, "track_4", 150, 150, 300, 300, 15),
-    TRACK_5(5, "track_5", 50, 100, 100, 200, 20),
-    TRACK_6(6, "track_6", 30, 30, 150, 150, 20);
+    TRACK_5(5, "track_5", 50, 100, 100, 200, 25),
+    TRACK_6(6, "track_6", 30, 30, 150, 150, 50);
     
     private int id;
     private String title;
@@ -102,6 +103,11 @@ public enum Playlist {
     @Override
     public String toString() {
         return "Playlist{" + "PLAYTIME_1=" + PLAYTIME_1 + ", WAITTIME_1=" + WAITTIME_1 + ", PLAYTIME_2=" + PLAYTIME_2 + ", WAITTIME_2=" + WAITTIME_2 + ", REPEATS=" + REPEATS + '}';
+    }
+
+    @Override
+    public Playlist get() {
+        return getRandomPlaylist();
     }
 
 }

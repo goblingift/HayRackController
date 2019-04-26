@@ -52,12 +52,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public Optional<Playlist> getSelectedSound() {
         
-        Optional<ApplicationConfiguration> configEntity = repo.findAll().stream().findFirst();
-        if (configEntity.isPresent()) {
-            
-            int soundId = configEntity.get().getSoundId();
-            Optional<Playlist> optEntry = Playlist.findById(soundId);
-            return optEntry;
+        try {
+            Optional<ApplicationConfiguration> configEntity = repo.findAll().stream().findFirst();
+            if (configEntity.isPresent()) {
+
+                int soundId = configEntity.get().getSoundId();
+                Optional<Playlist> optEntry = Playlist.findById(soundId);
+                return optEntry;
+            }
+        } catch (Exception e) {
+            logger.error("Exception thrown while read selected sound: {}", e.getMessage());
+            return Optional.empty();
         }
         
         logger.error("No configuration entry in database found!");
