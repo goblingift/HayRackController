@@ -7,6 +7,7 @@ package gift.goblin.HayRackController.controller;
 
 import gift.goblin.HayRackController.controller.model.Settings;
 import gift.goblin.HayRackController.controller.model.Soundtitle;
+import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
@@ -25,8 +26,11 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -52,6 +56,9 @@ public class SettingsController {
     @Autowired
     private TemperatureMeasurementService temperatureMeasurementService;
 
+    @Autowired
+    private ConfigurationService configurationService;
+    
     /**
      * Default render method for the dashboard.
      *
@@ -71,8 +78,7 @@ public class SettingsController {
         List<Soundtitle> availableSounds = generateAvailableSounds();
         model.addAttribute("sounds", availableSounds);
         
-        Settings settings = new Settings();
-        settings.setSelectedSound("99");
+        Settings settings = configurationService.getSettings();
         
         model.addAttribute("settings", settings);
         model.addAttribute("build_artifact", buildProperties.getArtifact());
@@ -81,6 +87,13 @@ public class SettingsController {
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         
         return "settings";
+    }
+    
+    @PostMapping(value = {"/settings/save"})
+    public String saveSettings(@ModelAttribute Settings settings, BindingResult bindingResult, Model model) {
+        configurationService.saveSettings(settings);
+        
+        return renderSettings(model);
     }
 
     private List<Soundtitle> generateAvailableSounds() {

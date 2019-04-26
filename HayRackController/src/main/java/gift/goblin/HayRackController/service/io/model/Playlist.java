@@ -7,6 +7,7 @@ package gift.goblin.HayRackController.service.io.model;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -85,6 +86,17 @@ public enum Playlist {
     
     public static List<Playlist> getVALUES() {
         return VALUES;
+    }
+    
+    /**
+     * Find an item by the given identifier.
+     * @param id
+     * @return 
+     */
+    public static Optional<Playlist> findById(int id) {
+        return VALUES.stream()
+                .filter(p -> p.getId() == id)
+                .findAny();
     }
     
     @Override
