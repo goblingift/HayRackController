@@ -32,7 +32,7 @@
                         <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/temperature}">
                         <i class="fas fa-thermometer-half fa-4x"></i>
@@ -66,6 +66,11 @@
             </ul>
 
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/settings}">
+                        <i class="fas fa-cogs fa-4x"></i>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
                         <i class="fas fa-door-open fa-4x"></i>
@@ -107,12 +112,12 @@
                 var dimension = t.attr("value");
                 var camNumber = $('#camNumber').text();
                 var postUrl = "/webcams/image";
-                
+
                 $("#reload-image-icon").addClass("fa-spin");
                 $("#dimensionBtn").prop('disabled', true);
                 $("#webcam-reload").prop('disabled', true);
                 console.log('calling getImage with:' + dimension + camNumber);
-                
+
                 $.ajax({
                     url: postUrl,
                     method: 'POST',

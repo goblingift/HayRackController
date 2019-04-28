@@ -58,6 +58,11 @@
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
+                    <a class="nav-link" th:href="@{/settings}">
+                        <i class="fas fa-cogs fa-4x"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
                         <i class="fas fa-door-open fa-4x"></i>
                     </a>
@@ -149,6 +154,7 @@
                     <li class="nav-item">
                         <a class="light-grey-color" th:text="${build_version}" />
                         <a class="light-grey-color" th:text="${build_artifact}" />
+                        <img class="goblin-logo-small" height="20px" th:src="@{/images/goblin_shadow_cropped.png}" />
                     </li>
                 </ul>
 
