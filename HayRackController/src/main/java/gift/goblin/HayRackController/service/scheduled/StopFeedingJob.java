@@ -7,9 +7,11 @@ package gift.goblin.HayRackController.service.scheduled;
 
 import gift.goblin.HayRackController.service.event.FeedingEventService;
 import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
+import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.io.IOController;
+import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.tools.StringUtils;
-import java.util.logging.Level;
+import java.util.Optional;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -39,6 +41,9 @@ public class StopFeedingJob implements Job {
     @Autowired
     private StringUtils stringUtils;
 
+    @Autowired
+    private ConfigurationService configurationService;
+    
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
 
@@ -46,10 +51,12 @@ public class StopFeedingJob implements Job {
         int jobId = stringUtils.getJobId(jobKey);
         
         logger.info("End of feeding scheduled! Job-Id: {}", jobId);
-
+        
+        Playlist track = configurationService.getSelectedSound().orElseGet(Playlist.getRandomPlaylist());
+        
         try {
             ioController.triggerRelayLight(false);
-            ioController.closeShutter();
+            ioController.closeShutter(Optional.of(track));
             feedingEventService.finishFeedingEvent(jobId);
         } catch (InterruptedException ex) {
             logger.error("Exception thrown while closing shutters!", ex);

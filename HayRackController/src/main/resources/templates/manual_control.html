@@ -35,7 +35,7 @@
                         <i class="fas fa-clipboard-list fa-4x"></i>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/temperature}">
                         <i class="fas fa-thermometer-half fa-4x"></i>
@@ -57,6 +57,11 @@
             </ul>
 
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/settings}">
+                        <i class="fas fa-cogs fa-4x"></i>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/logout}">
                         <i class="fas fa-door-open fa-4x"></i>
@@ -83,60 +88,60 @@
             </div>
 
             <br>
-            <br>
-            
-            <div>
-                <p>
-                    <a class="btn btn-lg btn-info" href="/shutter-control/shutters-up">
-                        <i class="fas fa-teeth-open fa-2x"></i>
-                        <span th:text="#{shutters.up}" /> 
-                    </a>
-                </p>
-            </div>
-
-            <div>
-                <p>
-                    <a class="btn btn-lg btn-info" href="/shutter-control/shutters-down">
-                        <i class="fas fa-hand-paper fa-2x"></i>
-                        <span th:text="#{shutters.down}" /> 
-                    </a>
-                </p>
-            </div>
-
-            <br>
                 <br>
 
-                    <form th:action="@{/shutter-control/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
-
-                        <div class="row justify-content-left">
-
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" th:field="*{duration}" th:placeholder="#{shutters.enter_manual_value}" aria-describedby="label-addon-input-millis">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" id="label-addon-input-millis" th:text="#{milliseconds}"></span>
-                                    </div>
-                            </div>
-                        </div>
-                        <div class="row custom-control custom-radio">
-                            <p>
-                                <input type="radio" id="radio-shutter-up" class="custom-control-input" th:field = "*{direction}" th:value = "UP" />
-                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-up" th:text="#{shutters.up}"></label>
-                            </p>
-                        </div>
-                        <div class="row custom-control custom-radio">
-                            <p>
-                                <input type="radio" id="radio-shutter-down" class="custom-control-input" th:field = "*{direction}" th:value = "DOWN" />
-                                <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-down" th:text="#{shutters.down}"></label>
-                            </p>
-                        </div>
-                        <div>
-                            <p>
-                                <button text="doing" type="submit" class="btn btn-primary">
-                                    <a th:text="#{shutters.manual_shutter_submit}" /> 
-                                </button>
-                            </p>
-                        </div>
-                    </form>
+                    <div>
+                        <p>
+                            <a class="btn btn-lg btn-info" href="/shutter-control/shutters-up">
+                                <i class="fas fa-teeth-open fa-2x"></i>
+                                <span th:text="#{shutters.up}" /> 
+                            </a>
+                        </p>
                     </div>
-                    </body>
-                    </html>
+
+                    <div>
+                        <p>
+                            <a class="btn btn-lg btn-info" href="/shutter-control/shutters-down">
+                                <i class="fas fa-hand-paper fa-2x"></i>
+                                <span th:text="#{shutters.down}" /> 
+                            </a>
+                        </p>
+                    </div>
+
+                    <br>
+                        <br>
+
+                            <form th:action="@{/shutter-control/shutters-move-custom}" method="POST" th:object="${shutterMovement}">
+
+                                <div class="row justify-content-left">
+
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" th:field="*{duration}" th:placeholder="#{shutters.enter_manual_value}" aria-describedby="label-addon-input-millis">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="label-addon-input-millis" th:text="#{milliseconds}"></span>
+                                            </div>
+                                    </div>
+                                </div>
+                                <div class="row custom-control custom-radio">
+                                    <p>
+                                        <input type="radio" id="radio-shutter-up" class="custom-control-input" th:field = "*{direction}" th:value = "UP" />
+                                        <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-up" th:text="#{shutters.up}"></label>
+                                    </p>
+                                </div>
+                                <div class="row custom-control custom-radio">
+                                    <p>
+                                        <input type="radio" id="radio-shutter-down" class="custom-control-input" th:field = "*{direction}" th:value = "DOWN" />
+                                        <label style="margin-left: 10px;" class="custom-control-label" for="radio-shutter-down" th:text="#{shutters.down}"></label>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p>
+                                        <button text="doing" type="submit" class="btn btn-primary">
+                                            <a th:text="#{shutters.manual_shutter_submit}" /> 
+                                        </button>
+                                    </p>
+                                </div>
+                            </form>
+                            </div>
+                            </body>
+                            </html>

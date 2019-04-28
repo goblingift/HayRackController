@@ -8,6 +8,9 @@ package gift.goblin.HayRackController.controller;
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.controller.model.ShutterMovement;
+import gift.goblin.HayRackController.service.configuration.ConfigurationService;
+import gift.goblin.HayRackController.service.io.model.Playlist;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,9 @@ public class ManualShutterController {
 
     @Autowired
     private IOController shutterController;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     /**
      * Default render method.
@@ -82,7 +88,8 @@ public class ManualShutterController {
         logger.info("Manually triggered shutters down.");
 
         try {
-            shutterController.closeShutter();
+            Playlist track = configurationService.getSelectedSound().orElseGet(Playlist.getRandomPlaylist());
+            shutterController.closeShutter(Optional.of(track));
             model.addAttribute("success_message", "shutters.shutterDown.success");
         } catch (Exception e) {
             logger.warn("Exception thrown while closing shutters!", e);
