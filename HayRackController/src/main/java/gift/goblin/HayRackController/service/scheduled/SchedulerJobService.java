@@ -21,6 +21,7 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,9 +43,10 @@ public class SchedulerJobService {
     public static final String GROUP_SENSORS = "sensors";
     
     public static final int INTERVAL_TEMP_MEASUREMENT = 10;
-    public static final int INTERVAL_DATABASE_SYNC = 10;
     
-
+    @Value("${backup.datasource.synchronize-interval}")
+    public int INTERVAL_DATABASE_SYNC;
+    
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired

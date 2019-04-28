@@ -11,6 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author andre
  */
-public interface ApplicationConfigurationRepository extends JpaRepository<ApplicationConfiguration, Long>{
+public interface ApplicationConfigurationBackupRepository extends JpaRepository<ApplicationConfiguration, Long>{
     
 }
