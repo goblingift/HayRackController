@@ -1,3 +1,7 @@
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
+ */
 package gift.goblin.HayRackController.database.config;
 
 import javax.persistence.EntityManagerFactory;

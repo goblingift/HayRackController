@@ -1,7 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.database.backup.repo.event;
 
