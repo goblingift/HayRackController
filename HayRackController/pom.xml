@@ -112,6 +112,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.15</version>           
         </dependency>
+        
+        <dependency>
+            <groupId>gift.goblin</groupId>
+            <artifactId>pi4j-hx711</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     
     <repositories>

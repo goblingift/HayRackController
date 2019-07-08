@@ -23,6 +23,8 @@ import com.pi4j.wiringpi.GpioUtil;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.io.model.Playlist;
+import gift.goblin.hx711.GainFactor;
+import gift.goblin.hx711.Hx711;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -54,32 +56,53 @@ public class IOController {
     private static final int PIN_NO_LIGHT_AND_SOUND = 25;
     private static final int PIN_NO_RELAY_OPEN_MOTOR = 28;
     private static final int PIN_NO_RELAY_CLOSE_MOTOR = 29;
+    private static final int PIN_NO_LOAD_CELL_1_DAT = 15;
+    private static final int PIN_NO_LOAD_CELL_1_SCK = 16;
+    private static final int PIN_NO_LOAD_CELL_2_DAT = 4;
+    private static final int PIN_NO_LOAD_CELL_2_SCK = 5;
+    private static final int PIN_NO_LOAD_CELL_3_DAT = 6;
+    private static final int PIN_NO_LOAD_CELL_3_SCK = 10;
+    private static final int PIN_NO_LOAD_CELL_4_DAT = 11;
+    private static final int PIN_NO_LOAD_CELL_4_SCK = 31;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private GpioController gpioController;
     private boolean raspberryInitialized;
+    
+    private Hx711 loadCell1Hx711;
+    private Hx711 loadCell2Hx711;
+    private Hx711 loadCell3Hx711;
+    private Hx711 loadCell4Hx711;
 
+    //<editor-fold defaultstate="collapsed" desc="pinDefinitions">
+    
+    /**
+     * Pin which triggers the motor for closing shutters.
+     */
     private GpioPinDigitalOutput pinCloseMotor;
-
+    
+    /**
+     * Pin which triggers the motor for opening shutters.
+     */
     private GpioPinDigitalOutput pinOpenMotor;
-
+    
     /**
      * Pin which access the brightness sensor.
      */
     private GpioPinDigitalInput pinBrightnessSensor;
-
+    
     /**
      * Pin for the 230V to 12V transformator
      */
     private GpioPinDigitalOutput pin12VTransformator;
-
+    
     /**
      * Controls the first onboard relais (Which triggers 12V adapter for light &
      * sound)
      */
     private GpioPinDigitalOutput pinLightAndSound;
-
+    
     /**
      * Pin for the external relay, which switches the indoor light.
      */
@@ -89,6 +112,19 @@ public class IOController {
      * Pin for powering the temperature sensor.
      */
     private GpioPinDigitalOutput pinTempSensorVoltage;
+    
+    
+    // Pins for the load cells
+    private GpioPinDigitalInput pinLoadCell1Dat;
+    private GpioPinDigitalOutput pinLoadCell1Sck;
+    private GpioPinDigitalInput pinLoadCell2Dat;
+    private GpioPinDigitalOutput pinLoadCell2Sck;
+    private GpioPinDigitalInput pinLoadCell3Dat;
+    private GpioPinDigitalOutput pinLoadCell3Sck;
+    private GpioPinDigitalInput pinLoadCell4Dat;
+    private GpioPinDigitalOutput pinLoadCell4Sck;
+    
+//</editor-fold>
 
     private static final int TEMPSENSOR_MAX_TIMINGS = 85;
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
@@ -144,9 +180,6 @@ public class IOController {
                 PinState.LOW);
     }
 
-    /**
-     * Setup for the 12V transformator.
-     */
     @RequiresRaspberry
     private void setup12VTransformator() {
         pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_12V_TRANSFORMATOR),
@@ -174,9 +207,6 @@ public class IOController {
         pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
 
-    /**
-     * Initialize all required pins for the open shutter functionality.
-     */
     @RequiresRaspberry
     private void setupOpenShutter() {
         pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_OPEN_MOTOR),
@@ -190,9 +220,6 @@ public class IOController {
         });
     }
 
-    /**
-     * Initialize all required pins for the close shutter functionality.
-     */
     @RequiresRaspberry
     private void setupCloseShutter() {
         pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_CLOSE_MOTOR),
@@ -206,6 +233,33 @@ public class IOController {
         });
     }
 
+    private void setupLoadCells() {
+        pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_DAT),
+                "Load-cell 1 DAT", PinPullResistance.OFF);
+        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_SCK),
+                "Load-cell 1 SCK", PinState.LOW);
+        loadCell1Hx711 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, 500, 2.0, GainFactor.GAIN_128);
+        
+        pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_DAT),
+                "Load-cell 2 DAT", PinPullResistance.OFF);
+        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_SCK),
+                "Load-cell 2 SCK", PinState.LOW);
+        loadCell2Hx711 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, 500, 2.0, GainFactor.GAIN_128);
+        
+        pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_DAT),
+                "Load-cell 3 DAT", PinPullResistance.OFF);
+        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_SCK),
+                "Load-cell 3 SCK", PinState.LOW);
+        loadCell3Hx711 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, 500, 2.0, GainFactor.GAIN_128);
+        
+        pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_DAT),
+                "Load-cell 4 DAT", PinPullResistance.OFF);
+        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_SCK),
+                "Load-cell 4 SCK", PinState.LOW);
+        loadCell4Hx711 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, 500, 2.0, GainFactor.GAIN_128);
+    }
+    
+    
 //</editor-fold>
     /**
      * Triggers the opening logic, which powers the motor to open the shutters.
@@ -458,4 +512,12 @@ public class IOController {
         return dht22_dat[4] == (dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3] & 0xFF);
     }
 
+    public void measureLoadCell1() {
+        
+        // todo: implement me!
+        TODO!
+    }
+    
+    
+    
 }

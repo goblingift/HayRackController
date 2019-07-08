@@ -19,17 +19,17 @@ The following table shows the pin assignment for a raspberry pi 3b (And comparab
 |                              	|     	|          	| 3.3v    	| 1        	| 2        	| 5v      	|          	|     	|                           	|
 |                              	| 2   	| 8        	| SDA.1   	| 3        	| 4        	| 5v      	|          	|     	|                           	|
 |                              	| 3   	| 9        	| SCL.1   	| 5        	| 6        	| GND     	|          	|     	|                           	|
-| Temp-Sensor Outside          	| 4   	| 7        	| 1-wire  	| 7        	| 8        	| TxD     	| 15       	| 14  	|                           	|
-|                              	|     	|          	| GND     	| 9        	| 10       	| RxD     	| 16       	| 15  	|                           	|
+| Temp-Sensor Outside          	| 4   	| 7        	| 1-wire  	| 7        	| 8        	| TxD     	| 15       	| 14  	| Load-cell 1 DAT           	|
+|                              	|     	|          	| GND     	| 9        	| 10       	| RxD     	| 16       	| 15  	| Load-cell 1 SCK           	|
 | Temp-Voltage Outside         	| 17  	| 0        	| GPIO.0  	| 11       	| 12       	| GPIO.1  	| 1        	| 18  	|                           	|
 |                              	| 27  	| 2        	| GPIO.2  	| 13       	| 14       	| GND     	|          	|     	|                           	|
-|                              	| 22  	| 3        	| GPIO.3  	| 15       	| 16       	| GPIO.4  	| 4        	| 23  	|                           	|
-|                              	|     	|          	| 3.3v    	| 17       	| 18       	| GPIO.5  	| 5        	| 24  	|                           	|
+|                              	| 22  	| 3        	| GPIO.3  	| 15       	| 16       	| GPIO.4  	| 4        	| 23  	| Load-cell 2 DAT           	|
+|                              	|     	|          	| 3.3v    	| 17       	| 18       	| GPIO.5  	| 5        	| 24  	| Load-cell 2 SCK           	|
 |                              	| 10  	| 12       	| MOSI    	| 19       	| 20       	| GND     	|          	|     	|                           	|
-|                              	| 9   	| 13       	| MISO    	| 21       	| 22       	| GPIO.6  	| 6        	| 25  	|                           	|
-|                              	| 11  	| 14       	| SCLK    	| 23       	| 24       	| CE0     	| 10       	| 8   	|                           	|
-|                              	|     	|          	| GND     	| 25       	| 26       	| CE1     	| 11       	| 7   	|                           	|
-|                              	| 0   	| 30       	| SDA.0   	| 27       	| 28       	| SCL.0   	| 31       	| 1   	|                           	|
+|                              	| 9   	| 13       	| MISO    	| 21       	| 22       	| GPIO.6  	| 6        	| 25  	| Load-cell 3 DAT           	|
+|                              	| 11  	| 14       	| SCLK    	| 23       	| 24       	| CE0     	| 10       	| 8   	| Load-cell 3 SCK           	|
+|                              	|     	|          	| GND     	| 25       	| 26       	| CE1     	| 11       	| 7   	| Load-cell 4 DAT           	|
+|                              	| 0   	| 30       	| SDA.0   	| 27       	| 28       	| SCL.0   	| 31       	| 1   	| Load-cell 4 SCK           	|
 |                              	| 5   	| 21       	| GPIO.21 	| 29       	| 30       	| GND     	|          	|     	|                           	|
 | Brightness Sensor            	| 6   	| 22       	| GPIO.22 	| 31       	| 32       	| GPIO.26 	| 26       	| 12  	|                           	|
 | External Relay Feeding-Light 	| 13  	| 23       	| GPIO.23 	| 33       	| 34       	| GND     	|          	|     	|                           	|
