@@ -4,38 +4,31 @@
  */
 package gift.goblin.HayRackController.service.io;
 
+import gift.goblin.HayRackController.service.io.interfaces.MaintenanceManager;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import com.pi4j.io.gpio.trigger.GpioBlinkStateTrigger;
-import com.pi4j.io.gpio.trigger.GpioBlinkStopStateTrigger;
-import com.pi4j.io.gpio.trigger.GpioSetStateTrigger;
+import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 import com.pi4j.wiringpi.Gpio;
-import com.pi4j.wiringpi.GpioUtil;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.io.interfaces.WeightManager;
 import gift.goblin.HayRackController.service.io.model.Playlist;
+import gift.goblin.HayRackController.service.io.trigger.MaintenanceTrigger;
+import gift.goblin.HayRackController.service.io.trigger.TareTrigger;
 import gift.goblin.hx711.GainFactor;
 import gift.goblin.hx711.Hx711;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +37,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class IOController {
+public class IOController implements MaintenanceManager, WeightManager {
 
     private static final int OPENING_CLOSING_TIME_MS = 30_000;
 
@@ -64,56 +57,58 @@ public class IOController {
     private static final int PIN_NO_LOAD_CELL_3_SCK = 10;
     private static final int PIN_NO_LOAD_CELL_4_DAT = 11;
     private static final int PIN_NO_LOAD_CELL_4_SCK = 31;
+    private static final int PIN_NO_BUTTON_MAINTENANCE = 1;
+    private static final int PIN_NO_BUTTON_TARE = 2;
+
+    private ApplicationState applicationState = ApplicationState.UNINITIALIZED;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private GpioController gpioController;
     private boolean raspberryInitialized;
-    
+
     private Hx711 loadCell1Hx711;
     private Hx711 loadCell2Hx711;
     private Hx711 loadCell3Hx711;
     private Hx711 loadCell4Hx711;
 
     //<editor-fold defaultstate="collapsed" desc="pinDefinitions">
-    
     /**
      * Pin which triggers the motor for closing shutters.
      */
     private GpioPinDigitalOutput pinCloseMotor;
-    
+
     /**
      * Pin which triggers the motor for opening shutters.
      */
     private GpioPinDigitalOutput pinOpenMotor;
-    
+
     /**
      * Pin which access the brightness sensor.
      */
     private GpioPinDigitalInput pinBrightnessSensor;
-    
+
     /**
      * Pin for the 230V to 12V transformator
      */
     private GpioPinDigitalOutput pin12VTransformator;
-    
+
     /**
      * Controls the first onboard relais (Which triggers 12V adapter for light &
      * sound)
      */
     private GpioPinDigitalOutput pinLightAndSound;
-    
+
     /**
      * Pin for the external relay, which switches the indoor light.
      */
     private GpioPinDigitalOutput pinRelayLight;
-    
+
     /**
      * Pin for powering the temperature sensor.
      */
     private GpioPinDigitalOutput pinTempSensorVoltage;
-    
-    
+
     // Pins for the load cells
     private GpioPinDigitalInput pinLoadCell1Dat;
     private GpioPinDigitalOutput pinLoadCell1Sck;
@@ -123,9 +118,11 @@ public class IOController {
     private GpioPinDigitalOutput pinLoadCell3Sck;
     private GpioPinDigitalInput pinLoadCell4Dat;
     private GpioPinDigitalOutput pinLoadCell4Sck;
-    
-//</editor-fold>
 
+    private GpioPinDigitalInput pinButtonMaintenance;
+    private GpioPinDigitalInput pinButtonTare;
+
+//</editor-fold>
     private static final int TEMPSENSOR_MAX_TIMINGS = 85;
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
     private static final int TEMPSENSOR_MAX_READ_ATTEMPTS = 5;
@@ -146,9 +143,12 @@ public class IOController {
             setup12VTransformator();
             setupRelayLight();
             setupBrightnessSensor();
-            setupPinsTemperatureSensor();
+            setupTemperatureSensor();
+            setupLoadCells();
+            setupButtons();
 
             raspberryInitialized = true;
+            applicationState = applicationState.DEFAULT;
             logger.info("Raspberry PI successful initialized!");
         } catch (UnsatisfiedLinkError e) {
             logger.warn("Couldnt initialize Raspberry PI.");
@@ -158,6 +158,39 @@ public class IOController {
 
     public boolean isRaspberryInitialized() {
         return raspberryInitialized;
+    }
+
+    /**
+     * Returns the current state of the application.
+     *
+     * @return DEFAULT when application works as expected.
+     */
+    @Override
+    public ApplicationState getApplicationState() {
+        return applicationState;
+    }
+
+    /**
+     * Starts the maintenance mode- every action on the shutters will be
+     * skipped, so every scheduler also. The feeding light will pulse to notice
+     * you about the active maintenance mode.
+     */
+    @Override
+    public void startMaintenanceMode() {
+
+        logger.info("Entering maintenance mode now!");
+        this.applicationState = ApplicationState.MAINTENANCE;
+        pinRelayLight.blink(5000);
+
+    }
+
+    /**
+     * Application will continue to normal mode.
+     */
+    @Override
+    public void endMaintenanceMode() {
+        logger.info("End maintenance mode now!");
+        this.applicationState = ApplicationState.DEFAULT;
     }
 
     @PreDestroy
@@ -174,7 +207,7 @@ public class IOController {
     }
 
     @RequiresRaspberry
-    private void setupPinsTemperatureSensor() {
+    private void setupTemperatureSensor() {
 
         pinTempSensorVoltage = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_TEMP_VOLTAGE),
                 PinState.LOW);
@@ -233,38 +266,51 @@ public class IOController {
         });
     }
 
+    @RequiresRaspberry
     private void setupLoadCells() {
         pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_DAT),
                 "Load-cell 1 DAT", PinPullResistance.OFF);
         pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_SCK),
                 "Load-cell 1 SCK", PinState.LOW);
         loadCell1Hx711 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, 500, 2.0, GainFactor.GAIN_128);
-        
+
         pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_DAT),
                 "Load-cell 2 DAT", PinPullResistance.OFF);
         pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_SCK),
                 "Load-cell 2 SCK", PinState.LOW);
         loadCell2Hx711 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, 500, 2.0, GainFactor.GAIN_128);
-        
+
         pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_DAT),
                 "Load-cell 3 DAT", PinPullResistance.OFF);
         pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_SCK),
                 "Load-cell 3 SCK", PinState.LOW);
         loadCell3Hx711 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, 500, 2.0, GainFactor.GAIN_128);
-        
+
         pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_DAT),
                 "Load-cell 4 DAT", PinPullResistance.OFF);
         pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_SCK),
                 "Load-cell 4 SCK", PinState.LOW);
         loadCell4Hx711 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, 500, 2.0, GainFactor.GAIN_128);
     }
-    
-    
+
+    @RequiresRaspberry
+    private void setupButtons() {
+
+        pinButtonMaintenance = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_MAINTENANCE),
+                "Button maintenance", PinPullResistance.PULL_DOWN);
+
+        pinButtonTare = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_TARE),
+                "Button tare", PinPullResistance.PULL_DOWN);
+
+        pinButtonMaintenance.addTrigger(new GpioCallbackTrigger(new MaintenanceTrigger(this, pinButtonMaintenance)));
+
+        pinButtonTare.addTrigger(new GpioCallbackTrigger(new TareTrigger(this, this, pinButtonTare)));
+    }
+
 //</editor-fold>
     /**
      * Triggers the opening logic, which powers the motor to open the shutters.
      *
-     * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
@@ -303,21 +349,22 @@ public class IOController {
         if (!track.isPresent()) {
             track = Optional.of(Playlist.getRandomPlaylist());
         }
-        
+
         closeShutter(OPENING_CLOSING_TIME_MS);
-        
+
         playSoundAndLight(track.get());
     }
-    
+
     /**
-     * Triggers the 12V transformator with the given rhytm, to make sound and light
-     * effects.
+     * Triggers the 12V transformator with the given rhytm, to make sound and
+     * light effects.
+     *
      * @param track contains playtime and waittimes.
      * @throws InterruptedException if the sleeping goes wrong.
      */
     @RequiresRaspberry
     public void playSoundAndLight(Playlist track) throws InterruptedException {
-        
+
         logger.info("Start playing sound and light for track: {}", track.getTitle());
 
         // power on 12v transformator
@@ -337,9 +384,8 @@ public class IOController {
 
         // power off 12v transformator
         pin12VTransformator.high();
-        
+
     }
-    
 
     /**
      * Triggers the relay to power on the light.
@@ -436,7 +482,7 @@ public class IOController {
     }
 
     private Optional<TemperatureAndHumidity> measureTempSensorValues(final int pin) {
-        
+
         // Power on the temperature sensor
         pinTempSensorVoltage.high();
         Gpio.delay(5000);
@@ -449,7 +495,7 @@ public class IOController {
         Gpio.pinMode(pin, Gpio.OUTPUT);
         Gpio.digitalWrite(pin, Gpio.LOW);
         Gpio.delay(18);
-        
+
         Gpio.digitalWrite(pin, Gpio.HIGH);
         Gpio.delayMicroseconds(7);
         Gpio.pinMode(pin, Gpio.INPUT);
@@ -499,9 +545,9 @@ public class IOController {
             TemperatureAndHumidity temperatureAndHumidity = new TemperatureAndHumidity(c, f, h);
             returnValue = Optional.of(temperatureAndHumidity);
         } else {
-            System.out.println("Data not good, skip");
+            logger.warn("Data not good, skip");
         }
-        
+
         // Power off the temperature sensor
         pinTempSensorVoltage.low();
 
@@ -513,11 +559,28 @@ public class IOController {
     }
 
     public void measureLoadCell1() {
-        
+
         // todo: implement me!
-        TODO!
     }
-    
-    
-    
+
+    @Override
+    public long setTareLoadCell1() {
+        return loadCell1Hx711.setTare();
+    }
+
+    @Override
+    public long setTareLoadCell2() {
+        return loadCell2Hx711.setTare();
+    }
+
+    @Override
+    public long setTareLoadCell3() {
+        return loadCell3Hx711.setTare();
+    }
+
+    @Override
+    public long setTareLoadCell4() {
+        return loadCell4Hx711.setTare();
+    }
+
 }
