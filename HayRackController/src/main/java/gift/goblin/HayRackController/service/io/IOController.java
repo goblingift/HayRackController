@@ -602,4 +602,11 @@ public class IOController implements MaintenanceManager, WeightManager {
         return hx711LoadCell4.setTare();
     }
 
+    @Override
+    public long measureWeight() {
+        
+        
+        return 123;
+    }
+
 }

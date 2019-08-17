@@ -27,4 +27,10 @@ public interface FeedingEventService {
      * @return the primary key of the feeding entry entity.
      */
     Long finishFeedingEvent(int jobId);
+    
+    
+    void measureStartWeight(Long feedingEntryId);
+    
+    void measureEndWeight(Long feedingEntryId);
+    
 }

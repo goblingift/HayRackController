@@ -10,17 +10,24 @@ import org.springframework.stereotype.Component;
 
 /**
  * Bean which offers different methods to measure the weight.
+ *
  * @author andre
  */
 @Component
 public class WeightMeasurementService {
-    
-    
+
     @Autowired
     private FeedingEventRepository feedingEventRepo;
+
     
-    
-    
-    
-    
+    /**
+     * Measures the current weight and save it in the end-weight field of the
+     * feedingEntry-entity. Also calculates the eaten food and save it.
+     *
+     * @param feedingEntryId PK of the feedingEntry-entity.
+     */
+    void measureEndWeight(Long feedingEntryId) {
+        
+    }
+
 }
