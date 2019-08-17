@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
  *
  * @author andre
  */
-@Component
 public class TareTrigger extends AbstractTrigger implements Callable<Void> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -30,8 +29,8 @@ public class TareTrigger extends AbstractTrigger implements Callable<Void> {
     private MaintenanceManager maintenanceManager;
     private WeightManager weightManager;
 
-    @Autowired
-    private TareMeasurementRepository tareRepo;
+//    @Autowired
+//    private TareMeasurementRepository tareRepo;
 
     public TareTrigger(MaintenanceManager maintenanceManager, WeightManager weightManager, GpioPinDigitalInput pinButtonTare) {
         super(pinButtonTare);
@@ -50,7 +49,7 @@ public class TareTrigger extends AbstractTrigger implements Callable<Void> {
         if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
             
             TareMeasurement tareMeasurement = createTareEntity();
-            tareRepo.save(tareMeasurement);
+//            tareRepo.save(tareMeasurement);
             logger.info("Successful saved tare-measurement entity: {}", tareMeasurement);
             
         } else {
