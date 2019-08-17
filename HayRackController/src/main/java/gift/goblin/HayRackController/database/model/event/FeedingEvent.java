@@ -27,6 +27,21 @@ public class FeedingEvent {
     private Long feedingEventId;
     private LocalDateTime feedingStart;
     private LocalDateTime feedingEnd;
+    
+    /**
+     * The measured weight at the start of the feeding-event.
+     */
+    private long weightGramStart;
+    
+    /**
+     * The measured weight at the end of the feeding-event.
+     */
+    private long weightGramEnd;
+    
+    /**
+     * The eaten food in this feeding-event.
+     */
+    private long foodConsumptionGram;
    
     private ScheduledShutterMovement scheduledShutterMovement;
         
@@ -89,6 +104,32 @@ public class FeedingEvent {
         this.feedingDurationMs = feedingDurationMs;
     }
 
+    public long getWeightGramStart() {
+        return weightGramStart;
+    }
+
+    public void setWeightGramStart(long weightGramStart) {
+        this.weightGramStart = weightGramStart;
+    }
+
+    public long getWeightGramEnd() {
+        return weightGramEnd;
+    }
+
+    public void setWeightGramEnd(long weightGramEnd) {
+        this.weightGramEnd = weightGramEnd;
+    }
+
+    public long getFoodConsumptionGram() {
+        return foodConsumptionGram;
+    }
+
+    public void setFoodConsumptionGram(long foodConsumptionGram) {
+        this.foodConsumptionGram = foodConsumptionGram;
+    }
+    
+    
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -108,6 +149,15 @@ public class FeedingEvent {
             return false;
         }
         final FeedingEvent other = (FeedingEvent) obj;
+        if (this.weightGramStart != other.weightGramStart) {
+            return false;
+        }
+        if (this.weightGramEnd != other.weightGramEnd) {
+            return false;
+        }
+        if (this.foodConsumptionGram != other.foodConsumptionGram) {
+            return false;
+        }
         if (!Objects.equals(this.feedingEventId, other.feedingEventId)) {
             return false;
         }
@@ -125,7 +175,7 @@ public class FeedingEvent {
 
     @Override
     public String toString() {
-        return "FeedingEvent{" + "feedingEventId=" + feedingEventId + ", feedingStart=" + feedingStart + ", feedingEnd=" + feedingEnd + ", feedingDurationMs=" + feedingDurationMs + '}';
+        return "FeedingEvent{" + "feedingEventId=" + feedingEventId + ", feedingStart=" + feedingStart + ", feedingEnd=" + feedingEnd + ", weightGramStart=" + weightGramStart + ", weightGramEnd=" + weightGramEnd + ", foodConsumptionGram=" + foodConsumptionGram + ", feedingDurationMs=" + feedingDurationMs + '}';
     }
-    
+
 }

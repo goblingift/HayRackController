@@ -67,10 +67,10 @@ public class IOController implements MaintenanceManager, WeightManager {
     private GpioController gpioController;
     private boolean raspberryInitialized;
 
-    private Hx711 loadCell1Hx711;
-    private Hx711 loadCell2Hx711;
-    private Hx711 loadCell3Hx711;
-    private Hx711 loadCell4Hx711;
+    private Hx711 hx711LoadCell1;
+    private Hx711 hx711LoadCell2;
+    private Hx711 hx711LoadCell3;
+    private Hx711 hx711LoadCell4;
 
     //<editor-fold defaultstate="collapsed" desc="pinDefinitions">
     /**
@@ -272,25 +272,25 @@ public class IOController implements MaintenanceManager, WeightManager {
                 "Load-cell 1 DAT", PinPullResistance.OFF);
         pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_SCK),
                 "Load-cell 1 SCK", PinState.LOW);
-        loadCell1Hx711 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, 500, 2.0, GainFactor.GAIN_128);
 
         pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_DAT),
                 "Load-cell 2 DAT", PinPullResistance.OFF);
         pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_SCK),
                 "Load-cell 2 SCK", PinState.LOW);
-        loadCell2Hx711 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, 500, 2.0, GainFactor.GAIN_128);
 
         pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_DAT),
                 "Load-cell 3 DAT", PinPullResistance.OFF);
         pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_SCK),
                 "Load-cell 3 SCK", PinState.LOW);
-        loadCell3Hx711 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, 500, 2.0, GainFactor.GAIN_128);
 
         pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_DAT),
                 "Load-cell 4 DAT", PinPullResistance.OFF);
         pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_SCK),
                 "Load-cell 4 SCK", PinState.LOW);
-        loadCell4Hx711 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, 500, 2.0, GainFactor.GAIN_128);
     }
 
     @RequiresRaspberry
@@ -558,29 +558,48 @@ public class IOController implements MaintenanceManager, WeightManager {
         return dht22_dat[4] == (dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3] & 0xFF);
     }
 
-    public void measureLoadCell1() {
+    public long measureWeightLoadCell1() {
+        long measurement = hx711LoadCell1.measure();
+        logger.info("Measured weight of load-cell #1: " + measurement);
+        return measurement;
+    }
 
-        // todo: implement me!
+    public long measureWeightLoadCell2() {
+        long measurement = hx711LoadCell2.measure();
+        logger.info("Measured weight of load-cell #2: " + measurement);
+        return measurement;
+    }
+
+    public long measureWeightLoadCell3() {
+        long measurement = hx711LoadCell3.measure();
+        logger.info("Measured weight of load-cell #3: " + measurement);
+        return measurement;
+    }
+
+    public long measureWeightLoadCell4() {
+        long measurement = hx711LoadCell4.measure();
+        logger.info("Measured weight of load-cell #4: " + measurement);
+        return measurement;
     }
 
     @Override
     public long setTareLoadCell1() {
-        return loadCell1Hx711.setTare();
+        return hx711LoadCell1.setTare();
     }
 
     @Override
     public long setTareLoadCell2() {
-        return loadCell2Hx711.setTare();
+        return hx711LoadCell2.setTare();
     }
 
     @Override
     public long setTareLoadCell3() {
-        return loadCell3Hx711.setTare();
+        return hx711LoadCell3.setTare();
     }
 
     @Override
     public long setTareLoadCell4() {
-        return loadCell4Hx711.setTare();
+        return hx711LoadCell4.setTare();
     }
 
 }
