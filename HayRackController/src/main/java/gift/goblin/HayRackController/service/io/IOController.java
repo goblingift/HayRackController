@@ -21,6 +21,7 @@ import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.io.interfaces.WeightManager;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.io.trigger.MaintenanceTrigger;
+import gift.goblin.HayRackController.service.io.trigger.ShowRemainingFoodTrigger;
 import gift.goblin.HayRackController.service.io.trigger.TareTrigger;
 import gift.goblin.hx711.GainFactor;
 import gift.goblin.hx711.Hx711;
@@ -122,6 +123,7 @@ public class IOController implements MaintenanceManager, WeightManager {
 
     private GpioPinDigitalInput pinButtonMaintenance;
     private GpioPinDigitalInput pinButtonTare;
+    private GpioPinDigitalInput pinButtonShowRemainingFood;
 
 //</editor-fold>
     private static final int TEMPSENSOR_MAX_TIMINGS = 85;
@@ -191,6 +193,8 @@ public class IOController implements MaintenanceManager, WeightManager {
         logger.info("Button held long enough- end maintenance mode now!");
         this.applicationState = ApplicationState.DEFAULT;
         pinRelayLight.low();
+        pinRelayLight.clearProperties();
+        pinRelayLight.removeAllListeners();
     }
 
     @PreDestroy
@@ -302,9 +306,12 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinButtonTare = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_TARE),
                 "Button tare", PinPullResistance.PULL_DOWN);
 
-        pinButtonMaintenance.addTrigger(new GpioCallbackTrigger(new MaintenanceTrigger(this, pinButtonMaintenance)));
+        pinButtonShowRemainingFood = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_SHOW_REMAINING_FOOD),
+                "Button show remaining food", PinPullResistance.PULL_DOWN);
 
+        pinButtonMaintenance.addTrigger(new GpioCallbackTrigger(new MaintenanceTrigger(this, pinButtonMaintenance)));
         pinButtonTare.addTrigger(new GpioCallbackTrigger(new TareTrigger(this, this, pinButtonTare)));
+        pinButtonShowRemainingFood.addTrigger(new GpioCallbackTrigger(new ShowRemainingFoodTrigger(this, pinButtonShowRemainingFood)));
     }
 
 //</editor-fold>
@@ -602,8 +609,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return hx711LoadCell4.setTare();
     }
 
-    
-    
     @Override
     public long measureWeight() {
         return measureWeightLoadCell1() + measureWeightLoadCell2() + measureWeightLoadCell3() + measureWeightLoadCell4();

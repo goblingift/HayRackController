@@ -30,18 +30,18 @@ public class TareTrigger extends AbstractTrigger implements Callable<Void> {
     
     private MaintenanceManager maintenanceManager;
     private WeightManager weightManager;
-    private TareMeasurementRepository tareRepo;
 
     public TareTrigger(MaintenanceManager maintenanceManager, WeightManager weightManager, GpioPinDigitalInput pinButtonTare) {
         super(pinButtonTare);
         this.maintenanceManager = maintenanceManager;
         this.weightManager = weightManager;
-        this.tareRepo = BeanInjectionUtil.getSpringBean(TareMeasurementRepository.class);
     }
 
     @Override
     public Void call() throws Exception {
 
+    TareMeasurementRepository tareRepo = BeanInjectionUtil.getSpringBean(TareMeasurementRepository.class);
+    
         if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE && buttonWasPressed(3_000)) {
             TareMeasurement tareMeasurement = createTareEntity();
             tareRepo.save(tareMeasurement);
