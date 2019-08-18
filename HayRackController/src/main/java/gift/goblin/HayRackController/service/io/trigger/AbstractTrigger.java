@@ -11,7 +11,7 @@ import com.pi4j.io.gpio.PinState;
  * Implements default behavior for buttons.
  * @author andre
  */
-public class AbstractTrigger {
+public abstract class AbstractTrigger {
     
     private GpioPinDigitalInput button;
     
@@ -38,7 +38,7 @@ public class AbstractTrigger {
         if (button.getState() == PinState.HIGH) {
 
             long duration;
-            for (duration = 0; duration < durationMs; duration += 50) {
+            for (duration = 0; duration < durationMs; duration += 10) {
                 if (button.getState() == PinState.LOW) {
                     break;
                 } else {

@@ -59,6 +59,7 @@ public class IOController implements MaintenanceManager, WeightManager {
     private static final int PIN_NO_LOAD_CELL_4_SCK = 31;
     private static final int PIN_NO_BUTTON_MAINTENANCE = 1;
     private static final int PIN_NO_BUTTON_TARE = 2;
+    private static final int PIN_NO_BUTTON_SHOW_REMAINING_FOOD = 3;
 
     private ApplicationState applicationState = ApplicationState.UNINITIALIZED;
 
@@ -177,11 +178,9 @@ public class IOController implements MaintenanceManager, WeightManager {
      */
     @Override
     public void startMaintenanceMode() {
-
-        logger.info("Entering maintenance mode now!");
+        logger.info("Button held long enough- entering maintenance mode now!");
         this.applicationState = ApplicationState.MAINTENANCE;
-        pinRelayLight.blink(5000);
-
+        pinRelayLight.blink(1_000);
     }
 
     /**
@@ -189,8 +188,9 @@ public class IOController implements MaintenanceManager, WeightManager {
      */
     @Override
     public void endMaintenanceMode() {
-        logger.info("End maintenance mode now!");
+        logger.info("Button held long enough- end maintenance mode now!");
         this.applicationState = ApplicationState.DEFAULT;
+        pinRelayLight.low();
     }
 
     @PreDestroy
@@ -602,11 +602,11 @@ public class IOController implements MaintenanceManager, WeightManager {
         return hx711LoadCell4.setTare();
     }
 
+    
+    
     @Override
     public long measureWeight() {
-        
-        
-        return 123;
+        return measureWeightLoadCell1() + measureWeightLoadCell2() + measureWeightLoadCell3() + measureWeightLoadCell4();
     }
 
 }

@@ -8,6 +8,7 @@ import com.pi4j.io.gpio.GpioPinDigitalInput;
 import gift.goblin.HayRackController.service.io.ApplicationState;
 import gift.goblin.HayRackController.service.io.interfaces.MaintenanceManager;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,23 +25,27 @@ public class MaintenanceTrigger extends AbstractTrigger implements Callable<Void
     public MaintenanceTrigger(MaintenanceManager maintenanceManager, GpioPinDigitalInput pinButtonMaintenance) {
         super(pinButtonMaintenance);
         
-        this.maintenanceManager = this.maintenanceManager;
+        this.maintenanceManager = maintenanceManager;
     }
 
+    /**
+     * If the button was pressed for at least 3seconds, enter or exit maintenance mode.
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Void call() throws Exception {
-
-        logger.info("Maintenance button pressed");
         
-        boolean longPressed = buttonWasPressed(3_000);
-
-        if (longPressed && maintenanceManager.getApplicationState() == ApplicationState.DEFAULT) {
-            maintenanceManager.startMaintenanceMode();
-        } else if (longPressed && maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
-            maintenanceManager.endMaintenanceMode();
+        if (buttonWasPressed(3_000)) {
+            logger.info("button maintenance hold for 3s");
+            
+            if (maintenanceManager.getApplicationState() == ApplicationState.DEFAULT) {
+                maintenanceManager.startMaintenanceMode();
+            } else if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
+                maintenanceManager.endMaintenanceMode();
+            }
+            
         }
-        
-        logger.info("Maintenance button released");
         return null;
     }
 

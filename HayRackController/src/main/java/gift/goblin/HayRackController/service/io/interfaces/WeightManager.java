@@ -44,10 +44,14 @@ public interface WeightManager {
     long setTareLoadCell4();
 
     /**
-     * Measures the current weight (Sum of all load-cells) and return the value in gram.
+     * Measures the current weight on the scale (Sum of all load-cells).
+     * @return the weight in gram.
      */
     long measureWeight();
     
-    
+    long measureWeightLoadCell1();
+    long measureWeightLoadCell2();
+    long measureWeightLoadCell3();
+    long measureWeightLoadCell4();
 
 }

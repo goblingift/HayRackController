@@ -5,17 +5,19 @@
 package gift.goblin.HayRackController.service.io.trigger;
 
 import com.pi4j.io.gpio.GpioPinDigitalInput;
+import gift.goblin.HayRackController.database.embedded.repo.event.TemperatureMeasurementRepository;
 import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
+import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
 import gift.goblin.HayRackController.service.io.ApplicationState;
 import gift.goblin.HayRackController.service.io.interfaces.MaintenanceManager;
 import gift.goblin.HayRackController.service.io.interfaces.WeightManager;
+import gift.goblin.HayRackController.util.BeanInjectionUtil;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Trigger for setting the tare of the load-cells.
@@ -28,35 +30,24 @@ public class TareTrigger extends AbstractTrigger implements Callable<Void> {
     
     private MaintenanceManager maintenanceManager;
     private WeightManager weightManager;
-
-//    @Autowired
-//    private TareMeasurementRepository tareRepo;
+    private TareMeasurementRepository tareRepo;
 
     public TareTrigger(MaintenanceManager maintenanceManager, WeightManager weightManager, GpioPinDigitalInput pinButtonTare) {
         super(pinButtonTare);
-
         this.maintenanceManager = maintenanceManager;
         this.weightManager = weightManager;
+        this.tareRepo = BeanInjectionUtil.getSpringBean(TareMeasurementRepository.class);
     }
 
     @Override
     public Void call() throws Exception {
 
-        logger.info("Tare button pressed");
-
-        boolean longPressed = buttonWasPressed(3_000);
-
-        if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
-            
+        if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE && buttonWasPressed(3_000)) {
             TareMeasurement tareMeasurement = createTareEntity();
-//            tareRepo.save(tareMeasurement);
+            tareRepo.save(tareMeasurement);
             logger.info("Successful saved tare-measurement entity: {}", tareMeasurement);
-            
-        } else {
-            logger.warn("Maintenance mode not active- cant set tare!");
         }
 
-        logger.info("Tare button released");
         return null;
     }
 
