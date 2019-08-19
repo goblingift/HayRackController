@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class ScheduledShutterMovementSyncService implements SynchronizedDatabase {
+public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -27,7 +27,7 @@ public class ApplicationConfiguration {
      * @see gift.goblin.HayRackController.service.io.model.Playlist
      */
     private int soundId;
-
+    
     public ApplicationConfiguration(int soundId) {
         this.soundId = soundId;
     }

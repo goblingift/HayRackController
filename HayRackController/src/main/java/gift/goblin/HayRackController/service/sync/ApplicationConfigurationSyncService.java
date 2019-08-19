@@ -19,7 +19,7 @@ import java.util.List;
  * @author andre
  */
 @Component
-public class ApplicationConfigurationSyncService implements SynchronizedDatabase {
+public class ApplicationConfigurationSyncService implements DatabaseSynchronizer {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
+public class TemperatureDailyMaxMinSyncService implements DatabaseSynchronizer {
 
     @Autowired
     private TemperatureDailyMaxMinBackupRepository backupRepo;
