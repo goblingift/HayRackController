@@ -4,7 +4,9 @@
  */
 package gift.goblin.HayRackController.service.io;
 
-import gift.goblin.HayRackController.database.embedded.repo.event.FeedingEventRepository;
+import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
+import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,17 +19,33 @@ import org.springframework.stereotype.Component;
 public class WeightMeasurementService {
 
     @Autowired
-    private FeedingEventRepository feedingEventRepo;
+    TareMeasurementRepository tareMeasurementRepository;
 
-    
+    @Autowired
+    IOController ioController;
+
     /**
-     * Measures the current weight and save it in the end-weight field of the
-     * feedingEntry-entity. Also calculates the eaten food and save it.
+     * Will read the latest tare-measurement (If available) and set their tare
+     * values to all load-cells.
      *
-     * @param feedingEntryId PK of the feedingEntry-entity.
+     * @return true if tare-value was found and set, false if otherwise.
      */
-    void measureEndWeight(Long feedingEntryId) {
+    public boolean readAndSetTareValueLoadCells() {
+
+        boolean successfulReadAndSet = false;
         
+        Optional<TareMeasurement> optTareMeasurement
+                = tareMeasurementRepository.findTop1ByOrderByMeasuredAtDesc();
+        
+        if (optTareMeasurement.isPresent()) {
+            ioController.setTareValueLoadCell1(optTareMeasurement.get().getTareLoadCell1());
+            ioController.setTareValueLoadCell2(optTareMeasurement.get().getTareLoadCell2());
+            ioController.setTareValueLoadCell3(optTareMeasurement.get().getTareLoadCell3());
+            ioController.setTareValueLoadCell4(optTareMeasurement.get().getTareLoadCell4());
+            successfulReadAndSet = true;
+        }
+        
+        return successfulReadAndSet;
     }
 
 }

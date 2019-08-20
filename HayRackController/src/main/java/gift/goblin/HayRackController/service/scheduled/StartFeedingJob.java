@@ -72,7 +72,7 @@ public class StartFeedingJob implements Job {
             ioController.triggerRelayLight(true);
             Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
             feedingEventService.measureStartWeight(feedingEventId);
-        } catch (InterruptedException ex) {
+        } catch (Exception ex) {
             logger.error("Exception thrown while closing shutters!", ex);
         }
 

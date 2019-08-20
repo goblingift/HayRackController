@@ -38,7 +38,9 @@ public class TemperatureSyncService implements DatabaseSynchronizer {
      * the backup database.
      */
     @Override
-    public void backupValues() {
+    public int backupValues() {
+        
+        int syncedEntitiesCount = 0;
         
         List<TemperatureMeasurement> syncEntries;
         Optional<TemperatureMeasurement> optLatestEntry = backupRepo.findTop1ByOrderByMeasuredAtDesc();
@@ -54,22 +56,27 @@ public class TemperatureSyncService implements DatabaseSynchronizer {
         
         List<TemperatureMeasurement> syncedEntries = backupRepo.saveAll(syncEntries);
         if (!syncedEntries.isEmpty()) {
+            syncedEntitiesCount = syncedEntries.size();
             logger.info("Successful synced {} new temperature-measurement entries from embedded-db to backup-db.",
                     syncedEntries.size());
         }
+        
+        return syncedEntitiesCount;
     }
 
     /**
      * Prefills the embedded-db with all entries of the backup-db.
      */
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
         logger.info("Fetch all temperature-measurement entries from backup-db");
         List<TemperatureMeasurement> tempBackupEntries = backupRepo.findAll();
 
         List<TemperatureMeasurement> importedEntries = embeddedRepo.saveAll(tempBackupEntries);
         logger.info("Successful imported {} temperatureMeasurement entries from backup-db to embedded-db.",
                 importedEntries.size());
+        
+        return importedEntries.size();
     }
 
 }

@@ -107,13 +107,13 @@ public class FeedingEventServiceImpl implements FeedingEventService {
             FeedingEvent feedingEvent = optFeedingEvent.get();
 
             long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                    + measureWeightLoadCell4;
+//            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
+//            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
+//            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
+//            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
+//                    + measureWeightLoadCell4;
 
-            feedingEvent.setWeightGramStart(sum);
+            feedingEvent.setWeightGramStart(measureWeightLoadCell1);
             feedingEventRepo.save(feedingEvent);
         }
     }
@@ -125,11 +125,12 @@ public class FeedingEventServiceImpl implements FeedingEventService {
             FeedingEvent feedingEvent = optFeedingEvent.get();
 
             long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                    + measureWeightLoadCell4;
+            long sum = measureWeightLoadCell1;
+//            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
+//            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
+//            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
+//            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
+//                    + measureWeightLoadCell4;
             
             long weightGramStart = feedingEvent.getWeightGramStart();
             long consumption = weightGramStart - sum;

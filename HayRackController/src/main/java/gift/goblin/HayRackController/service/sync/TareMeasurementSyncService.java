@@ -31,35 +31,41 @@ public class TareMeasurementSyncService implements DatabaseSynchronizer {
     TareMeasurementBackupRepository backupRepo;
     
     @Override
-    public void backupValues() {
+    public int backupValues() {
         
-        List<TareMeasurement> syncEntries;
+        int syncedEntitiesCount = 0;
+        
+        List<TareMeasurement> syncEntities;
         Optional<TareMeasurement> optLastEntry = backupRepo.findTop1ByOrderByMeasuredAtDesc();
         if (optLastEntry.isPresent()) {
             TareMeasurement latestEntry = optLastEntry.get();
             LocalDateTime from = latestEntry.getMeasuredAt();
             
-            syncEntries = embeddedRepo.findByMeasuredAtAfter(from);
+            syncEntities = embeddedRepo.findByMeasuredAtAfter(from);
         } else {
-            syncEntries = embeddedRepo.findAll();
+            syncEntities = embeddedRepo.findAll();
         }
         
-        List<TareMeasurement> syncedEntries = backupRepo.saveAll(syncEntries);
-        if (!syncedEntries.isEmpty()) {
+        List<TareMeasurement> syncedEntities = backupRepo.saveAll(syncEntities);
+        if (!syncedEntities.isEmpty()) {
+            syncedEntitiesCount = syncEntities.size();
             logger.info("Successful synced {} new tare-measurement entries from embedded-db to backup-db.",
-                    syncedEntries.size());
+                    syncedEntities.size());
         }
         
+        return syncedEntitiesCount;
     }
 
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
         logger.info("Fetch all tare-measurement entries from backup-db");
         List<TareMeasurement> tareBackupEntries = backupRepo.findAll();
 
         List<TareMeasurement> importedEntries = embeddedRepo.saveAll(tareBackupEntries);
         logger.info("Successful imported {} tare-measurement entries from backup-db to embedded-db.",
                 importedEntries.size());
+        
+        return importedEntries.size();
     }
     
 }

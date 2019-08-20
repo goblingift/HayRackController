@@ -18,7 +18,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * Entity for a scheduled shutter movement.
+ * Entity for a scheduled shutter movement, which only defines the time and duration
+ * how long the shutter will be opened. This entity will be generated once- if you
+ * want to look at a specific event, look at the FeedingEvent entity.
  *
  * @author andre
  */

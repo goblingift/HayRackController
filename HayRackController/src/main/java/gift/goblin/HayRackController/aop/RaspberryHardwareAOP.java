@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 /**
- *
+ * 
  * @author andre
  */
 @Aspect
@@ -25,7 +25,7 @@ public class RaspberryHardwareAOP {
 
     @Autowired
     private IOController ioController;
-
+    
     @Around("@annotation(gift.goblin.HayRackController.aop.RequiresRaspberry)")
     public void around(ProceedingJoinPoint joinPoint) throws Throwable {
 

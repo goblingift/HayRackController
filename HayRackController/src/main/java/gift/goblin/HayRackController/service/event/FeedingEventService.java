@@ -28,9 +28,17 @@ public interface FeedingEventService {
      */
     Long finishFeedingEvent(int jobId);
     
-    
+    /**
+     * Measures the start-weight and saves the value to the given feedingEvent-entity.
+     * @param feedingEntryId PK of feedingEvent-entity.
+     */
     void measureStartWeight(Long feedingEntryId);
     
+    /**
+     * Measures the end-weight and saves the value to the given feedingEvent-entity.
+     * Also calculates the amount of eaten food while this feedingEvent.
+     * @param feedingEntryId PK of feedingEvent-entity.
+     */
     void measureEndWeight(Long feedingEntryId);
     
 }

@@ -31,8 +31,8 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
     
     
     @Override
-    public void backupValues() {
-        
+    public int backupValues() {
+        int syncedEntitiesCount = 0;
         List<ApplicationConfiguration> embeddedEntities = embeddedRepo.findAll();
         if (!embeddedEntities.isEmpty()) {
             ApplicationConfiguration embeddedEntity = embeddedEntities.get(0);
@@ -40,20 +40,24 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
             List<ApplicationConfiguration> backupEntities = backupRepo.findAll();
             if (backupEntities.isEmpty()) {
                 ApplicationConfiguration savedEntity = backupRepo.save(embeddedEntity);
+                syncedEntitiesCount = 1;
                 logger.info("Successful synced new entry in backup-db: {}", savedEntity);
             } else {
                 ApplicationConfiguration backupEntity = backupEntities.get(0);
                 if (backupEntity.getSoundId() != embeddedEntity.getSoundId()) {
                     backupEntity.setSoundId(embeddedEntity.getSoundId());
                     ApplicationConfiguration savedEntity = backupRepo.save(backupEntity);
+                    syncedEntitiesCount = 1;
                     logger.info("Successful overwrote entry in backup-db: {}", savedEntity);
                 }
             }
         }
+        
+        return syncedEntitiesCount;
     }
 
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
         
         logger.info("Fetch all application-configuration entries from backup-db");
         List<ApplicationConfiguration> backupEntities = backupRepo.findAll();
@@ -61,6 +65,7 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
         List<ApplicationConfiguration> synchronizedEntities = embeddedRepo.saveAll(backupEntities);
         logger.info("Successful synchronized {} entities from backup-db to embeded-db.", synchronizedEntities.size());
         
+        return synchronizedEntities.size();
     }
 
 }

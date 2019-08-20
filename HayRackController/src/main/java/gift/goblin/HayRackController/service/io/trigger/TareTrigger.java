@@ -58,16 +58,16 @@ public class TareTrigger extends AbstractTrigger implements Callable<Void> {
      * @return database entity.
      */
     private TareMeasurement createTareEntity() {
-        long tareLoadCell1 = weightManager.setTareLoadCell1();
+        long tareLoadCell1 = weightManager.measureAndSetTareLoadCell1();
         logger.info("TARE of load-cell #1 set: {}", tareLoadCell1);
 
-        long tareLoadCell2 = weightManager.setTareLoadCell2();
+        long tareLoadCell2 = weightManager.measureAndSetTareLoadCell2();
         logger.info("TARE of load-cell #2 set: {}", tareLoadCell2);
 
-        long tareLoadCell3 = weightManager.setTareLoadCell3();
+        long tareLoadCell3 = weightManager.measureAndSetTareLoadCell3();
         logger.info("TARE of load-cell #3 set: {}", tareLoadCell3);
 
-        long tareLoadCell4 = weightManager.setTareLoadCell4();
+        long tareLoadCell4 = weightManager.measureAndSetTareLoadCell4();
         logger.info("TARE of load-cell #4 set: {}", tareLoadCell4);
 
         TareMeasurement tareMeasurement = new TareMeasurement(tareLoadCell1,

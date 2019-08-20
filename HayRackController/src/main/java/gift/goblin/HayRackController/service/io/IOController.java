@@ -565,24 +565,28 @@ public class IOController implements MaintenanceManager, WeightManager {
         return dht22_dat[4] == (dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3] & 0xFF);
     }
 
+    @Override
     public long measureWeightLoadCell1() {
         long measurement = hx711LoadCell1.measure();
         logger.info("Measured weight of load-cell #1: " + measurement);
         return measurement;
     }
 
+    @Override
     public long measureWeightLoadCell2() {
         long measurement = hx711LoadCell2.measure();
         logger.info("Measured weight of load-cell #2: " + measurement);
         return measurement;
     }
 
+    @Override
     public long measureWeightLoadCell3() {
         long measurement = hx711LoadCell3.measure();
         logger.info("Measured weight of load-cell #3: " + measurement);
         return measurement;
     }
 
+    @Override
     public long measureWeightLoadCell4() {
         long measurement = hx711LoadCell4.measure();
         logger.info("Measured weight of load-cell #4: " + measurement);
@@ -590,28 +594,48 @@ public class IOController implements MaintenanceManager, WeightManager {
     }
 
     @Override
-    public long setTareLoadCell1() {
-        return hx711LoadCell1.setTare();
+    public long measureAndSetTareLoadCell1() {
+        return hx711LoadCell1.measureAndSetTare();
     }
 
     @Override
-    public long setTareLoadCell2() {
-        return hx711LoadCell2.setTare();
+    public long measureAndSetTareLoadCell2() {
+        return hx711LoadCell2.measureAndSetTare();
     }
 
     @Override
-    public long setTareLoadCell3() {
-        return hx711LoadCell3.setTare();
+    public long measureAndSetTareLoadCell3() {
+        return hx711LoadCell3.measureAndSetTare();
     }
 
     @Override
-    public long setTareLoadCell4() {
-        return hx711LoadCell4.setTare();
+    public long measureAndSetTareLoadCell4() {
+        return hx711LoadCell4.measureAndSetTare();
     }
 
     @Override
     public long measureWeight() {
         return measureWeightLoadCell1() + measureWeightLoadCell2() + measureWeightLoadCell3() + measureWeightLoadCell4();
+    }
+
+    @Override
+    public void setTareValueLoadCell1(long tareValue) {
+        hx711LoadCell1.setTareValue(tareValue);
+    }
+
+    @Override
+    public void setTareValueLoadCell2(long tareValue) {
+        hx711LoadCell2.setTareValue(tareValue);
+    }
+
+    @Override
+    public void setTareValueLoadCell3(long tareValue) {
+        hx711LoadCell3.setTareValue(tareValue);
+    }
+
+    @Override
+    public void setTareValueLoadCell4(long tareValue) {
+        hx711LoadCell4.setTareValue(tareValue);
     }
 
 }

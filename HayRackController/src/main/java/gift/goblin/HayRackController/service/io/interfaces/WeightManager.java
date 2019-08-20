@@ -17,7 +17,7 @@ public interface WeightManager {
      *
      * @return the tare value.
      */
-    long setTareLoadCell1();
+    long measureAndSetTareLoadCell1();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
@@ -25,7 +25,7 @@ public interface WeightManager {
      *
      * @return the tare value.
      */
-    long setTareLoadCell2();
+    long measureAndSetTareLoadCell2();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
@@ -33,7 +33,7 @@ public interface WeightManager {
      *
      * @return the tare value.
      */
-    long setTareLoadCell3();
+    long measureAndSetTareLoadCell3();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
@@ -41,17 +41,70 @@ public interface WeightManager {
      *
      * @return the tare value.
      */
-    long setTareLoadCell4();
+    long measureAndSetTareLoadCell4();
 
     /**
-     * Measures the current weight on the scale (Sum of all load-cells).
+     * Measures the current weight on the scale (Sum of all load-cells). Will
+     * read and set the last tare value to all load-cells.
+     *
      * @return the weight in gram.
      */
     long measureWeight();
-    
-    long measureWeightLoadCell1();
-    long measureWeightLoadCell2();
-    long measureWeightLoadCell3();
-    long measureWeightLoadCell4();
 
+    /**
+     * Measures the weight of the load-cell. Important: Dont change method name-
+     * AOP in class LoadCellTaringAOP registered!
+     *
+     * @return
+     */
+    long measureWeightLoadCell1();
+
+    /**
+     * Measures the weight of the load-cell. Important: Dont change method name-
+     * AOP in class LoadCellTaringAOP registered!
+     *
+     * @return
+     */
+    long measureWeightLoadCell2();
+
+    /**
+     * Measures the weight of the load-cell. Important: Dont change method name-
+     * AOP in class LoadCellTaringAOP registered!
+     *
+     * @return
+     */
+    long measureWeightLoadCell3();
+
+    /**
+     * Measures the weight of the load-cell. Important: Dont change method name-
+     * AOP in class LoadCellTaringAOP registered!
+     *
+     * @return
+     */
+    long measureWeightLoadCell4();
+    
+    /**
+     * Sets the tare value for load-cell #1.
+     * @param tareValue 
+     */
+    void setTareValueLoadCell1(long tareValue);
+    /**
+     * Sets the tare value for load-cell #2.
+     * @param tareValue 
+     */
+    void setTareValueLoadCell2(long tareValue);
+    
+    /**
+     * Sets the tare value for load-cell #3.
+     * @param tareValue 
+     */
+    void setTareValueLoadCell3(long tareValue);
+    
+    /**
+     * Sets the tare value for load-cell #4.
+     * @param tareValue 
+     */
+    void setTareValueLoadCell4(long tareValue);
+    
+    
 }

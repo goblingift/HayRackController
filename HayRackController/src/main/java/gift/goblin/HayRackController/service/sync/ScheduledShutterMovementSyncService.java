@@ -52,12 +52,16 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
      * embedded-db and copying all entries from the backup-db.
      */
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
+        
+        int syncedEntitiesCount = 0;
+        
         logger.info("DatabaseSyncJob starts syncing the scheduled shutter movements");
         List<ScheduledShutterMovement> backupEntries = backupRepo.findAll();
 
         embeddedRepo.deleteAll();
         List<ScheduledShutterMovement> newEntities = embeddedRepo.saveAll(backupEntries);
+        syncedEntitiesCount = newEntities.size();
         logger.info("Finished restore {} scheduledShutterMovements from backup-db to the embedded-db, register schedulers next...", newEntities.size());
 
         for (ScheduledShutterMovement actEntry : newEntities) {
@@ -71,6 +75,8 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
                 logger.error("Couldnt register new scheduled job!", ex);
             }
         }
+        
+        return syncedEntitiesCount;
     }
 
     /**
@@ -78,7 +84,9 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
      * removes entries which exists only at backup database.
      */
     @Override
-    public void backupValues() {
+    public int backupValues() {
+        
+        int syncedEntitiesCount = 0;
 
         List<ScheduledShutterMovement> embeddedEntries = embeddedRepo.findAll();
         List<ScheduledShutterMovement> backupedEntries = backupRepo.findAll();
@@ -88,6 +96,7 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
 
         List<ScheduledShutterMovement> syncedEntries = backupRepo.saveAll(newEntries);
         if (!syncedEntries.isEmpty()) {
+            syncedEntitiesCount = syncedEntries.size();
             logger.info("Successful backuped {} ScheduledShutterMovement entries from embedded-db to backup-db.", syncedEntries.size());
         }
         
@@ -95,6 +104,8 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
             backupRepo.deleteAll(toDeleteEntries);
             logger.info("Successful deleted {} ScheduledShutterMovement entries in backup-db.", toDeleteEntries.size());
         }
+        
+        return syncedEntitiesCount;
     }
 
 }
