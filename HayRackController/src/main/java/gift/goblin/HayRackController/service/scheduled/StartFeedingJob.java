@@ -65,18 +65,21 @@ public class StartFeedingJob implements Job {
         String jobKey = jec.getJobDetail().getKey().getName().toString();
         int jobId = stringUtils.getJobId(jobKey);
 
-        logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
+        if (ioController.isMaintenanceModeActive()) {
+            logger.warn("Will skip start feeding job {}, cause maintenance mode is active!", jobId);
+        } else {
+            logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
+            try {
+                ioController.openShutter();
+                ioController.triggerRelayLight(true);
+                Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
+                feedingEventService.measureStartWeight(feedingEventId);
+            } catch (Exception ex) {
+                logger.error("Exception thrown while closing shutters!", ex);
+            }
 
-        try {
-            ioController.openShutter();
-            ioController.triggerRelayLight(true);
-            Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
-            feedingEventService.measureStartWeight(feedingEventId);
-        } catch (Exception ex) {
-            logger.error("Exception thrown while closing shutters!", ex);
+            createNewStopFeedingScheduler(jobId, jobKey);
         }
-
-        createNewStopFeedingScheduler(jobId, jobKey);
     }
 
     /**

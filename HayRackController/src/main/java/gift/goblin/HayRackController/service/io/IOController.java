@@ -59,6 +59,7 @@ public class IOController implements MaintenanceManager, WeightManager {
     private static final int PIN_NO_LOAD_CELL_4_DAT = 11;
     private static final int PIN_NO_LOAD_CELL_4_SCK = 31;
     private static final int PIN_NO_BUTTON_MAINTENANCE = 1;
+    private static final int PIN_NO_RELAY_LIGHT_MAINTENANCE = 21;
     private static final int PIN_NO_BUTTON_TARE = 2;
     private static final int PIN_NO_BUTTON_SHOW_REMAINING_FOOD = 3;
 
@@ -111,6 +112,11 @@ public class IOController implements MaintenanceManager, WeightManager {
      */
     private GpioPinDigitalOutput pinTempSensorVoltage;
 
+    /**
+     * Pin for the external relay, which switches the maintenance light.
+     */
+    private GpioPinDigitalOutput pinRelayLightMaintenance;
+
     // Pins for the load cells
     private GpioPinDigitalInput pinLoadCell1Dat;
     private GpioPinDigitalOutput pinLoadCell1Sck;
@@ -121,6 +127,7 @@ public class IOController implements MaintenanceManager, WeightManager {
     private GpioPinDigitalInput pinLoadCell4Dat;
     private GpioPinDigitalOutput pinLoadCell4Sck;
 
+    // Pins for the external buttons
     private GpioPinDigitalInput pinButtonMaintenance;
     private GpioPinDigitalInput pinButtonTare;
     private GpioPinDigitalInput pinButtonShowRemainingFood;
@@ -145,6 +152,7 @@ public class IOController implements MaintenanceManager, WeightManager {
             setupCloseShutter();
             setup12VTransformator();
             setupRelayLight();
+            setupRelayLightMaintenance();
             setupBrightnessSensor();
             setupTemperatureSensor();
             setupLoadCells();
@@ -182,7 +190,7 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void startMaintenanceMode() {
         logger.info("Button held long enough- entering maintenance mode now!");
         this.applicationState = ApplicationState.MAINTENANCE;
-        pinRelayLight.blink(1_000);
+        triggerRelayLightMaintenance(true);
     }
 
     /**
@@ -192,9 +200,7 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void endMaintenanceMode() {
         logger.info("Button held long enough- end maintenance mode now!");
         this.applicationState = ApplicationState.DEFAULT;
-        pinRelayLight.low();
-        pinRelayLight.clearProperties();
-        pinRelayLight.removeAllListeners();
+        triggerRelayLightMaintenance(false);
     }
 
     @PreDestroy
@@ -229,6 +235,13 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinRelayLight = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_EXTERNAL_RELAY_LIGHT),
                 "External Relay, Light", PinState.LOW);
         pinRelayLight.setShutdownOptions(true, PinState.LOW);
+    }
+
+    @RequiresRaspberry
+    private void setupRelayLightMaintenance() {
+        pinRelayLightMaintenance = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_LIGHT_MAINTENANCE),
+                "External Relay, Light Maintenance", PinState.LOW);
+        pinRelayLightMaintenance.setShutdownOptions(true, PinState.LOW);
     }
 
     @RequiresRaspberry
@@ -346,7 +359,6 @@ public class IOController implements MaintenanceManager, WeightManager {
      * Including warn lights and warn sounds.
      *
      * @param track Contains the optional track. If empty, will play random one.
-     * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
@@ -408,6 +420,23 @@ public class IOController implements MaintenanceManager, WeightManager {
         } else {
             pinRelayLight.low();
             logger.info("Triggered relay light to: OFF");
+        }
+    }
+    
+        /**
+     * Triggers the relay to power on the light for the maintenance mode.
+     *
+     * @param turnOn true if you wanna turn the light on, false if otherwise.
+     */
+    @RequiresRaspberry
+    public void triggerRelayLightMaintenance(boolean turnOn) {
+
+        if (turnOn) {
+            logger.info("Triggered relay maintenance-light to: ON");
+            pinRelayLightMaintenance.high();
+        } else {
+            pinRelayLightMaintenance.low();
+            logger.info("Triggered relay maintenance-light to: OFF");
         }
     }
 
@@ -636,6 +665,11 @@ public class IOController implements MaintenanceManager, WeightManager {
     @Override
     public void setTareValueLoadCell4(long tareValue) {
         hx711LoadCell4.setTareValue(tareValue);
+    }
+
+    @Override
+    public boolean isMaintenanceModeActive() {
+        return this.getApplicationState() == ApplicationState.MAINTENANCE;
     }
 
 }

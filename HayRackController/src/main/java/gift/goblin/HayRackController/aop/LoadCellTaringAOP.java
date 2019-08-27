@@ -32,7 +32,7 @@ public class LoadCellTaringAOP {
      * measurement.
      * @param joinPoint 
      */
-    @Before("execution(* *.measureWeightLoadCell*())")
+    @Before("execution(* *.measureWeight())")
     public void before(JoinPoint joinPoint) {
         boolean success = weightMeasurementService.readAndSetTareValueLoadCells();
         if (success) {

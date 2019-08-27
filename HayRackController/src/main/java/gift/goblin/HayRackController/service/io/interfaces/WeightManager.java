@@ -45,41 +45,42 @@ public interface WeightManager {
 
     /**
      * Measures the current weight on the scale (Sum of all load-cells). Will
-     * read and set the last tare value to all load-cells.
+     * read and set the last tare value to all load-cells (by using AOP - so dont
+     * change method name!)
      *
      * @return the weight in gram.
      */
     long measureWeight();
 
     /**
-     * Measures the weight of the load-cell. Important: Dont change method name-
-     * AOP in class LoadCellTaringAOP registered!
+     * Measures the weight of the load-cell- will not using the last tare value,
+     * so you should better use the method measureWeight!
      *
-     * @return
+     * @return the weight in grams.
      */
     long measureWeightLoadCell1();
 
     /**
-     * Measures the weight of the load-cell. Important: Dont change method name-
-     * AOP in class LoadCellTaringAOP registered!
+     * Measures the weight of the load-cell- will not using the last tare value,
+     * so you should better use the method measureWeight!
      *
-     * @return
+     * @return the weight in grams.
      */
     long measureWeightLoadCell2();
 
     /**
-     * Measures the weight of the load-cell. Important: Dont change method name-
-     * AOP in class LoadCellTaringAOP registered!
+     * Measures the weight of the load-cell- will not using the last tare value,
+     * so you should better use the method measureWeight!
      *
-     * @return
+     * @return the weight in grams.
      */
     long measureWeightLoadCell3();
 
     /**
-     * Measures the weight of the load-cell. Important: Dont change method name-
-     * AOP in class LoadCellTaringAOP registered!
+     * Measures the weight of the load-cell- will not using the last tare value,
+     * so you should better use the method measureWeight!
      *
-     * @return
+     * @return the weight in grams.
      */
     long measureWeightLoadCell4();
     

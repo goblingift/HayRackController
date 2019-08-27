@@ -13,19 +13,18 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * This class represents a measurement of the tare-value for the
- * connected load-cells. These values will be used for calculating
- * the calculated amount of hay in the hayrack.
+ * This class represents a measurement of the tare-value for the connected
+ * load-cells. These values will be used for calculating the calculated amount
+ * of hay in the hayrack.
+ *
  * @author andre
  */
 @Entity
 @Table
 public class TareMeasurement {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+
     private Long tareMeasurementId;
-    
+
     private long tareLoadCell1;
     private long tareLoadCell2;
     private long tareLoadCell3;
@@ -43,6 +42,8 @@ public class TareMeasurement {
         this.measuredAt = measuredAt;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getTareMeasurementId() {
         return tareMeasurementId;
     }
@@ -135,5 +136,5 @@ public class TareMeasurement {
     public String toString() {
         return "TareMeasurement{" + "temperateMeasurementId=" + tareMeasurementId + ", tareLoadCell1=" + tareLoadCell1 + ", tareLoadCell2=" + tareLoadCell2 + ", tareLoadCell3=" + tareLoadCell3 + ", tareLoadCell4=" + tareLoadCell4 + ", measuredAt=" + measuredAt + '}';
     }
-    
+
 }

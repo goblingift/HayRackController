@@ -12,9 +12,27 @@ import gift.goblin.HayRackController.service.io.ApplicationState;
  */
 public interface MaintenanceManager {
     
+    /**
+     * Get the application state of the application.
+     * @return the enum of the state, this could be MAINTENANCE or DEFAULT.
+     */
     ApplicationState getApplicationState();
     
+    /**
+     * Checks if the maintenance mode is currently activated.
+     * @return true if maintenance is active, false if otherwise.
+     */
+    boolean isMaintenanceModeActive();
+    
+    /**
+     * Starts the maintenance mode.
+     * Will light up the maintenance lights and prevent upcoming
+     * feeding-events to get executed.
+     */
     void startMaintenanceMode();
     
+    /**
+     * Stops the maintenance mode.
+     */
     void endMaintenanceMode();
 }

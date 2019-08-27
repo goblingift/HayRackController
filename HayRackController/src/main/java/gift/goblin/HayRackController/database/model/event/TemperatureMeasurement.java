@@ -21,8 +21,6 @@ import javax.persistence.Table;
 @Table
 public class TemperatureMeasurement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long temperateMeasurementId;
 
     private float temperature;
@@ -72,6 +70,8 @@ public class TemperatureMeasurement {
         this.measuredAt = measuredAt;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getTemperateMeasurementId() {
         return temperateMeasurementId;
     }
