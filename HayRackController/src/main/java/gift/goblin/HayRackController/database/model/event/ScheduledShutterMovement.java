@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -26,7 +27,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "scheduled_shutter_movement")
-public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement> {
+public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement>, Serializable {
 
     private Long id;
     private LocalTime feedingStartTime;

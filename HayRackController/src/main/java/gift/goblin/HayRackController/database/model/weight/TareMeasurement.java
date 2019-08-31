@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.database.model.weight;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import javax.persistence.Entity;
@@ -21,8 +22,10 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class TareMeasurement {
+public class TareMeasurement implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long tareMeasurementId;
 
     private long tareLoadCell1;
@@ -42,8 +45,6 @@ public class TareMeasurement {
         this.measuredAt = measuredAt;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getTareMeasurementId() {
         return tareMeasurementId;
     }

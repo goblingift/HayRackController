@@ -10,15 +10,13 @@ import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
+import gift.goblin.HayRackController.service.io.WeightMeasurementService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.security.SecurityService;
-import java.awt.Dimension;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,13 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -66,6 +62,9 @@ public class SettingsController {
     @Autowired
     private IOController iOController;
     
+    @Autowired
+    private WeightMeasurementService weightMeasurementService;
+    
     /**
      * Default render method for the dashboard.
      *
@@ -94,6 +93,12 @@ public class SettingsController {
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
         
         return "settings";
+    }
+    
+    @GetMapping(value = {"/settings/tare"})
+    public void setTare(Model model) {
+        logger.info("Called set-tare! Will set tare of all load-cells now!");
+        weightMeasurementService.measureAndSaveTare();
     }
     
     @PostMapping(value = {"/settings/save"})

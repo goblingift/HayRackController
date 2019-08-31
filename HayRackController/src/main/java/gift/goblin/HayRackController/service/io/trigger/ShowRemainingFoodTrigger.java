@@ -29,8 +29,9 @@ public class ShowRemainingFoodTrigger extends AbstractTrigger implements Callabl
     @Override
     public Void call() throws Exception {
     
-        if (buttonWasPressed(1_000)) {
-            weightManager.measureWeightLoadCell1();
+        if (buttonWasPressed(3_000)) {
+            long measuredWeight = weightManager.measureWeight();
+            logger.info("Show remaining food: {}", measuredWeight);
         }
     
         return null;

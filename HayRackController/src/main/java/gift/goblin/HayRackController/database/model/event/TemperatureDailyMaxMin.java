@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -21,7 +22,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class TemperatureDailyMaxMin {
+public class TemperatureDailyMaxMin implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

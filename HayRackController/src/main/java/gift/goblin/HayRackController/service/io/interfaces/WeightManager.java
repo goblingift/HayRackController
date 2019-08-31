@@ -108,4 +108,5 @@ public interface WeightManager {
     void setTareValueLoadCell4(long tareValue);
     
     
+    
 }

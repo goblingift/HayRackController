@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
@@ -22,7 +23,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class FeedingEvent {
+public class FeedingEvent implements Serializable {
 
     private Long feedingEventId;
     private LocalDateTime feedingStart;

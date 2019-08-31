@@ -46,6 +46,11 @@ public class TareMeasurementSyncService implements DatabaseSynchronizer {
             syncEntities = embeddedRepo.findAll();
         }
         
+        logger.info("Will sync the following embedded TareMeasurement entries to backup-db: {}", syncEntities.size());
+        for (TareMeasurement actSyncEntity : syncEntities) {
+            logger.info(actSyncEntity.toString());
+        }
+        
         List<TareMeasurement> syncedEntities = backupRepo.saveAll(syncEntities);
         if (!syncedEntities.isEmpty()) {
             syncedEntitiesCount = syncEntities.size();
