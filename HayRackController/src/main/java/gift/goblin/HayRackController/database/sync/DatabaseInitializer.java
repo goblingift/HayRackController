@@ -5,6 +5,7 @@
 package gift.goblin.HayRackController.database.sync;
 
 import gift.goblin.HayRackController.service.sync.ApplicationConfigurationSyncService;
+import gift.goblin.HayRackController.service.sync.FeedingEventSyncService;
 import gift.goblin.HayRackController.service.sync.ScheduledShutterMovementSyncService;
 import gift.goblin.HayRackController.service.sync.TareMeasurementSyncService;
 import gift.goblin.HayRackController.service.sync.TemperatureDailyMaxMinSyncService;
@@ -41,6 +42,9 @@ public class DatabaseInitializer {
     @Autowired
     TareMeasurementSyncService tareMeasurementSyncService;
     
+    @Autowired
+    FeedingEventSyncService feedingEventSyncService;
+    
     @PostConstruct
     private void afterInit() {
         temperatureSyncService.prefillEmbeddedDatabase();
@@ -48,6 +52,7 @@ public class DatabaseInitializer {
         temperatureDailyMaxMinSyncService.prefillEmbeddedDatabase();
         applicationConfigurationSyncService.prefillEmbeddedDatabase();
         tareMeasurementSyncService.prefillEmbeddedDatabase();
+        feedingEventSyncService.prefillEmbeddedDatabase();
     }
 
 }

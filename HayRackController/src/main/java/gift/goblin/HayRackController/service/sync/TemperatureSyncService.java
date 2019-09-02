@@ -6,7 +6,6 @@ package gift.goblin.HayRackController.service.sync;
 
 import gift.goblin.HayRackController.database.backup.repo.event.TemperatureMeasurementBackupRepository;
 import gift.goblin.HayRackController.database.embedded.repo.event.TemperatureMeasurementRepository;
-import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import java.time.LocalDateTime;
 import java.util.List;

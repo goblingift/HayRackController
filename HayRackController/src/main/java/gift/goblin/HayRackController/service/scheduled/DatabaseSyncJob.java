@@ -5,6 +5,7 @@
 package gift.goblin.HayRackController.service.scheduled;
 
 import gift.goblin.HayRackController.service.sync.ApplicationConfigurationSyncService;
+import gift.goblin.HayRackController.service.sync.FeedingEventSyncService;
 import gift.goblin.HayRackController.service.sync.ScheduledShutterMovementSyncService;
 import gift.goblin.HayRackController.service.sync.TareMeasurementSyncService;
 import gift.goblin.HayRackController.service.sync.TemperatureDailyMaxMinSyncService;
@@ -39,6 +40,9 @@ public class DatabaseSyncJob implements Job{
     @Autowired
     TareMeasurementSyncService tareMeasurementSyncService;
     
+    @Autowired
+    FeedingEventSyncService feedingEventSyncService;
+    
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         temperatureSyncService.backupValues();
@@ -46,6 +50,7 @@ public class DatabaseSyncJob implements Job{
         temperatureDailyMaxMinSyncService.backupValues();
         applicationConfigurationSyncService.backupValues();
         tareMeasurementSyncService.backupValues();
+        feedingEventSyncService.backupValues();
     }
     
 }
