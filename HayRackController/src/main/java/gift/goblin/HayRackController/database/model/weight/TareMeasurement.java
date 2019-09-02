@@ -24,8 +24,6 @@ import javax.persistence.Table;
 @Table
 public class TareMeasurement implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long tareMeasurementId;
 
     private long tareLoadCell1;
@@ -45,6 +43,8 @@ public class TareMeasurement implements Serializable {
         this.measuredAt = measuredAt;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getTareMeasurementId() {
         return tareMeasurementId;
     }
