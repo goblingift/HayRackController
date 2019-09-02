@@ -95,12 +95,46 @@
                                 <a th:text="#{settings.header}" />
                             </h2>
                         </p>
-                        <p>
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="customSwitch1">
-                                    <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
+                    </div>
+                </div>
+
+                <div class="row justify-content-start">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <div class="row justify-content-between">
+                                    <div class="col">
+                                        <h5 class="card-title"><a th:text="#{settings.header.maintenance}" /></h5>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <div th:if="${maintenance_mode}">
+                                            <a th:text="#{settings.maintenance.change.stop}"/>
+                                        </div>
+                                        <div th:unless="${maintenance_mode}">
+                                            <a th:text="#{settings.maintenance.change.start}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col">
+                                        <div th:if="${maintenance_mode}">
+                                            <a th:href="@{/settings/maintenance/stop}">
+                                                <i class="fa fa-stop-circle fa-2x"></i>
+                                            </a>
+                                        </div>
+                                        <div th:unless="${maintenance_mode}">
+                                            <a th:href="@{/settings/maintenance/start}">
+                                                <i class="fa fa-play-circle fa-2x"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                        </p>
+                        </div>
                     </div>
                 </div>
 
@@ -152,19 +186,13 @@
 
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-6">
-                                        <select class="form-control" th:id="dd-sound" th:field="*{selectedSound}">
-                                            <option th:each="sound : ${sounds}" th:value="${sound.id}" th:text="${sound.title}"></option>
-                                        </select>
+                                        <a th:text="#{settings.scale.tare}"/>
                                     </div>
 
                                     <div class="col">
-                                        <button type="button" th:id="play-button" class="btn btn-primary btn-lg">
-                                            <i th:id="play-button-icon" class="fa fa-play-circle fa-lg"></i>
+                                        <button type="button" th:id="tare-button" class="btn btn-primary btn-lg">
+                                            <i th:id="tare-button-icon" class="fa fa-balance-scale fa-lg"></i>
                                         </button>
-                                    </div>
-
-                                    <div class="col">
-                                        <button class="btn btn-lg btn-info"><i class="fa fa-save fa-2x"></i></button>
                                     </div>
 
                                 </div>
@@ -198,7 +226,7 @@
         <script th:inline="javascript">
 
             $("#play-button").click(function () {
-                $("#webcam-reload").prop('disabled', true);
+                $("#play-button").prop('disabled', true);
                 var selectedSound = $('#dd-sound').children("option:selected").val();
                 var postUrl = "/settings/play-sound";
 
@@ -218,6 +246,25 @@
                         })
                         .always(function () {
                             $("#webcam-reload").prop('disabled', false);
+                        });
+            });
+            
+            $("#tare-button").click(function () {
+                $("#tare-button").prop('disabled', true);
+                var postUrl = "/settings/tare";
+
+                $.ajax({
+                    url: postUrl,
+                    method: 'GET'
+                })
+                        .done(function (data) {
+                            console.log("Finished setting tare!");
+                        })
+                        .fail(function (xhr, ajaxOptions, thrownError) {
+                            console.log("Error while setting tare!");
+                        })
+                        .always(function () {
+                            $("#tare-button").prop('disabled', false);
                         });
             });
 

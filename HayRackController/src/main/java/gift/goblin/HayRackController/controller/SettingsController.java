@@ -8,10 +8,12 @@ import gift.goblin.HayRackController.controller.model.Settings;
 import gift.goblin.HayRackController.controller.model.Soundtitle;
 import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
+import gift.goblin.HayRackController.service.io.ApplicationState;
 import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.WeightMeasurementService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.io.interfaces.MaintenanceManager;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import gift.goblin.HayRackController.service.security.SecurityService;
 import java.io.IOException;
@@ -52,19 +54,22 @@ public class SettingsController {
 
     @Autowired
     private BuildProperties buildProperties;
-    
+
     @Autowired
     private TemperatureMeasurementService temperatureMeasurementService;
 
     @Autowired
     private ConfigurationService configurationService;
-    
+
     @Autowired
     private IOController iOController;
-    
+
     @Autowired
     private WeightMeasurementService weightMeasurementService;
     
+    @Autowired
+    private MaintenanceManager maintenanceManager;
+
     /**
      * Default render method for the dashboard.
      *
@@ -73,58 +78,102 @@ public class SettingsController {
      */
     @GetMapping(value = {"/settings"})
     public String renderSettings(Model model) {
-        
+
         TemperatureAndHumidity latestMeasurement = temperatureMeasurementService.getLatestMeasurement();
         if (latestMeasurement != null) {
             model.addAttribute("temperature", latestMeasurement);
         } else {
             model.addAttribute("temperature", new TemperatureAndHumidity(99, 99, 99));
         }
-        
+
         List<Soundtitle> availableSounds = generateAvailableSounds();
         model.addAttribute("sounds", availableSounds);
-        
+
         Settings settings = configurationService.getSettings();
-        
+
+        model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
         model.addAttribute("settings", settings);
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
-        
+
         return "settings";
     }
-    
+
+    /**
+     * Will measure the current weight on the load-cells and set them as tare
+     * value for later weight measurements.
+     *
+     * @param model
+     */
     @GetMapping(value = {"/settings/tare"})
     public void setTare(Model model) {
         logger.info("Called set-tare! Will set tare of all load-cells now!");
         weightMeasurementService.measureAndSaveTare();
     }
-    
+
+    /**
+     * Will start the maintenance mode, this will prevent the hayrack from
+     * upcoming shutter movements and activate maintenance lights. If
+     * maintenance mode is already actived, ignore the call.
+     *
+     * @param model
+     */
+    @GetMapping(value = {"/settings/maintenance/start"})
+    public void startMaintenance(Model model) {
+        
+        logger.info("Called start maintenance!");
+        
+        if (maintenanceManager.getApplicationState() != ApplicationState.MAINTENANCE) {
+            maintenanceManager.startMaintenanceMode();
+        } else {
+            logger.warn("Already in maintenance mode- ignore call of start-maintenance.");
+        }
+    }
+
+    /**
+     * Will stop the maintenance mode. If the system isnt in maintenance mode,
+     * ignore call.
+     *
+     * @param model
+     */
+    @GetMapping(value = {"/settings/maintenance/stop"})
+    public void stopMaintenance(Model model) {
+        logger.info("Called stop maintenance!");
+        
+        if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
+            maintenanceManager.endMaintenanceMode();
+        } else {
+            logger.warn("Not in maintenance-mode, ignore call of stop maintenance.");
+        }
+        
+    }
+
     @PostMapping(value = {"/settings/save"})
     public String saveSettings(@ModelAttribute Settings settings, BindingResult bindingResult, Model model) {
         configurationService.saveSettings(settings);
-        
+
         return renderSettings(model);
     }
 
     private List<Soundtitle> generateAvailableSounds() {
-        
+
         List<Playlist> tracks = Playlist.getVALUES();
-        
+
         List<Soundtitle> soundtitles = tracks.stream()
                 .map(t -> new Soundtitle(String.valueOf(t.getId()), t.getTitle()))
                 .collect(Collectors.toList());
         soundtitles.add(new Soundtitle("99", "random"));
-        
+
         return soundtitles;
     }
-    
+
     @PostMapping(value = "/settings/play-sound")
     public @ResponseBody
     void playSound(@RequestParam("soundId") String soundId) throws IOException, InterruptedException {
         logger.info("play sound:" + soundId);
-        
+
         if (soundId.equals("99")) {
             iOController.playSoundAndLight(Playlist.getRandomPlaylist());
         } else {
