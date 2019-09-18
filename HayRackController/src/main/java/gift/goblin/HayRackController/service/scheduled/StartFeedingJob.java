@@ -63,7 +63,7 @@ public class StartFeedingJob implements Job {
     public void execute(JobExecutionContext jec) throws JobExecutionException {
 
         String jobKey = jec.getJobDetail().getKey().getName().toString();
-        int jobId = stringUtils.getJobId(jobKey);
+        long jobId = stringUtils.getJobId(jobKey);
 
         if (ioController.isMaintenanceModeActive()) {
             logger.warn("Will skip start feeding job {}, cause maintenance mode is active!", jobId);
@@ -90,9 +90,9 @@ public class StartFeedingJob implements Job {
      * @param jobId id of the job.
      * @param description description, like 'dinner*.
      */
-    private void createNewStopFeedingScheduler(int jobId, String description) {
+    private void createNewStopFeedingScheduler(long jobId, String description) {
 
-        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(new Long(jobId));
+        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(jobId);
         if (optEntity.isPresent()) {
             ScheduledShutterMovement entity = optEntity.get();
             Integer feedingDuration = entity.getFeedingDuration();

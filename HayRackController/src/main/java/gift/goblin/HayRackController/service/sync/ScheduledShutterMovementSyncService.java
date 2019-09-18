@@ -66,8 +66,8 @@ public class ScheduledShutterMovementSyncService implements DatabaseSynchronizer
 
         for (ScheduledShutterMovement actEntry : newEntities) {
             Date nextExecutionDate = dateAndTimeUtil.getNextExecutionDate(actEntry.getFeedingStartTime());
-            JobDetail jobDetail = schedulerJobService.createStartFeedingJob(actEntry.getId().intValue());
-            SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(actEntry.getId().intValue(), nextExecutionDate, jobDetail);
+            JobDetail jobDetail = schedulerJobService.createStartFeedingJob(actEntry.getId());
+            SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(actEntry.getId(), nextExecutionDate, jobDetail);
             try {
                 scheduler.scheduleJob(jobDetail, newTrigger);
                 logger.info("Created scheduler for ScheduledShutterMovement entry with id ({}), next execution at: {}", actEntry.getId(), nextExecutionDate);

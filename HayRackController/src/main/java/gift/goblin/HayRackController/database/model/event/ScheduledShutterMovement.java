@@ -4,6 +4,8 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import com.sun.corba.se.spi.ior.Identifiable;
+import gift.goblin.HayRackController.database.sync.LongIdentifier;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,17 +19,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
+import org.omg.CORBA_2_3.portable.OutputStream;
 
 /**
- * Entity for a scheduled shutter movement, which only defines the time and duration
- * how long the shutter will be opened. This entity will be generated once- if you
- * want to look at a specific event, look at the FeedingEvent entity.
+ * Entity for a scheduled shutter movement, which only defines the time and
+ * duration how long the shutter will be opened. This entity will be generated
+ * once- if you want to look at a specific event, look at the FeedingEvent
+ * entity.
  *
  * @author andre
  */
 @Entity
 @Table(name = "scheduled_shutter_movement")
-public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement>, Serializable {
+public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement>, Serializable, LongIdentifier {
 
     private Long id;
     private LocalTime feedingStartTime;
@@ -49,7 +54,10 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GenericGenerator(
+            name = "assigned-sequence",
+            strategy = "gift.goblin.HayRackController.database.sync.IntelligentSequenceGenerator")
+    @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
     public Long getId() {
         return id;
     }
@@ -127,7 +135,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         }
         return true;
     }
-
 
     @Override
     public String toString() {

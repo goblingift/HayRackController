@@ -47,7 +47,7 @@ public class StopFeedingJob implements Job {
     public void execute(JobExecutionContext jec) throws JobExecutionException {
 
         String jobKey = jec.getJobDetail().getKey().getName();
-        int jobId = stringUtils.getJobId(jobKey);
+        long jobId = stringUtils.getJobId(jobKey);
 
         if (ioController.isMaintenanceModeActive()) {
             logger.warn("Will skip end feeding job {}, cause maintenance mode is active!", jobId);

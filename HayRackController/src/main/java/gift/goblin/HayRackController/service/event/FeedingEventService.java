@@ -18,7 +18,7 @@ public interface FeedingEventService {
      *
      * @return the primary key of the created entity.
      */
-    Long addNewFeedingEvent(int jobId);
+    Long addNewFeedingEvent(long jobId);
 
     /**
      * Searches the latest feeding event entity for the given jobId and set the
@@ -26,7 +26,7 @@ public interface FeedingEventService {
      *
      * @return the primary key of the feeding entry entity.
      */
-    Long finishFeedingEvent(int jobId);
+    Long finishFeedingEvent(long jobId);
     
     /**
      * Measures the start-weight and saves the value to the given feedingEvent-entity.

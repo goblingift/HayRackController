@@ -121,8 +121,8 @@ public class TimeTableController {
     private void registerStartFeedingJob(LocalTime localTime, Long schedulerId) {
         
         Date nextExecutionDate = dateAndTimeUtil.getNextExecutionDate(localTime);
-        JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId.intValue());
-        SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId.intValue(), nextExecutionDate, jobDetail);
+        JobDetail jobDetail = schedulerJobService.createStartFeedingJob(schedulerId);
+        SimpleTrigger newTrigger = schedulerJobService.createStartFeedingTrigger(schedulerId, nextExecutionDate, jobDetail);
 
         try {
             scheduler.scheduleJob(jobDetail, newTrigger);

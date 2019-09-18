@@ -24,7 +24,7 @@ public class StringUtils {
      * @param jobDetailIdentifier, e.g. 'start_feeding_job_1' or 'stop_feeding_job_1'.
      * @return the id- for the example it would be 1.
      */
-    public int getJobId(String jobDetailIdentifier) {
+    public long getJobId(String jobDetailIdentifier) {
         
         String[] splittedStrings;
         if (jobDetailIdentifier.contains(SchedulerJobService.PREFIX_START_FEEDING_JOB)) {
@@ -37,7 +37,7 @@ public class StringUtils {
         }
         
         String jobIdString = splittedStrings[1];
-        Integer jobId = Integer.valueOf(jobIdString);
+        Long jobId = Long.valueOf(jobIdString);
         return jobId;
     }
     

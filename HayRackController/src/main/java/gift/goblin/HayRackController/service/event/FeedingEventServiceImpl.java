@@ -38,17 +38,17 @@ public class FeedingEventServiceImpl implements FeedingEventService {
     IOController iOController;
 
     @Override
-    public Long addNewFeedingEvent(int jobId) {
+    public Long addNewFeedingEvent(long jobId) {
 
         Long feedingEventId = null;
 
-        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(new Long(jobId));
+        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(jobId);
         if (optEntity.isPresent()) {
             ScheduledShutterMovement scheduledShutterMovement = optEntity.get();
             FeedingEvent feedingEvent = new FeedingEvent(LocalDateTime.now(), scheduledShutterMovement);
             FeedingEvent savedEntity = feedingEventRepo.save(feedingEvent);
             logger.info("Created new feedingEvent in database: {}", savedEntity);
-            feedingEventId = savedEntity.getFeedingEventId();
+            feedingEventId = savedEntity.getId();
         } else {
             logger.warn("Couldnt find a ScheduledShutterMovement entity with id: {} - wont create log-entry.",
                     jobId);
@@ -58,7 +58,7 @@ public class FeedingEventServiceImpl implements FeedingEventService {
     }
 
     @Override
-    public Long finishFeedingEvent(int jobId) {
+    public Long finishFeedingEvent(long jobId) {
 
         Long feedingEventId = null;
 
@@ -76,7 +76,7 @@ public class FeedingEventServiceImpl implements FeedingEventService {
                 feedingEvent.setFeedingDurationMs(feedingTime);
                 FeedingEvent savedEntity = feedingEventRepo.save(feedingEvent);
 
-                feedingEventId = savedEntity.getFeedingEventId();
+                feedingEventId = savedEntity.getId();
             } else {
                 logger.warn("Couldnt find any feeding event for this ScheduledShutterMovement: {}", scheduledShutterMovement);
             }

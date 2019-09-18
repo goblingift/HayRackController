@@ -4,9 +4,9 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import gift.goblin.HayRackController.database.sync.LongIdentifier;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Entity which stores informations for planned feeding events.
@@ -23,9 +24,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class FeedingEvent implements Serializable {
+public class FeedingEvent implements Serializable, LongIdentifier {
 
-    private Long feedingEventId;
+    private Long id;
     private LocalDateTime feedingStart;
     private LocalDateTime feedingEnd;
     
@@ -72,13 +73,16 @@ public class FeedingEvent implements Serializable {
     }
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long getFeedingEventId() {
-        return feedingEventId;
+    @GenericGenerator(
+        name = "assigned-sequence",
+        strategy = "gift.goblin.HayRackController.database.sync.IntelligentSequenceGenerator")
+    @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
+    public Long getId() {
+        return id;
     }
-
-    public void setFeedingEventId(Long feedingEventId) {
-        this.feedingEventId = feedingEventId;
+    
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public LocalDateTime getFeedingStart() {
@@ -134,7 +138,7 @@ public class FeedingEvent implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.feedingEventId);
+        hash = 97 * hash + Objects.hashCode(this.id);
         return hash;
     }
 
@@ -159,7 +163,7 @@ public class FeedingEvent implements Serializable {
         if (this.foodConsumptionGram != other.foodConsumptionGram) {
             return false;
         }
-        if (!Objects.equals(this.feedingEventId, other.feedingEventId)) {
+        if (!Objects.equals(this.id, other.id)) {
             return false;
         }
         if (!Objects.equals(this.feedingStart, other.feedingStart)) {
@@ -176,7 +180,7 @@ public class FeedingEvent implements Serializable {
 
     @Override
     public String toString() {
-        return "FeedingEvent{" + "feedingEventId=" + feedingEventId + ", feedingStart=" + feedingStart + ", feedingEnd=" + feedingEnd + ", weightGramStart=" + weightGramStart + ", weightGramEnd=" + weightGramEnd + ", foodConsumptionGram=" + foodConsumptionGram + ", feedingDurationMs=" + feedingDurationMs + '}';
+        return "FeedingEvent{" + "feedingEventId=" + id + ", feedingStart=" + feedingStart + ", feedingEnd=" + feedingEnd + ", weightGramStart=" + weightGramStart + ", weightGramEnd=" + weightGramEnd + ", foodConsumptionGram=" + foodConsumptionGram + ", feedingDurationMs=" + feedingDurationMs + '}';
     }
 
 }
