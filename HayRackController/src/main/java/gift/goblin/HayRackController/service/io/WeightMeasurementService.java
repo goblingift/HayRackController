@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.service.io;
 
+import gift.goblin.HayRackController.aop.RequiresRaspberry;
 import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
 import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
 import java.time.LocalDateTime;
@@ -61,7 +62,8 @@ public class WeightMeasurementService {
      * save the Tare-Measurement into db.
      * @return true if successful, false if otherwise.
      */
-    public boolean measureAndSaveTare() {
+    @RequiresRaspberry
+    public Boolean measureAndSaveTare() {
         
         boolean measuredSuccessful = false;
 

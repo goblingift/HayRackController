@@ -41,8 +41,10 @@ public class MaintenanceTrigger extends AbstractTrigger implements Callable<Void
             
             if (maintenanceManager.getApplicationState() == ApplicationState.DEFAULT) {
                 maintenanceManager.startMaintenanceMode();
+                maintenanceManager.triggerRelayLightMaintenance(true);
             } else if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
                 maintenanceManager.endMaintenanceMode();
+                maintenanceManager.triggerRelayLightMaintenance(false);
             }
             
         }

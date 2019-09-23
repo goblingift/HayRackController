@@ -190,7 +190,6 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void startMaintenanceMode() {
         logger.info("Button held long enough- entering maintenance mode now!");
         this.applicationState = ApplicationState.MAINTENANCE;
-        triggerRelayLightMaintenance(true);
     }
 
     /**
@@ -200,7 +199,6 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void endMaintenanceMode() {
         logger.info("Button held long enough- end maintenance mode now!");
         this.applicationState = ApplicationState.DEFAULT;
-        triggerRelayLightMaintenance(false);
     }
 
     @PreDestroy
@@ -429,6 +427,7 @@ public class IOController implements MaintenanceManager, WeightManager {
      * @param turnOn true if you wanna turn the light on, false if otherwise.
      */
     @RequiresRaspberry
+    @Override
     public void triggerRelayLightMaintenance(boolean turnOn) {
 
         if (turnOn) {

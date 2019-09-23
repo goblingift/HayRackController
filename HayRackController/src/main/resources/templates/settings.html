@@ -72,6 +72,13 @@
 
         <div class="container" style="margin-top: 100px;">
 
+            <div th:if="${success_message != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
+                <strong th:text="#{${success_message}}"></strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
             <div class="row justify-content-start">
                 <div class="col">
                     <div th:if="${error_message != null}" class="alert alert-dark alert-dismissible fade show" role="alert">
@@ -190,11 +197,18 @@
                                     </div>
 
                                     <div class="col">
-                                        <button type="button" th:id="tare-button" class="btn btn-primary btn-lg">
-                                            <i th:id="tare-button-icon" class="fa fa-balance-scale fa-lg"></i>
-                                        </button>
+                                        <div th:if="${maintenance_mode}">
+                                            <a th:href="@{/settings/tare}" class="btn btn-lg btn-info">
+                                                <i class="fa fa-balance-scale fa-2x"></i>
+                                            </a>
+                                        </div>
+                                        <div th:unless="${maintenance_mode}">
+                                            <a th:href="@{/settings/tare}" class="btn btn-lg btn-info disabled">
+                                                <i class="fa fa-balance-scale fa-2x"></i>
+                                            </a>
+                                        </div>
                                     </div>
-
+                                    
                                 </div>
 
                             </div>
@@ -248,7 +262,7 @@
                             $("#webcam-reload").prop('disabled', false);
                         });
             });
-            
+
             $("#tare-button").click(function () {
                 $("#tare-button").prop('disabled', true);
                 var postUrl = "/settings/tare";

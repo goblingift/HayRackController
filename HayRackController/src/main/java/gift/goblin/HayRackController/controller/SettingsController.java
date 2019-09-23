@@ -66,7 +66,7 @@ public class SettingsController {
 
     @Autowired
     private WeightMeasurementService weightMeasurementService;
-    
+
     @Autowired
     private MaintenanceManager maintenanceManager;
 
@@ -108,9 +108,23 @@ public class SettingsController {
      * @param model
      */
     @GetMapping(value = {"/settings/tare"})
-    public void setTare(Model model) {
-        logger.info("Called set-tare! Will set tare of all load-cells now!");
-        weightMeasurementService.measureAndSaveTare();
+    public String setTare(Model model) {
+        
+        if (maintenanceManager.getApplicationState() != ApplicationState.MAINTENANCE) {
+            logger.warn("Called set-tare! Wont set tare of load-cells, because not in maintenance mode!");
+            model.addAttribute("success_message", "settings.tare.fail_no_maintenance");
+        } else {
+            logger.info("Called set-tare! Will set tare of all load-cells now!");
+            Boolean measurementResult = weightMeasurementService.measureAndSaveTare();
+
+            if (measurementResult != null && measurementResult) {
+                model.addAttribute("success_message", "settings.tare.success");
+            } else {
+                model.addAttribute("success_message", "settings.tare.fail");
+            }
+        }
+        
+        return renderSettings(model);
     }
 
     /**
@@ -121,15 +135,19 @@ public class SettingsController {
      * @param model
      */
     @GetMapping(value = {"/settings/maintenance/start"})
-    public void startMaintenance(Model model) {
-        
+    public String startMaintenance(Model model) {
+
         logger.info("Called start maintenance!");
-        
+
         if (maintenanceManager.getApplicationState() != ApplicationState.MAINTENANCE) {
             maintenanceManager.startMaintenanceMode();
+            iOController.triggerRelayLightMaintenance(true);
+            model.addAttribute("success_message", "settings.maintenance.activated");
         } else {
             logger.warn("Already in maintenance mode- ignore call of start-maintenance.");
         }
+
+        return renderSettings(model);
     }
 
     /**
@@ -139,15 +157,18 @@ public class SettingsController {
      * @param model
      */
     @GetMapping(value = {"/settings/maintenance/stop"})
-    public void stopMaintenance(Model model) {
+    public String stopMaintenance(Model model) {
         logger.info("Called stop maintenance!");
-        
+
         if (maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE) {
             maintenanceManager.endMaintenanceMode();
+            iOController.triggerRelayLightMaintenance(false);
+            model.addAttribute("success_message", "settings.maintenance.deactivated");
         } else {
             logger.warn("Not in maintenance-mode, ignore call of stop maintenance.");
         }
-        
+
+        return renderSettings(model);
     }
 
     @PostMapping(value = {"/settings/save"})

@@ -25,14 +25,20 @@ public interface MaintenanceManager {
     boolean isMaintenanceModeActive();
     
     /**
-     * Starts the maintenance mode.
-     * Will light up the maintenance lights and prevent upcoming
-     * feeding-events to get executed.
+     * Starts the maintenance mode, sets internal variables.
+     * Please note: Call triggerRelayLightMaintenance() also!
      */
     void startMaintenanceMode();
     
     /**
      * Stops the maintenance mode.
+     * Please note: Call triggerRelayLightMaintenance() also!
      */
     void endMaintenanceMode();
+    
+    /**
+     * Power on or off the maintenance lights.
+     * @param turnOn true if you wanna light it up, false if otherwise.
+     */
+    void triggerRelayLightMaintenance(boolean turnOn);
 }
