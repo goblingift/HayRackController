@@ -112,11 +112,11 @@ public class TemperatureDailyMaxMinSyncService implements DatabaseSynchronizer {
      */
     private TemperatureMeasurement findOrCreateTempMeasurementEmbeddedEntry(TemperatureMeasurement original) {
         
-        Optional<TemperatureMeasurement> optResult = tempEmbeddedRepo
+        List<TemperatureMeasurement> results = tempEmbeddedRepo
                 .findByTemperatureAndMeasuredAt(original.getTemperature(), original.getMeasuredAt());
-        if (optResult.isPresent()) {
+        if (results != null && !results.isEmpty()) {
             // The TemperatureMeasurement entity already exists in the backup-db, just return em
-            return optResult.get();
+            return results.get(0);
         } else {
             // The TemperatureMeasurement entity doesnt exist in the backup-db, create em and return
             TemperatureMeasurement newEntity = new TemperatureMeasurement(original.getTemperature(),
