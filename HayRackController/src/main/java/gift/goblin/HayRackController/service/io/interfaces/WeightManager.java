@@ -15,33 +15,33 @@ public interface WeightManager {
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value.
+     * @return the tare value. Can be null if raspberry isnt initialized well.
      */
-    long measureAndSetTareLoadCell1();
+    Long measureAndSetTareLoadCell1();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value.
+     * @return the tare value. Can be null if raspberry isnt initialized well.
      */
-    long measureAndSetTareLoadCell2();
+    Long measureAndSetTareLoadCell2();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value.
+     * @return the tare value. Can be null if raspberry isnt initialized well.
      */
-    long measureAndSetTareLoadCell3();
+    Long measureAndSetTareLoadCell3();
 
     /**
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value.
+     * @return the tare value. Can be null if raspberry isnt initialized well.
      */
-    long measureAndSetTareLoadCell4();
+    Long measureAndSetTareLoadCell4();
 
     /**
      * Measures the current weight on the scale (Sum of all load-cells). Will

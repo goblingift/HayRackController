@@ -628,25 +628,25 @@ public class IOController implements MaintenanceManager, WeightManager {
 
     @RequiresRaspberry
     @Override
-    public long measureAndSetTareLoadCell1() {
+    public Long measureAndSetTareLoadCell1() {
         return hx711LoadCell1.measureAndSetTare();
     }
 
     @RequiresRaspberry
     @Override
-    public long measureAndSetTareLoadCell2() {
+    public Long measureAndSetTareLoadCell2() {
         return hx711LoadCell2.measureAndSetTare();
     }
 
     @RequiresRaspberry
     @Override
-    public long measureAndSetTareLoadCell3() {
+    public Long measureAndSetTareLoadCell3() {
         return hx711LoadCell3.measureAndSetTare();
     }
 
     @RequiresRaspberry
     @Override
-    public long measureAndSetTareLoadCell4() {
+    public Long measureAndSetTareLoadCell4() {
         return hx711LoadCell4.measureAndSetTare();
     }
 

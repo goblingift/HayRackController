@@ -57,28 +57,39 @@ public class WeightMeasurementService {
     }
 
     /**
-     * Will set the tare value of all load-cells to current measurement. Will
+     * Will set the tare value of all load-cells to current measurement.Will
      * save the Tare-Measurement into db.
+     * @return true if successful, false if otherwise.
      */
-    public void measureAndSaveTare() {
+    public boolean measureAndSaveTare() {
+        
+        boolean measuredSuccessful = false;
 
-        long tareLoadCell1 = ioController.measureAndSetTareLoadCell1();
+        Long tareLoadCell1 = ioController.measureAndSetTareLoadCell1();
         logger.info("TARE of load-cell #1 set: {}", tareLoadCell1);
 
-        long tareLoadCell2 = ioController.measureAndSetTareLoadCell2();
+        Long tareLoadCell2 = ioController.measureAndSetTareLoadCell2();
         logger.info("TARE of load-cell #2 set: {}", tareLoadCell2);
 
-        long tareLoadCell3 = ioController.measureAndSetTareLoadCell3();
+        Long tareLoadCell3 = ioController.measureAndSetTareLoadCell3();
         logger.info("TARE of load-cell #3 set: {}", tareLoadCell3);
 
-        long tareLoadCell4 = ioController.measureAndSetTareLoadCell4();
+        Long tareLoadCell4 = ioController.measureAndSetTareLoadCell4();
         logger.info("TARE of load-cell #4 set: {}", tareLoadCell4);
-
-        TareMeasurement tareMeasurement = new TareMeasurement(tareLoadCell1,
-                tareLoadCell2, tareLoadCell3, tareLoadCell4, LocalDateTime.now());
-
-        tareRepo.save(tareMeasurement);
-        logger.info("Successful saved tare-measurement entity: {}", tareMeasurement);
+        
+        if (tareLoadCell1 != null && tareLoadCell2 != null && tareLoadCell3 != null
+                && tareLoadCell4 != null) {
+            TareMeasurement tareMeasurement = new TareMeasurement(tareLoadCell1,
+                    tareLoadCell2, tareLoadCell3, tareLoadCell4, LocalDateTime.now());
+            tareRepo.save(tareMeasurement);
+            logger.info("Successful saved tare-measurement entity: {}", tareMeasurement);
+            
+            measuredSuccessful = true;
+        } else {
+            logger.warn("Couldnt measure and set the tare value!");
+        }
+        
+        return measuredSuccessful;
     }
 
 }

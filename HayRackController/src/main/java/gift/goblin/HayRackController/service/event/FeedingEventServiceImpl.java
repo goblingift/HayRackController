@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -58,6 +59,7 @@ public class FeedingEventServiceImpl implements FeedingEventService {
     }
 
     @Override
+    @Transactional
     public Long finishFeedingEvent(long jobId) {
 
         Long feedingEventId = null;
@@ -130,10 +132,10 @@ public class FeedingEventServiceImpl implements FeedingEventService {
             long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
             long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
                     + measureWeightLoadCell4;
-            
+
             long weightGramStart = feedingEvent.getWeightGramStart();
             long consumption = weightGramStart - sum;
-            
+
             feedingEvent.setWeightGramEnd(sum);
             feedingEvent.setFoodConsumptionGram(consumption);
             feedingEventRepo.save(feedingEvent);

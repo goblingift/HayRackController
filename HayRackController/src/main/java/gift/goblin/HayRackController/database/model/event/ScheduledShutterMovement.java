@@ -98,7 +98,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         this.createdAt = createdAt;
     }
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "scheduledShutterMovement", targetEntity = FeedingEvent.class)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "scheduledShutterMovement", targetEntity = FeedingEvent.class)
     @ElementCollection(targetClass = FeedingEvent.class)
     public List<FeedingEvent> getFeedingEvents() {
         return feedingEvents;
