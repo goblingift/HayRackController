@@ -420,8 +420,8 @@ public class IOController implements MaintenanceManager, WeightManager {
             logger.info("Triggered relay light to: OFF");
         }
     }
-    
-        /**
+
+    /**
      * Triggers the relay to power on the light for the maintenance mode.
      *
      * @param turnOn true if you wanna turn the light on, false if otherwise.
@@ -628,25 +628,34 @@ public class IOController implements MaintenanceManager, WeightManager {
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell1() {
-        return hx711LoadCell1.measureAndSetTare();
+
+        long tareValue = hx711LoadCell1.measureAndSetTare();
+        logger.info("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
+        return tareValue;
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell2() {
-        return hx711LoadCell2.measureAndSetTare();
+        long tareValue = hx711LoadCell2.measureAndSetTare();
+        logger.info("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
+        return tareValue;
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell3() {
-        return hx711LoadCell3.measureAndSetTare();
+        long tareValue = hx711LoadCell3.measureAndSetTare();
+        logger.info("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
+        return tareValue;
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell4() {
-        return hx711LoadCell4.measureAndSetTare();
+        long tareValue = hx711LoadCell4.measureAndSetTare();
+        logger.info("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
+        return tareValue;
     }
 
     @RequiresRaspberry
