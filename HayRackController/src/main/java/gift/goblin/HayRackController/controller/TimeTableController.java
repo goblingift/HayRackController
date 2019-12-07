@@ -105,14 +105,14 @@ public class TimeTableController {
                 LocalTime feedingStartTime = optScheduledShutterMovement.get().getFeedingStartTime();
                 
                 scheduledShutterMovementService.deleteScheduledMovement(Long.valueOf(id));
-                schedulerJobService.deleteStartFeedingJob(Integer.valueOf(id));
+                schedulerJobService.deleteStartFeedingJob(Long.valueOf(id));
                 
                 model.addAttribute("deleted_time", feedingStartTime);
                 model.addAttribute("success_message", "timetable.delete.success");
             }
             
         } catch (Exception e) {
-            logger.error("Exception thrown while try to delete scheduled entry with id: {}", id);
+            logger.error("Exception thrown while try to delete scheduled entry with id: " + id, e);
         }
         
         return renderTimetable(model);
