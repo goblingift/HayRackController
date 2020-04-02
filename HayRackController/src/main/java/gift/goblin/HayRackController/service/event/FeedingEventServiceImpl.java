@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,17 +107,24 @@ public class FeedingEventServiceImpl implements FeedingEventService {
 
         Optional<FeedingEvent> optFeedingEvent = feedingEventRepo.findById(feedingEntryId);
         if (optFeedingEvent.isPresent()) {
-            FeedingEvent feedingEvent = optFeedingEvent.get();
+            try {
+                FeedingEvent feedingEvent = optFeedingEvent.get();
 
-            long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                    + measureWeightLoadCell4;
+                long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
+                long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
+                        + measureWeightLoadCell4;
 
-            feedingEvent.setWeightGramStart(sum);
-            feedingEventRepo.save(feedingEvent);
+                feedingEvent.setWeightGramStart(sum);
+                feedingEventRepo.save(feedingEvent);
+            } catch (InterruptedException ex) {
+                logger.warn("Exception while sleep while measure weights!", ex);
+            }
         }
     }
 
@@ -124,21 +132,28 @@ public class FeedingEventServiceImpl implements FeedingEventService {
     public void measureEndWeight(Long feedingEntryId) {
         Optional<FeedingEvent> optFeedingEvent = feedingEventRepo.findById(feedingEntryId);
         if (optFeedingEvent.isPresent()) {
-            FeedingEvent feedingEvent = optFeedingEvent.get();
+            try {
+                FeedingEvent feedingEvent = optFeedingEvent.get();
 
-            long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                    + measureWeightLoadCell4;
+                long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
+                Thread.sleep(2_000);
+                long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
+                long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
+                        + measureWeightLoadCell4;
 
-            long weightGramStart = feedingEvent.getWeightGramStart();
-            long consumption = weightGramStart - sum;
+                long weightGramStart = feedingEvent.getWeightGramStart();
+                long consumption = weightGramStart - sum;
 
-            feedingEvent.setWeightGramEnd(sum);
-            feedingEvent.setFoodConsumptionGram(consumption);
-            feedingEventRepo.save(feedingEvent);
+                feedingEvent.setWeightGramEnd(sum);
+                feedingEvent.setFoodConsumptionGram(consumption);
+                feedingEventRepo.save(feedingEvent);
+            } catch (InterruptedException ex) {
+                logger.warn("Exception while sleep while measure weights!", ex);
+            }
         }
     }
 

@@ -75,7 +75,7 @@ public class StartFeedingJob implements Job {
                 Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
                 feedingEventService.measureStartWeight(feedingEventId);
             } catch (Exception ex) {
-                logger.error("Exception thrown while closing shutters!", ex);
+                logger.error("Exception thrown while try to open shutters!", ex);
             }
 
             createNewStopFeedingScheduler(jobId, jobKey);
