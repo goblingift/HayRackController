@@ -4,7 +4,7 @@
  */
 package gift.goblin.HayRackController.service.configuration;
 
-import gift.goblin.HayRackController.controller.model.Settings;
+import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import java.util.Optional;
 
@@ -23,12 +23,12 @@ public interface ConfigurationService {
      * @return the saved settings or an empty settings object
      * with default values.
      */
-    public Settings getSettings();
+    public SoundSettings getSettings();
     
     /**
      * Save the settings in database. Will overwrite existing entries,
      * cause only one entry is allowed in database.
      * @param settings the new settings.
      */
-    public void saveSettings(Settings settings);
+    public void saveSettings(SoundSettings settings);
 }

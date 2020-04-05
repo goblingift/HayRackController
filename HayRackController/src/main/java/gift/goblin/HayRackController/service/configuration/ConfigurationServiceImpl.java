@@ -4,7 +4,7 @@
  */
 package gift.goblin.HayRackController.service.configuration;
 
-import gift.goblin.HayRackController.controller.model.Settings;
+import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.database.embedded.repo.configuration.ApplicationConfigurationRepository;
 import gift.goblin.HayRackController.database.model.configuration.ApplicationConfiguration;
 import gift.goblin.HayRackController.service.converter.SettingsConverter;
@@ -70,22 +70,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public Settings getSettings() {
+    public SoundSettings getSettings() {
         
         Optional<ApplicationConfiguration> configEntity = repo.findAll().stream().findFirst();
         if (configEntity.isPresent()) {
             ApplicationConfiguration entity = configEntity.get();
-            Settings settings = settingsConverter.toFormDto(entity);
+            SoundSettings settings = settingsConverter.toFormDto(entity);
             return settings;
         } else {
-            Settings defaultSettings = new Settings();
+            SoundSettings defaultSettings = new SoundSettings();
             defaultSettings.setSelectedSound("99");
             return defaultSettings;
         }
     }
 
     @Override
-    public void saveSettings(Settings settings) {
+    public void saveSettings(SoundSettings settings) {
         
         
         Optional<ApplicationConfiguration> configEntity = repo.findAll().stream().findFirst();

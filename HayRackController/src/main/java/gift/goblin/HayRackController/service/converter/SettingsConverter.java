@@ -4,7 +4,7 @@
  */
 package gift.goblin.HayRackController.service.converter;
 
-import gift.goblin.HayRackController.controller.model.Settings;
+import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.database.model.configuration.ApplicationConfiguration;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SettingsConverter {
     
-    public Settings toFormDto(ApplicationConfiguration applicationConfiguration) {
-        Settings returnValue = new Settings();
+    public SoundSettings toFormDto(ApplicationConfiguration applicationConfiguration) {
+        SoundSettings returnValue = new SoundSettings();
         returnValue.setSelectedSound(String.valueOf(applicationConfiguration.getSoundId()));
         
         return returnValue;
     }
     
-    public ApplicationConfiguration toDatabaseDto(Settings formDto) {
+    public ApplicationConfiguration toDatabaseDto(SoundSettings formDto) {
         ApplicationConfiguration returnValue = new ApplicationConfiguration();
         returnValue.setSoundId(Integer.parseInt(formDto.getSelectedSound()));
         

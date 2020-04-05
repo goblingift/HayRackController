@@ -4,7 +4,8 @@
  */
 package gift.goblin.HayRackController.controller;
 
-import gift.goblin.HayRackController.controller.model.Settings;
+import gift.goblin.HayRackController.controller.model.LoadCellSettings;
+import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.controller.model.Soundtitle;
 import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
@@ -89,10 +90,11 @@ public class SettingsController {
         List<Soundtitle> availableSounds = generateAvailableSounds();
         model.addAttribute("sounds", availableSounds);
 
-        Settings settings = configurationService.getSettings();
+        SoundSettings soundSettings = configurationService.getSettings();
 
         model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
-        model.addAttribute("settings", settings);
+        model.addAttribute("soundSettings", soundSettings);
+        model.addAttribute("loadCellSettings", new LoadCellSettings());
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -109,7 +111,7 @@ public class SettingsController {
      */
     @GetMapping(value = {"/settings/tare"})
     public String setTare(Model model) {
-        
+
         if (maintenanceManager.getApplicationState() != ApplicationState.MAINTENANCE) {
             logger.warn("Called set-tare! Wont set tare of load-cells, because not in maintenance mode!");
             model.addAttribute("success_message", "settings.tare.fail_no_maintenance");
@@ -123,7 +125,7 @@ public class SettingsController {
                 model.addAttribute("success_message", "settings.tare.fail");
             }
         }
-        
+
         return renderSettings(model);
     }
 
@@ -171,9 +173,16 @@ public class SettingsController {
         return renderSettings(model);
     }
 
-    @PostMapping(value = {"/settings/save"})
-    public String saveSettings(@ModelAttribute Settings settings, BindingResult bindingResult, Model model) {
+    @PostMapping(value = {"/settings/sound/save"})
+    public String saveSoundSettings(@ModelAttribute SoundSettings settings, BindingResult bindingResult, Model model) {
         configurationService.saveSettings(settings);
+
+        return renderSettings(model);
+    }
+
+    @PostMapping(value = {"/settings/load-cell/save"})
+    public String saveLoadCellSettings(@ModelAttribute LoadCellSettings settings, BindingResult bindingResult, Model model) {
+        logger.info("Triggered saveLoadCellSettings with settings: {}", settings);
 
         return renderSettings(model);
     }
