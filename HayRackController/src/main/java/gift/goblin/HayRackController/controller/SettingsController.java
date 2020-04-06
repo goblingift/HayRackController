@@ -90,11 +90,14 @@ public class SettingsController {
         List<Soundtitle> availableSounds = generateAvailableSounds();
         model.addAttribute("sounds", availableSounds);
 
-        SoundSettings soundSettings = configurationService.getSettings();
-
+        SoundSettings soundSettings = configurationService.getSoundSettings();
+        LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
+        
+        logger.info("got loadcell settings successful:" + loadCellSettings);
+        
         model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
         model.addAttribute("soundSettings", soundSettings);
-        model.addAttribute("loadCellSettings", new LoadCellSettings());
+        model.addAttribute("loadCellSettings", loadCellSettings);
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -183,7 +186,9 @@ public class SettingsController {
     @PostMapping(value = {"/settings/load-cell/save"})
     public String saveLoadCellSettings(@ModelAttribute LoadCellSettings settings, BindingResult bindingResult, Model model) {
         logger.info("Triggered saveLoadCellSettings with settings: {}", settings);
-
+        
+        configurationService.saveSettings(settings);
+        
         return renderSettings(model);
     }
 

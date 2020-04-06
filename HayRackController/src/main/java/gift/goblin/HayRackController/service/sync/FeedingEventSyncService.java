@@ -46,8 +46,6 @@ public class FeedingEventSyncService implements DatabaseSynchronizer {
             List<FeedingEvent> syncedEntries = backupRepo.saveAll(differentEntries);
             syncedEntitiesCount = syncedEntries.size();
             logger.info("Successful backuped {} new FeedingEvent entries from embedded-db to backup-db.", syncedEntries.size());
-        } else {
-            logger.debug("No new FeedingEvent entries to backup.");
         }
 
         return syncedEntitiesCount;

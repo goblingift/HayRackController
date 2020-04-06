@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import gift.goblin.HayRackController.database.backup.repo.configuration.ApplicationConfigurationBackupRepository;
 import gift.goblin.HayRackController.database.embedded.repo.configuration.ApplicationConfigurationRepository;
 import gift.goblin.HayRackController.database.model.configuration.ApplicationConfiguration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Synchronizes the application configuration entries between the backup-db and
@@ -35,22 +37,33 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
         int syncedEntitiesCount = 0;
         List<ApplicationConfiguration> embeddedEntities = embeddedRepo.findAll();
         if (!embeddedEntities.isEmpty()) {
-            ApplicationConfiguration embeddedEntity = embeddedEntities.get(0);
             
             List<ApplicationConfiguration> backupEntities = backupRepo.findAll();
-            if (backupEntities.isEmpty()) {
-                ApplicationConfiguration savedEntity = backupRepo.save(embeddedEntity);
-                syncedEntitiesCount = 1;
-                logger.info("Successful synced new entry in backup-db: {}", savedEntity);
-            } else {
-                ApplicationConfiguration backupEntity = backupEntities.get(0);
-                if (backupEntity.getSoundId() != embeddedEntity.getSoundId()) {
-                    backupEntity.setSoundId(embeddedEntity.getSoundId());
-                    ApplicationConfiguration savedEntity = backupRepo.save(backupEntity);
-                    syncedEntitiesCount = 1;
-                    logger.info("Successful overwrote entry in backup-db: {}", savedEntity);
+            
+            for (ApplicationConfiguration actEmbeddedEntity : embeddedEntities) {
+                Optional<ApplicationConfiguration> optBackupEntity = backupEntities.stream()
+                        // filter for entities with the correct config-id
+                        .filter(e -> e.getConfigurationId() == actEmbeddedEntity.getConfigurationId())
+                        // filter for entities which have older modification-date than our embedded entity
+                        .filter(e -> e.getLastModified().isBefore(actEmbeddedEntity.getLastModified()))
+                        .findFirst();
+                if (optBackupEntity.isPresent()) {
+                    // Update backup entity
+                    ApplicationConfiguration backupEntity = optBackupEntity.get();
+                    backupEntity.setValue(actEmbeddedEntity.getValue());
+                    backupEntity.setLastModified(LocalDateTime.now());
+                    backupRepo.save(backupEntity);
+                    syncedEntitiesCount++;
+                } else {
+                    // No backup entity, just create
+                    backupRepo.save(actEmbeddedEntity);
+                    syncedEntitiesCount++;
                 }
             }
+        }
+        
+        if (syncedEntitiesCount > 0) {
+            logger.info("Successfull synced {} Application-Config entities from embedded-db to backup-db.", syncedEntitiesCount);
         }
         
         return syncedEntitiesCount;

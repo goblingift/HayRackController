@@ -4,6 +4,8 @@
  */
 package gift.goblin.HayRackController.database.model.configuration;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,33 +21,104 @@ import javax.persistence.Table;
 public class ApplicationConfiguration {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long configurationId;
+    private int configurationId;
     
     /**
-     * ID of the selected sound - should contain an id of
-     * @see gift.goblin.HayRackController.service.io.model.Playlist
+     * Description of this field- describes which value it contains.
      */
-    private int soundId;
+    private String description;
     
-    public ApplicationConfiguration(int soundId) {
-        this.soundId = soundId;
-    }
+    /**
+     * Value of the field, stored as simple String.
+     */
+    private String value;
+    
+    /**
+     * Last modification date of this entry.
+     */
+    private LocalDateTime lastModified;
 
     public ApplicationConfiguration() {
     }
 
-    public int getSoundId() {
-        return soundId;
+    public ApplicationConfiguration(int configurationId, String description, String value, LocalDateTime lastModified) {
+        this.configurationId = configurationId;
+        this.description = description;
+        this.value = value;
+        this.lastModified = lastModified;
     }
 
-    public void setSoundId(int soundId) {
-        this.soundId = soundId;
+    public int getConfigurationId() {
+        return configurationId;
+    }
+
+    public void setConfigurationId(int configurationId) {
+        this.configurationId = configurationId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public LocalDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(LocalDateTime lastModified) {
+        this.lastModified = lastModified;
     }
 
     @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 43 * hash + Objects.hashCode(this.description);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ApplicationConfiguration other = (ApplicationConfiguration) obj;
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        if (!Objects.equals(this.configurationId, other.configurationId)) {
+            return false;
+        }
+        if (!Objects.equals(this.lastModified, other.lastModified)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
+    
+    @Override
     public String toString() {
-        return "ApplicationConfiguration{" + "configurationId=" + configurationId + ", soundId=" + soundId + '}';
+        return "ApplicationConfiguration{" + "configurationId=" + configurationId + ", description=" + description + ", value=" + value + ", lastModified=" + lastModified + '}';
     }
     
 }

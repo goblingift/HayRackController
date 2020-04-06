@@ -4,6 +4,7 @@
  */
 package gift.goblin.HayRackController.service.configuration;
 
+import gift.goblin.HayRackController.controller.model.LoadCellSettings;
 import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.service.io.model.Playlist;
 import java.util.Optional;
@@ -14,8 +15,6 @@ import java.util.Optional;
  */
 public interface ConfigurationService {
     
-    public void saveSelectedSound(Playlist selectedSound);
-    
     public Optional<Playlist> getSelectedSound();
     
     /**
@@ -23,12 +22,27 @@ public interface ConfigurationService {
      * @return the saved settings or an empty settings object
      * with default values.
      */
-    public SoundSettings getSettings();
+    public SoundSettings getSoundSettings();
+
+    /**
+     * Reads the load-cell related settings from database. 
+     * @return the saved settings or an empty settings object
+     * with default values.
+     */
+    public LoadCellSettings getLoadCellSettings();
     
     /**
-     * Save the settings in database. Will overwrite existing entries,
-     * cause only one entry is allowed in database.
-     * @param settings the new settings.
+     * Saves the sound settings into database.
+     * Will overwrite existing entries.
+     * @param settings the sound settings dto.
      */
     public void saveSettings(SoundSettings settings);
+    
+    /**
+     * Saves the load-cell settings into the database.
+     * Will overwrite existing entries.
+     * @param settings the load-cell settings dto.
+     */
+    public void saveSettings(LoadCellSettings settings);
+    
 }
