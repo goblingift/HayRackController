@@ -70,7 +70,7 @@ public class SettingsController {
 
     @Autowired
     private MaintenanceManager maintenanceManager;
-
+    
     /**
      * Default render method for the dashboard.
      *
@@ -187,7 +187,25 @@ public class SettingsController {
     public String saveLoadCellSettings(@ModelAttribute LoadCellSettings settings, BindingResult bindingResult, Model model) {
         logger.info("Triggered saveLoadCellSettings with settings: {}", settings);
         
+        LoadCellSettings oldSettings = configurationService.getLoadCellSettings();
+        
         configurationService.saveSettings(settings);
+        
+        if (!oldSettings.isEnabled() && settings.isEnabled()) {
+            logger.info("Load-cells were activated, initialize load-cells now...");
+            if (settings.getAmount() >= 4) {
+                iOController.initializeLoadCell4(settings);
+            }
+            if (settings.getAmount() >= 3) {
+                iOController.initializeLoadCell3(settings);
+            }
+            if (settings.getAmount() >= 2) {
+                iOController.initializeLoadCell2(settings);
+            }
+            if (settings.getAmount() >= 1) {
+                iOController.initializeLoadCell1(settings);
+            }
+        }
         
         return renderSettings(model);
     }

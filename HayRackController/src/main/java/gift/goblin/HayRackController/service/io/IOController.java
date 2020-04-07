@@ -17,6 +17,7 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 import com.pi4j.wiringpi.Gpio;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
+import gift.goblin.HayRackController.controller.model.LoadCellSettings;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
 import gift.goblin.HayRackController.service.io.interfaces.WeightManager;
 import gift.goblin.HayRackController.service.io.model.Playlist;
@@ -155,7 +156,6 @@ public class IOController implements MaintenanceManager, WeightManager {
             setupRelayLightMaintenance();
             setupBrightnessSensor();
             setupTemperatureSensor();
-            setupLoadCells();
             setupButtons();
 
             raspberryInitialized = true;
@@ -282,30 +282,39 @@ public class IOController implements MaintenanceManager, WeightManager {
     }
 
     @RequiresRaspberry
-    private void setupLoadCells() {
-        pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_DAT),
+    public void initializeLoadCell1(LoadCellSettings loadCellSettings) {
+        pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT1()),
                 "Load-cell 1 DAT", PinPullResistance.OFF);
-        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_1_SCK),
+        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
                 "Load-cell 1 SCK", PinState.LOW);
-        hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, loadCellSettings.getLoadCellMax1(), loadCellSettings.getLoadCellMVV1(), GainFactor.GAIN_128);
+    }
 
-        pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_DAT),
+    @RequiresRaspberry
+    public void initializeLoadCell2(LoadCellSettings loadCellSettings) {
+        pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
                 "Load-cell 2 DAT", PinPullResistance.OFF);
-        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_2_SCK),
+        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
                 "Load-cell 2 SCK", PinState.LOW);
-        hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, loadCellSettings.getLoadCellMax2(), loadCellSettings.getLoadCellMVV2(), GainFactor.GAIN_128);
+    }
 
-        pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_DAT),
+    @RequiresRaspberry
+    public void initializeLoadCell3(LoadCellSettings loadCellSettings) {
+        pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT3()),
                 "Load-cell 3 DAT", PinPullResistance.OFF);
-        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_3_SCK),
+        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT3()),
                 "Load-cell 3 SCK", PinState.LOW);
-        hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, loadCellSettings.getLoadCellMax3(), loadCellSettings.getLoadCellMVV3(), GainFactor.GAIN_128);
+    }
 
-        pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_DAT),
+    @RequiresRaspberry
+    public void initializeLoadCell4(LoadCellSettings loadCellSettings) {
+        pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT4()),
                 "Load-cell 4 DAT", PinPullResistance.OFF);
-        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_LOAD_CELL_4_SCK),
+        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT4()),
                 "Load-cell 4 SCK", PinState.LOW);
-        hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, 500, 2.0, GainFactor.GAIN_128);
+        hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, loadCellSettings.getLoadCellMax4(), loadCellSettings.getLoadCellMVV4(), GainFactor.GAIN_128);
     }
 
     @RequiresRaspberry

@@ -87,7 +87,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (optLoadCellsAmount.isPresent()) {
             loadCellSettings.setAmount(Integer.parseInt(optLoadCellsAmount.get().getValue()));
         }
-        
+
+        readLoadCellSettings1(loadCellSettings);
+        readLoadCellSettings2(loadCellSettings);
+        readLoadCellSettings3(loadCellSettings);
+        readLoadCellSettings4(loadCellSettings);
+
         return loadCellSettings;
     }
 
@@ -124,7 +129,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                         description, configEntity);
             } else {
                 ApplicationConfiguration configEntity = new ApplicationConfiguration(settingsId, description, value, LocalDateTime.now());
-                
+
                 repo.save(configEntity);
                 logger.info("Successful saved new application configuration ({}): {}",
                         description, configEntity);
@@ -144,6 +149,182 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         saveOrUpdateSetting(ConfigurationType.LOADCELLS_AMOUNT.getId(),
                 String.valueOf(settings.getAmount()), ConfigurationType.LOADCELLS_AMOUNT.name());
+
+        if (settings.getAmount() >= 4) {
+            saveLoadCell4Settings(settings);
+        }
+        if (settings.getAmount() >= 3) {
+            saveLoadCell3Settings(settings);
+        }
+        if (settings.getAmount() >= 2) {
+            saveLoadCell2Settings(settings);
+        }
+        if (settings.getAmount() >= 1) {
+            saveLoadCell1Settings(settings);
+        }
     }
 
+//<editor-fold defaultstate="collapsed" desc="saveLoadCells">
+    private void saveLoadCell1Settings(LoadCellSettings settings) {
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_1_PIN_DAT.getId(),
+                String.valueOf(settings.getLoadCellDAT1()),
+                ConfigurationType.LOADCELL_1_PIN_DAT.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_1_PIN_SCK.getId(),
+                String.valueOf(settings.getLoadCellSCK1()),
+                ConfigurationType.LOADCELL_1_PIN_SCK.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_1_MAXLOAD_KG.getId(),
+                String.valueOf(settings.getLoadCellMax1()),
+                ConfigurationType.LOADCELL_1_MAXLOAD_KG.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_1_MVV.getId(),
+                String.valueOf(settings.getLoadCellMVV1()),
+                ConfigurationType.LOADCELL_1_MVV.name());
+    }
+
+    private void saveLoadCell2Settings(LoadCellSettings settings) {
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_2_PIN_DAT.getId(),
+                String.valueOf(settings.getLoadCellDAT2()),
+                ConfigurationType.LOADCELL_2_PIN_DAT.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_2_PIN_SCK.getId(),
+                String.valueOf(settings.getLoadCellSCK2()),
+                ConfigurationType.LOADCELL_2_PIN_SCK.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_2_MAXLOAD_KG.getId(),
+                String.valueOf(settings.getLoadCellMax2()),
+                ConfigurationType.LOADCELL_2_MAXLOAD_KG.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_2_MVV.getId(),
+                String.valueOf(settings.getLoadCellMVV2()),
+                ConfigurationType.LOADCELL_2_MVV.name());
+    }
+
+    private void saveLoadCell3Settings(LoadCellSettings settings) {
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_3_PIN_DAT.getId(),
+                String.valueOf(settings.getLoadCellDAT3()),
+                ConfigurationType.LOADCELL_3_PIN_DAT.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_3_PIN_SCK.getId(),
+                String.valueOf(settings.getLoadCellSCK3()),
+                ConfigurationType.LOADCELL_3_PIN_SCK.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_3_MAXLOAD_KG.getId(),
+                String.valueOf(settings.getLoadCellMax3()),
+                ConfigurationType.LOADCELL_3_MAXLOAD_KG.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_3_MVV.getId(),
+                String.valueOf(settings.getLoadCellMVV3()),
+                ConfigurationType.LOADCELL_3_MVV.name());
+    }
+
+    private void saveLoadCell4Settings(LoadCellSettings settings) {
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_4_PIN_DAT.getId(),
+                String.valueOf(settings.getLoadCellDAT4()),
+                ConfigurationType.LOADCELL_4_PIN_DAT.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_4_PIN_SCK.getId(),
+                String.valueOf(settings.getLoadCellSCK4()),
+                ConfigurationType.LOADCELL_4_PIN_SCK.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_4_MAXLOAD_KG.getId(),
+                String.valueOf(settings.getLoadCellMax4()),
+                ConfigurationType.LOADCELL_4_MAXLOAD_KG.name());
+
+        saveOrUpdateSetting(ConfigurationType.LOADCELL_4_MVV.getId(),
+                String.valueOf(settings.getLoadCellMVV4()),
+                ConfigurationType.LOADCELL_4_MVV.name());
+    }
+
+//</editor-fold>
+//<editor-fold defaultstate="collapsed" desc="readLoadCells">
+    private void readLoadCellSettings1(LoadCellSettings loadCellSettings) {
+        Optional<ApplicationConfiguration> optValue = repo.findById(ConfigurationType.LOADCELL_1_PIN_DAT.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellDAT1(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_1_PIN_SCK.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellSCK1(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_1_MAXLOAD_KG.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMax1(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_1_MVV.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMVV1(Double.parseDouble(optValue.get().getValue()));
+        }
+    }
+
+    private void readLoadCellSettings2(LoadCellSettings loadCellSettings) {
+        Optional<ApplicationConfiguration> optValue = repo.findById(ConfigurationType.LOADCELL_2_PIN_DAT.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellDAT2(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_2_PIN_SCK.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellSCK2(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_2_MAXLOAD_KG.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMax2(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_2_MVV.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMVV2(Double.parseDouble(optValue.get().getValue()));
+        }
+    }
+
+    private void readLoadCellSettings3(LoadCellSettings loadCellSettings) {
+        Optional<ApplicationConfiguration> optValue = repo.findById(ConfigurationType.LOADCELL_3_PIN_DAT.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellDAT3(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_3_PIN_SCK.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellSCK3(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_3_MAXLOAD_KG.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMax3(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_3_MVV.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMVV3(Double.parseDouble(optValue.get().getValue()));
+        }
+    }
+
+    private void readLoadCellSettings4(LoadCellSettings loadCellSettings) {
+        Optional<ApplicationConfiguration> optValue = repo.findById(ConfigurationType.LOADCELL_4_PIN_DAT.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellDAT4(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_4_PIN_SCK.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellSCK4(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_4_MAXLOAD_KG.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMax4(Integer.parseInt(optValue.get().getValue()));
+        }
+
+        optValue = repo.findById(ConfigurationType.LOADCELL_4_MVV.getId());
+        if (optValue.isPresent()) {
+            loadCellSettings.setLoadCellMVV4(Double.parseDouble(optValue.get().getValue()));
+        }
+    }
+//</editor-fold>
 }

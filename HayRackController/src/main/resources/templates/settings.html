@@ -138,17 +138,16 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
 
-            <form th:action="@{/settings/sound/save}" th:object="${soundSettings}" method="POST">
-                <div class="row justify-content-start">
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body">
+            <div class="row justify-content-start">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/sound/save}" th:object="${soundSettings}" method="POST">
 
                                 <div class="row justify-content-between">
                                     <div class="col">
@@ -175,17 +174,17 @@
 
                                 </div>
 
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
 
-            <form th:action="@{/settings/load-cell/save}" th:object="${loadCellSettings}" method="POST">
-                <div class="row justify-content-start">
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body">
+            <div class="row justify-content-start pb-5">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/load-cell/save}" th:object="${loadCellSettings}" method="POST">
 
                                 <div class="row justify-content-between">
                                     <div class="col">
@@ -236,11 +235,71 @@
                                         <button class="btn btn-lg btn-info"><i class="fa fa-save fa-2x"></i></button>
                                     </div>
                                 </div>
-                            </div>
+
+
+                                <div id="accordion">
+
+                                    <div class="card my-1" th:each="i : ${#numbers.sequence( 1, loadCellSettings.amount)}">
+                                        <div class="card-header">
+                                            <a class="card-link" th:text="#{settings.header_scale}"/>
+                                        </div>
+                                        <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col" th:with="fieldName=${'loadCellSCK' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">PIN SCK</span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col" th:with="fieldName=${'loadCellMVV' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" th:text="#{settings.scale.rated_capacity}"></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">MV/V</span>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col" th:with="fieldName=${'loadCellDAT' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" >PIN DAT</span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col" th:with="fieldName=${'loadCellMax' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" th:text="#{settings.scale.nominal_load}"></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">KG</span>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
+
+
+
+
 
         </div>
 

@@ -107,24 +107,17 @@ public class FeedingEventServiceImpl implements FeedingEventService {
 
         Optional<FeedingEvent> optFeedingEvent = feedingEventRepo.findById(feedingEntryId);
         if (optFeedingEvent.isPresent()) {
-            try {
-                FeedingEvent feedingEvent = optFeedingEvent.get();
+            FeedingEvent feedingEvent = optFeedingEvent.get();
 
-                long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-                long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                        + measureWeightLoadCell4;
+            long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
+            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
+            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
+            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
+            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
+                    + measureWeightLoadCell4;
 
-                feedingEvent.setWeightGramStart(sum);
-                feedingEventRepo.save(feedingEvent);
-            } catch (InterruptedException ex) {
-                logger.warn("Exception while sleep while measure weights!", ex);
-            }
+            feedingEvent.setWeightGramStart(sum);
+            feedingEventRepo.save(feedingEvent);
         }
     }
 
