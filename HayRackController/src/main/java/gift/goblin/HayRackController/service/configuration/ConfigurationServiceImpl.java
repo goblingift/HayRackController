@@ -77,6 +77,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public LoadCellSettings getLoadCellSettings() {
 
         LoadCellSettings loadCellSettings = new LoadCellSettings();
+        // Minimum amount is always 1
+        loadCellSettings.setAmount(1);
 
         Optional<ApplicationConfiguration> optLoadCellsActivated = repo.findById(ConfigurationType.LOADCELLS_ACTIVATED.getId());
         if (optLoadCellsActivated.isPresent()) {

@@ -4,7 +4,6 @@
  */
 package gift.goblin.HayRackController.database.sync;
 
-import com.sun.corba.se.spi.ior.Identifiable;
 import java.io.Serializable;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -26,14 +25,11 @@ public class IntelligentSequenceGenerator implements IdentifierGenerator  {
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object obj) throws HibernateException {
         
-        logger.info("xyz: Entering the ID generation!");
-        
         if (obj instanceof LongIdentifier) {
             LongIdentifier identifiable = (LongIdentifier) obj;
             Serializable id = identifiable.getId();
             
             if (id != null) {
-                logger.info("ID is there, return em! {}", id);
                 return id;
             }
         }

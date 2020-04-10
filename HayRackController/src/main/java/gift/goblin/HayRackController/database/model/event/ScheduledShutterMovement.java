@@ -4,7 +4,6 @@
  */
 package gift.goblin.HayRackController.database.model.event;
 
-import com.sun.corba.se.spi.ior.Identifiable;
 import gift.goblin.HayRackController.database.sync.LongIdentifier;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import org.omg.CORBA_2_3.portable.OutputStream;
 
 /**
  * Entity for a scheduled shutter movement, which only defines the time and

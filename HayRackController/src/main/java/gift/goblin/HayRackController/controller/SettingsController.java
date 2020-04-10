@@ -205,6 +205,12 @@ public class SettingsController {
             if (settings.getAmount() >= 1) {
                 iOController.initializeLoadCell1(settings);
             }
+            
+            iOController.setLoadCellAmount(settings.getAmount());
+        }
+        
+        if (!settings.isEnabled()) {
+            iOController.setLoadCellsActivated(false);
         }
         
         return renderSettings(model);

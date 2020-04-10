@@ -109,44 +109,42 @@ public class FeedingEventServiceImpl implements FeedingEventService {
         if (optFeedingEvent.isPresent()) {
             FeedingEvent feedingEvent = optFeedingEvent.get();
 
-            long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-            long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-            long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-            long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-            long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                    + measureWeightLoadCell4;
-
-            feedingEvent.setWeightGramStart(sum);
+            feedingEvent.setWeightGramStart(measureWeightSum());
             feedingEventRepo.save(feedingEvent);
         }
+    }
+
+    private long measureWeightSum() {
+        long sum = 0;
+
+        if (iOController.getLoadCellAmount() >= 4) {
+            sum += iOController.measureWeightLoadCell4();
+        }
+        if (iOController.getLoadCellAmount() >= 3) {
+            sum += iOController.measureWeightLoadCell3();
+        }
+        if (iOController.getLoadCellAmount() >= 2) {
+            sum += iOController.measureWeightLoadCell2();
+        }
+        if (iOController.getLoadCellAmount() >= 1) {
+            sum += iOController.measureWeightLoadCell1();
+        }
+        return sum;
     }
 
     @Override
     public void measureEndWeight(Long feedingEntryId) {
         Optional<FeedingEvent> optFeedingEvent = feedingEventRepo.findById(feedingEntryId);
         if (optFeedingEvent.isPresent()) {
-            try {
-                FeedingEvent feedingEvent = optFeedingEvent.get();
+            FeedingEvent feedingEvent = optFeedingEvent.get();
+            long sum = measureWeightSum();
 
-                long measureWeightLoadCell1 = iOController.measureWeightLoadCell1();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell2 = iOController.measureWeightLoadCell2();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell3 = iOController.measureWeightLoadCell3();
-                Thread.sleep(2_000);
-                long measureWeightLoadCell4 = iOController.measureWeightLoadCell4();
-                long sum = measureWeightLoadCell1 + measureWeightLoadCell2 + measureWeightLoadCell3
-                        + measureWeightLoadCell4;
+            long weightGramStart = feedingEvent.getWeightGramStart();
+            long consumption = weightGramStart - sum;
 
-                long weightGramStart = feedingEvent.getWeightGramStart();
-                long consumption = weightGramStart - sum;
-
-                feedingEvent.setWeightGramEnd(sum);
-                feedingEvent.setFoodConsumptionGram(consumption);
-                feedingEventRepo.save(feedingEvent);
-            } catch (InterruptedException ex) {
-                logger.warn("Exception while sleep while measure weights!", ex);
-            }
+            feedingEvent.setWeightGramEnd(sum);
+            feedingEvent.setFoodConsumptionGram(consumption);
+            feedingEventRepo.save(feedingEvent);
         }
     }
 

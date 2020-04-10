@@ -73,7 +73,9 @@ public class StartFeedingJob implements Job {
                 ioController.openShutter();
                 ioController.triggerRelayLight(true);
                 Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
-                feedingEventService.measureStartWeight(feedingEventId);
+                if (ioController.isLoadCellsActivated()) {
+                    feedingEventService.measureStartWeight(feedingEventId);
+                }
             } catch (Exception ex) {
                 logger.error("Exception thrown while try to open shutters!", ex);
             }

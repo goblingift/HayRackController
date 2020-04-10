@@ -60,7 +60,9 @@ public class StopFeedingJob implements Job {
                 ioController.triggerRelayLight(false);
                 ioController.closeShutter(Optional.of(track));
                 Long feedingEventId = feedingEventService.finishFeedingEvent(jobId);
-                feedingEventService.measureEndWeight(feedingEventId);
+                if (ioController.isLoadCellsActivated()) {
+                    feedingEventService.measureEndWeight(feedingEventId);
+                }
             } catch (InterruptedException ex) {
                 logger.error("Exception thrown while closing shutters!", ex);
             }

@@ -71,6 +71,9 @@ public class IOController implements MaintenanceManager, WeightManager {
     private GpioController gpioController;
     private boolean raspberryInitialized;
 
+    private boolean loadCellsActivated;
+    private int loadCellAmount;
+
     private Hx711 hx711LoadCell1;
     private Hx711 hx711LoadCell2;
     private Hx711 hx711LoadCell3;
@@ -283,38 +286,47 @@ public class IOController implements MaintenanceManager, WeightManager {
 
     @RequiresRaspberry
     public void initializeLoadCell1(LoadCellSettings loadCellSettings) {
+        logger.info("Start initializing load-cell #1...");
         pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT1()),
                 "Load-cell 1 DAT", PinPullResistance.OFF);
-        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
+        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK1()),
                 "Load-cell 1 SCK", PinState.LOW);
         hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, loadCellSettings.getLoadCellMax1(), loadCellSettings.getLoadCellMVV1(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #1.");
+        this.setLoadCellsActivated(true);
     }
 
     @RequiresRaspberry
     public void initializeLoadCell2(LoadCellSettings loadCellSettings) {
         pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
                 "Load-cell 2 DAT", PinPullResistance.OFF);
-        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
+        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK2()),
                 "Load-cell 2 SCK", PinState.LOW);
         hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, loadCellSettings.getLoadCellMax2(), loadCellSettings.getLoadCellMVV2(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #2.");
+        this.setLoadCellsActivated(true);
     }
 
     @RequiresRaspberry
     public void initializeLoadCell3(LoadCellSettings loadCellSettings) {
         pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT3()),
                 "Load-cell 3 DAT", PinPullResistance.OFF);
-        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT3()),
+        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK3()),
                 "Load-cell 3 SCK", PinState.LOW);
         hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, loadCellSettings.getLoadCellMax3(), loadCellSettings.getLoadCellMVV3(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #3.");
+        this.setLoadCellsActivated(true);
     }
 
     @RequiresRaspberry
     public void initializeLoadCell4(LoadCellSettings loadCellSettings) {
         pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT4()),
                 "Load-cell 4 DAT", PinPullResistance.OFF);
-        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT4()),
+        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK4()),
                 "Load-cell 4 SCK", PinState.LOW);
         hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, loadCellSettings.getLoadCellMax4(), loadCellSettings.getLoadCellMVV4(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #4.");
+        this.setLoadCellsActivated(true);
     }
 
     @RequiresRaspberry
@@ -700,6 +712,22 @@ public class IOController implements MaintenanceManager, WeightManager {
     @Override
     public boolean isMaintenanceModeActive() {
         return this.getApplicationState() == ApplicationState.MAINTENANCE;
+    }
+
+    public boolean isLoadCellsActivated() {
+        return loadCellsActivated;
+    }
+
+    public void setLoadCellsActivated(boolean loadCellsActivated) {
+        this.loadCellsActivated = loadCellsActivated;
+    }
+
+    public int getLoadCellAmount() {
+        return loadCellAmount;
+    }
+
+    public void setLoadCellAmount(int loadCellAmount) {
+        this.loadCellAmount = loadCellAmount;
     }
 
 }
