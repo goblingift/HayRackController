@@ -292,7 +292,7 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK1()),
                 "Load-cell 1 SCK", PinState.LOW);
         hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, loadCellSettings.getLoadCellMax1(), loadCellSettings.getLoadCellMVV1(), GainFactor.GAIN_128);
-        logger.info("Successful initialized load-cell #1.");
+        logger.info("Successful initialized load-cell #1 with these settings: " + loadCellSettings.toString());
         this.setLoadCellsActivated(true);
     }
 
@@ -303,7 +303,7 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK2()),
                 "Load-cell 2 SCK", PinState.LOW);
         hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, loadCellSettings.getLoadCellMax2(), loadCellSettings.getLoadCellMVV2(), GainFactor.GAIN_128);
-        logger.info("Successful initialized load-cell #2.");
+        logger.info("Successful initialized load-cell #2 with these settings: " + loadCellSettings.toString());
         this.setLoadCellsActivated(true);
     }
 
@@ -314,7 +314,7 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK3()),
                 "Load-cell 3 SCK", PinState.LOW);
         hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, loadCellSettings.getLoadCellMax3(), loadCellSettings.getLoadCellMVV3(), GainFactor.GAIN_128);
-        logger.info("Successful initialized load-cell #3.");
+        logger.info("Successful initialized load-cell #3 with these settings: " + loadCellSettings.toString());
         this.setLoadCellsActivated(true);
     }
 
@@ -325,7 +325,7 @@ public class IOController implements MaintenanceManager, WeightManager {
         pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK4()),
                 "Load-cell 4 SCK", PinState.LOW);
         hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, loadCellSettings.getLoadCellMax4(), loadCellSettings.getLoadCellMVV4(), GainFactor.GAIN_128);
-        logger.info("Successful initialized load-cell #4.");
+        logger.info("Successful initialized load-cell #4 with these settings: " + loadCellSettings.toString());
         this.setLoadCellsActivated(true);
     }
 
@@ -614,7 +614,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return dht22_dat[4] == (dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3] & 0xFF);
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureWeightLoadCell1() {
         long measurement = hx711LoadCell1.measure();
@@ -622,7 +621,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return measurement;
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureWeightLoadCell2() {
         long measurement = hx711LoadCell2.measure();
@@ -630,7 +628,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return measurement;
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureWeightLoadCell3() {
         long measurement = hx711LoadCell3.measure();
@@ -638,7 +635,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return measurement;
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureWeightLoadCell4() {
         long measurement = hx711LoadCell4.measure();
@@ -646,7 +642,6 @@ public class IOController implements MaintenanceManager, WeightManager {
         return measurement;
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell1() {
         
@@ -658,12 +653,11 @@ public class IOController implements MaintenanceManager, WeightManager {
             return null;
         } else {
             long tareValue = hx711LoadCell1.measureAndSetTare();
-            logger.debug("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
+            logger.info("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
             return tareValue;
         }
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell2() {
         if (!isLoadCellsActivated()) {
@@ -674,12 +668,11 @@ public class IOController implements MaintenanceManager, WeightManager {
             return null;
         } else {
             long tareValue = hx711LoadCell2.measureAndSetTare();
-            logger.debug("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
+            logger.info("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
             return tareValue;
         }
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell3() {
         if (!isLoadCellsActivated()) {
@@ -690,12 +683,11 @@ public class IOController implements MaintenanceManager, WeightManager {
             return null;
         } else {
             long tareValue = hx711LoadCell3.measureAndSetTare();
-            logger.debug("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
+            logger.info("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
             return tareValue;
         }
     }
 
-    @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell4() {
         if (!isLoadCellsActivated()) {
@@ -706,7 +698,7 @@ public class IOController implements MaintenanceManager, WeightManager {
             return null;
         } else {
             long tareValue = hx711LoadCell4.measureAndSetTare();
-            logger.debug("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
+            logger.info("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
             return tareValue;
         }
     }

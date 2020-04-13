@@ -121,8 +121,9 @@ public class SettingsController {
         } else {
             logger.info("Called set-tare! Will set tare of all load-cells now!");
             Boolean measurementResult = weightMeasurementService.measureAndSaveTare();
+            boolean updatesLoadCellResult = weightMeasurementService.readAndSetTareValueLoadCells();
 
-            if (measurementResult != null && measurementResult) {
+            if (measurementResult != null && measurementResult && updatesLoadCellResult) {
                 model.addAttribute("success_message", "settings.tare.success");
             } else {
                 model.addAttribute("success_message", "settings.tare.fail");
@@ -191,6 +192,8 @@ public class SettingsController {
         
         configurationService.saveSettings(settings);
         
+        iOController.setLoadCellAmount(settings.getAmount());
+        
         if (!oldSettings.isEnabled() && settings.isEnabled()) {
             logger.info("Load-cells were activated, initialize load-cells now...");
             if (settings.getAmount() >= 4) {
@@ -206,7 +209,6 @@ public class SettingsController {
                 iOController.initializeLoadCell1(settings);
             }
             
-            iOController.setLoadCellAmount(settings.getAmount());
         }
         
         if (!settings.isEnabled()) {
