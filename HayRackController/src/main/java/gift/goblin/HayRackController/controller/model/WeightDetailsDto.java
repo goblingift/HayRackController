@@ -15,11 +15,11 @@ public class WeightDetailsDto {
     public WeightDetailsDto() {
     }
 
-    public WeightDetailsDto(double weightSumKg, int maxWeightSum, String ticks, String description) {
+    public WeightDetailsDto(double weightSumKg, int maxWeightSum, String ticks, int loadCellNumber) {
         this.weightSumKg = weightSumKg;
         this.maxWeightSum = maxWeightSum;
         this.ticks = ticks;
-        this.description = description;
+        this.loadCellNumber = loadCellNumber;
     }
     
     /**
@@ -44,9 +44,9 @@ public class WeightDetailsDto {
     private String ticks;
     
     /**
-     * String which describes for which load-cell this element contains data.
+     * Defines the load-cell number. (Can be 0, if this represents the sum).
      */
-    private String description;
+    private int loadCellNumber;
     
     /**
      * List with values for each single load-cell.
@@ -93,17 +93,17 @@ public class WeightDetailsDto {
         this.loadCellList = loadCellList;
     }
 
-    public String getDescription() {
-        return description;
+    public int getLoadCellNumber() {
+        return loadCellNumber;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setLoadCellNumber(int loadCellNumber) {
+        this.loadCellNumber = loadCellNumber;
     }
 
     @Override
     public String toString() {
-        return "WeightDetailsDto{" + "weightSumKg=" + weightSumKg + ", loadCellAmount=" + loadCellAmount + ", maxWeightSum=" + maxWeightSum + ", ticks=" + ticks + ", description=" + description + ", loadCellList=" + loadCellList + '}';
+        return "WeightDetailsDto{" + "weightSumKg=" + weightSumKg + ", loadCellAmount=" + loadCellAmount + ", maxWeightSum=" + maxWeightSum + ", ticks=" + ticks + ", loadCellNumber=" + loadCellNumber + ", loadCellList=" + loadCellList + '}';
     }
 
 }
