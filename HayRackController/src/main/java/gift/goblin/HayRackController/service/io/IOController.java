@@ -616,73 +616,123 @@ public class IOController implements MaintenanceManager, WeightManager {
 
     @RequiresRaspberry
     @Override
-    public long measureWeightLoadCell1() {
+    public Long measureWeightLoadCell1() {
         long measurement = hx711LoadCell1.measure();
-        logger.info("Measured weight of load-cell #1: " + measurement);
+        logger.debug("Measured weight of load-cell #1: " + measurement);
         return measurement;
     }
 
     @RequiresRaspberry
     @Override
-    public long measureWeightLoadCell2() {
+    public Long measureWeightLoadCell2() {
         long measurement = hx711LoadCell2.measure();
-        logger.info("Measured weight of load-cell #2: " + measurement);
+        logger.debug("Measured weight of load-cell #2: " + measurement);
         return measurement;
     }
 
     @RequiresRaspberry
     @Override
-    public long measureWeightLoadCell3() {
+    public Long measureWeightLoadCell3() {
         long measurement = hx711LoadCell3.measure();
-        logger.info("Measured weight of load-cell #3: " + measurement);
+        logger.debug("Measured weight of load-cell #3: " + measurement);
         return measurement;
     }
 
     @RequiresRaspberry
     @Override
-    public long measureWeightLoadCell4() {
+    public Long measureWeightLoadCell4() {
         long measurement = hx711LoadCell4.measure();
-        logger.info("Measured weight of load-cell #4: " + measurement);
+        logger.debug("Measured weight of load-cell #4: " + measurement);
         return measurement;
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell1() {
-
-        long tareValue = hx711LoadCell1.measureAndSetTare();
-        logger.info("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
-        return tareValue;
+        
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell1 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 1) {
+            logger.warn("measureAndSetTareLoadCell1 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell1.measureAndSetTare();
+            logger.debug("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
+            return tareValue;
+        }
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell2() {
-        long tareValue = hx711LoadCell2.measureAndSetTare();
-        logger.info("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
-        return tareValue;
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell2 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 2) {
+            logger.warn("measureAndSetTareLoadCell2 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell2.measureAndSetTare();
+            logger.debug("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
+            return tareValue;
+        }
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell3() {
-        long tareValue = hx711LoadCell3.measureAndSetTare();
-        logger.info("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
-        return tareValue;
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell3 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 3) {
+            logger.warn("measureAndSetTareLoadCell3 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell3.measureAndSetTare();
+            logger.debug("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
+            return tareValue;
+        }
     }
 
     @RequiresRaspberry
     @Override
     public Long measureAndSetTareLoadCell4() {
-        long tareValue = hx711LoadCell4.measureAndSetTare();
-        logger.info("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
-        return tareValue;
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell4 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 4) {
+            logger.warn("measureAndSetTareLoadCell4 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell4.measureAndSetTare();
+            logger.debug("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
+            return tareValue;
+        }
     }
 
     @RequiresRaspberry
     @Override
-    public long measureWeight() {
-        return measureWeightLoadCell1() + measureWeightLoadCell2() + measureWeightLoadCell3() + measureWeightLoadCell4();
+    public Long measureWeight() {
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureWeight called, but load-cells arent activated!");
+            return new Long(0);
+        }
+        long sum = 0;
+        if (getLoadCellAmount() >= 4) {
+            sum += measureWeightLoadCell4();
+        }
+        if (getLoadCellAmount() >= 3) {
+            sum += measureWeightLoadCell3();
+        }
+        if (getLoadCellAmount() >= 2) {
+            sum += measureWeightLoadCell2();
+        }
+        if (getLoadCellAmount() >= 1) {
+            sum += measureWeightLoadCell4();
+        }
+        
+        return sum;
     }
 
     @RequiresRaspberry
@@ -729,5 +779,5 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void setLoadCellAmount(int loadCellAmount) {
         this.loadCellAmount = loadCellAmount;
     }
-
+    
 }

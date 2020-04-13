@@ -15,7 +15,8 @@ public interface WeightManager {
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value. Can be null if raspberry isnt initialized well.
+     * @return the tare value. Can be null if raspberry isnt initialized well or
+     * the amount is load cells is to low and this loadcell will be ignored.
      */
     Long measureAndSetTareLoadCell1();
 
@@ -23,7 +24,8 @@ public interface WeightManager {
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value. Can be null if raspberry isnt initialized well.
+     * @return the tare value. Can be null if raspberry isnt initialized well or
+     * the amount is load cells is to low and this loadcell will be ignored.
      */
     Long measureAndSetTareLoadCell2();
 
@@ -31,7 +33,8 @@ public interface WeightManager {
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value. Can be null if raspberry isnt initialized well.
+     * @return the tare value. Can be null if raspberry isnt initialized well or
+     * the amount is load cells is to low and this loadcell will be ignored.
      */
     Long measureAndSetTareLoadCell3();
 
@@ -39,7 +42,8 @@ public interface WeightManager {
      * Sets the tare of that load-cell.So the current weight on the scale will
      * be set as the zero value without load.
      *
-     * @return the tare value. Can be null if raspberry isnt initialized well.
+     * @return the tare value. Can be null if raspberry isnt initialized well or
+     * the amount is load cells is to low and this loadcell will be ignored.
      */
     Long measureAndSetTareLoadCell4();
 
@@ -48,9 +52,9 @@ public interface WeightManager {
      * read and set the last tare value to all load-cells (by using AOP - so dont
      * change method name!)
      *
-     * @return the weight in gram.
+     * @return the weight in gram, or null if load-cells are deactivated or misconfigured.
      */
-    long measureWeight();
+    Long measureWeight();
 
     /**
      * Measures the weight of the load-cell- will not using the last tare value,
@@ -58,7 +62,7 @@ public interface WeightManager {
      *
      * @return the weight in grams.
      */
-    long measureWeightLoadCell1();
+    Long measureWeightLoadCell1();
 
     /**
      * Measures the weight of the load-cell- will not using the last tare value,
@@ -66,7 +70,7 @@ public interface WeightManager {
      *
      * @return the weight in grams.
      */
-    long measureWeightLoadCell2();
+    Long measureWeightLoadCell2();
 
     /**
      * Measures the weight of the load-cell- will not using the last tare value,
@@ -74,7 +78,7 @@ public interface WeightManager {
      *
      * @return the weight in grams.
      */
-    long measureWeightLoadCell3();
+    Long measureWeightLoadCell3();
 
     /**
      * Measures the weight of the load-cell- will not using the last tare value,
@@ -82,7 +86,7 @@ public interface WeightManager {
      *
      * @return the weight in grams.
      */
-    long measureWeightLoadCell4();
+    Long measureWeightLoadCell4();
     
     /**
      * Sets the tare value for load-cell #1.

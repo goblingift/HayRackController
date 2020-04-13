@@ -9,6 +9,7 @@ import gift.goblin.HayRackController.database.model.event.ScheduledShutterMoveme
 import gift.goblin.HayRackController.database.embedded.repo.event.FeedingEventRepository;
 import gift.goblin.HayRackController.database.embedded.repo.event.ScheduledShutterMovementRepository;
 import gift.goblin.HayRackController.service.io.IOController;
+import gift.goblin.HayRackController.service.io.WeightMeasurementService;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -37,7 +38,7 @@ public class FeedingEventServiceImpl implements FeedingEventService {
     FeedingEventRepository feedingEventRepo;
 
     @Autowired
-    IOController iOController;
+    WeightMeasurementService weightMeasurementService;
 
     @Override
     public Long addNewFeedingEvent(long jobId) {
@@ -109,27 +110,9 @@ public class FeedingEventServiceImpl implements FeedingEventService {
         if (optFeedingEvent.isPresent()) {
             FeedingEvent feedingEvent = optFeedingEvent.get();
 
-            feedingEvent.setWeightGramStart(measureWeightSum());
+            feedingEvent.setWeightGramStart(weightMeasurementService.measureWeightSum());
             feedingEventRepo.save(feedingEvent);
         }
-    }
-
-    private long measureWeightSum() {
-        long sum = 0;
-
-        if (iOController.getLoadCellAmount() >= 4) {
-            sum += iOController.measureWeightLoadCell4();
-        }
-        if (iOController.getLoadCellAmount() >= 3) {
-            sum += iOController.measureWeightLoadCell3();
-        }
-        if (iOController.getLoadCellAmount() >= 2) {
-            sum += iOController.measureWeightLoadCell2();
-        }
-        if (iOController.getLoadCellAmount() >= 1) {
-            sum += iOController.measureWeightLoadCell1();
-        }
-        return sum;
     }
 
     @Override
@@ -137,7 +120,7 @@ public class FeedingEventServiceImpl implements FeedingEventService {
         Optional<FeedingEvent> optFeedingEvent = feedingEventRepo.findById(feedingEntryId);
         if (optFeedingEvent.isPresent()) {
             FeedingEvent feedingEvent = optFeedingEvent.get();
-            long sum = measureWeightSum();
+            long sum = weightMeasurementService.measureWeightSum();
 
             long weightGramStart = feedingEvent.getWeightGramStart();
             long consumption = weightGramStart - sum;

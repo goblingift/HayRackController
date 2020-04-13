@@ -3,8 +3,63 @@
     <body>
 
         <div th:replace="header_navigation :: header_nav"></div>
-        
-        <h2>In Progress...</h2>
+
+        <div class="container-fluid">
+
+            <div th:if="${error_message != null}" class="alert alert-dark alert-dismissible fade show" role="alert">
+                <p><strong th:text="#{${error_message}}"></strong></p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <div class="row">
+                <div class="col text-center align-self-center">
+                    <canvas data-type="radial-gauge"
+                            data-units="Load Cell sum kg"
+                            data-width="600"
+                            data-height="600"
+                            th:data-value="${weightDetailsDto.weightSumKg}"
+                            data-min-value="0"
+                            th:data-max-value="${weightDetailsDto.maxWeightSum}"
+                            data-minor-ticks="2"
+                            th:data-major-ticks="${weightDetailsDto.ticks}"
+                            data-value-dec="1"
+                            data-highlights='[
+                            {"from": 0, "to": 0, "color": "rgba(200, 50, 50, .75)"}
+                            ]'
+                            />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col text-center align-self-center">
+                    <button th:id="weight-reload-btn" th:cam-id="${i}" class="weight-reload-btn btn btn-primary btn-lg">
+                        <i th:id="${'weight-reload-icon-' + i}" class="fa fa-sync-alt fa-4x"></i>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col" th:each="element, state : ${weightDetailsDto.loadCellList}">
+                    <canvas data-type="radial-gauge"
+                            th:data-units="${element.description}"
+                            data-width="400"
+                            data-height="400"
+                            th:data-value="${element.weightSumKg}"
+                            data-min-value="0"
+                            th:data-max-value="${element.maxWeightSum}"
+                            data-minor-ticks="2"
+                            th:data-major-ticks="${element.ticks}"
+                            data-value-dec="1"
+                            data-highlights='[
+                            {"from": 0, "to": 0, "color": "rgba(200, 50, 50, .75)"}
+                            ]'
+                            />
+                </div>
+            </div>
+        </div>
 
     </body>
 </html>

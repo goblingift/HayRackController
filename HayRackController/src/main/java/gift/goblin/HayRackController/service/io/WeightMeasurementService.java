@@ -5,8 +5,10 @@
 package gift.goblin.HayRackController.service.io;
 
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
+import gift.goblin.HayRackController.controller.model.LoadCellSettings;
 import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
 import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
+import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -31,6 +33,9 @@ public class WeightMeasurementService {
 
     @Autowired
     TareMeasurementRepository tareRepo;
+
+    @Autowired
+    private ConfigurationService configurationService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -99,6 +104,84 @@ public class WeightMeasurementService {
             logger.warn("Exception while sleep while measure weights!", ex);
         }
         return measuredSuccessful;
+    }
+
+    public long measureWeightSum() {
+        long sum = 0;
+
+        if (ioController.getLoadCellAmount() >= 4) {
+            sum += ioController.measureWeightLoadCell4();
+        }
+        if (ioController.getLoadCellAmount() >= 3) {
+            sum += ioController.measureWeightLoadCell3();
+        }
+        if (ioController.getLoadCellAmount() >= 2) {
+            sum += ioController.measureWeightLoadCell2();
+        }
+        if (ioController.getLoadCellAmount() >= 1) {
+            sum += ioController.measureWeightLoadCell1();
+        }
+        return sum;
+    }
+
+    public Long measureWeightLoadCell1() {
+        return ioController.measureWeightLoadCell1();
+    }
+
+    public Long measureWeightLoadCell2() {
+        return ioController.measureWeightLoadCell2();
+    }
+
+    public Long measureWeightLoadCell3() {
+        return ioController.measureWeightLoadCell3();
+    }
+
+    public Long measureWeightLoadCell4() {
+        return ioController.measureWeightLoadCell4();
+    }
+
+    /**
+     * Reads the configured max-weight of the loadcell from the embedded
+     * config-database.
+     *
+     * @return the max weight in kg, or 0 if not saved.
+     */
+    public int getMaxWeightLoadCell1() {
+        LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
+        return loadCellSettings.getLoadCellMax1();
+    }
+
+    /**
+     * Reads the configured max-weight of the loadcell from the embedded
+     * config-database.
+     *
+     * @return the max weight in kg, or 0 if not saved.
+     */
+    public int getMaxWeightLoadCell2() {
+        LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
+        return loadCellSettings.getLoadCellMax2();
+    }
+
+    /**
+     * Reads the configured max-weight of the loadcell from the embedded
+     * config-database.
+     *
+     * @return the max weight in kg, or 0 if not saved.
+     */
+    public int getMaxWeightLoadCell3() {
+        LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
+        return loadCellSettings.getLoadCellMax3();
+    }
+
+    /**
+     * Reads the configured max-weight of the loadcell from the embedded
+     * config-database.
+     *
+     * @return the max weight in kg, or 0 if not saved.
+     */
+    public int getMaxWeightLoadCell4() {
+        LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
+        return loadCellSettings.getLoadCellMax4();
     }
 
 }
