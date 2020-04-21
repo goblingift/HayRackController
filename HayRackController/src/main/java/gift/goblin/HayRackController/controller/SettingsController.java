@@ -70,7 +70,7 @@ public class SettingsController {
 
     @Autowired
     private MaintenanceManager maintenanceManager;
-    
+
     /**
      * Default render method for the dashboard.
      *
@@ -92,9 +92,9 @@ public class SettingsController {
 
         SoundSettings soundSettings = configurationService.getSoundSettings();
         LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
-        
+
         logger.info("got loadcell settings successful:" + loadCellSettings);
-        
+
         model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
         model.addAttribute("soundSettings", soundSettings);
         model.addAttribute("loadCellSettings", loadCellSettings);
@@ -187,13 +187,13 @@ public class SettingsController {
     @PostMapping(value = {"/settings/load-cell/save"})
     public String saveLoadCellSettings(@ModelAttribute LoadCellSettings settings, BindingResult bindingResult, Model model) {
         logger.info("Triggered saveLoadCellSettings with settings: {}", settings);
-        
+
         LoadCellSettings oldSettings = configurationService.getLoadCellSettings();
-        
+
         configurationService.saveSettings(settings);
-        
+
         iOController.setLoadCellAmount(settings.getAmount());
-        
+
         if (!oldSettings.isEnabled() && settings.isEnabled()) {
             logger.info("Load-cells were activated, initialize load-cells now...");
             if (settings.getAmount() >= 4) {
@@ -208,13 +208,18 @@ public class SettingsController {
             if (settings.getAmount() >= 1) {
                 iOController.initializeLoadCell1(settings);
             }
-            
         }
-        
-        if (!settings.isEnabled()) {
-            iOController.setLoadCellsActivated(false);
+
+        if (oldSettings.isEnabled() && !settings.isEnabled()) {
+            logger.info("Load-cells were deactivated, release IO pins now...");
+            iOController.releasePinsLoadCell1();
+            iOController.releasePinsLoadCell2();
+            iOController.releasePinsLoadCell3();
+            iOController.releasePinsLoadCell4();
         }
-        
+
+        iOController.setLoadCellsActivated(settings.isEnabled());
+
         return renderSettings(model);
     }
 

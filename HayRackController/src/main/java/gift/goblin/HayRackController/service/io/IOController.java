@@ -285,6 +285,34 @@ public class IOController implements MaintenanceManager, WeightManager {
     }
 
     @RequiresRaspberry
+    public void releasePinsLoadCell1() {
+        logger.info("Releasing pins for load-cell 1...");
+        gpioController.unprovisionPin(pinLoadCell1Dat, pinLoadCell1Sck);
+        hx711LoadCell1 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell2() {
+        logger.info("Releasing pins for load-cell 2...");
+        gpioController.unprovisionPin(pinLoadCell2Dat, pinLoadCell2Sck);
+        hx711LoadCell2 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell3() {
+        logger.info("Releasing pins for load-cell 3...");
+        gpioController.unprovisionPin(pinLoadCell3Dat, pinLoadCell3Sck);
+        hx711LoadCell3 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell4() {
+        logger.info("Releasing pins for load-cell 4...");
+        gpioController.unprovisionPin(pinLoadCell4Dat, pinLoadCell4Sck);
+        hx711LoadCell4 = null;
+    }
+
+    @RequiresRaspberry
     public void initializeLoadCell1(LoadCellSettings loadCellSettings) {
         logger.info("Start initializing load-cell #1...");
         pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT1()),
@@ -644,7 +672,7 @@ public class IOController implements MaintenanceManager, WeightManager {
 
     @Override
     public Long measureAndSetTareLoadCell1() {
-        
+
         if (!isLoadCellsActivated()) {
             logger.warn("measureAndSetTareLoadCell1 called, but load-cells arent activated!");
             return null;
@@ -723,7 +751,7 @@ public class IOController implements MaintenanceManager, WeightManager {
         if (getLoadCellAmount() >= 1) {
             sum += measureWeightLoadCell4();
         }
-        
+
         return sum;
     }
 
@@ -771,5 +799,5 @@ public class IOController implements MaintenanceManager, WeightManager {
     public void setLoadCellAmount(int loadCellAmount) {
         this.loadCellAmount = loadCellAmount;
     }
-    
+
 }
