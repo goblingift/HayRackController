@@ -173,7 +173,11 @@
 
                                     <div class="card my-1" th:each="i : ${#numbers.sequence( 1, loadCellSettings.amount)}">
                                         <div class="card-header">
-                                            <a class="card-link" th:text="#{settings.header_scale}"/>
+                                            <a class="card-link">
+                                                <a th:text="#{settings.header_scale_1}"/>
+                                                <a th:text="${i}" />
+                                                <a th:text="#{settings.header_scale_2}"/>
+                                            </a> 
                                         </div>
                                         <div id="collapseOne" class="collapse show" data-parent="#accordion">
                                             <div class="card-body">

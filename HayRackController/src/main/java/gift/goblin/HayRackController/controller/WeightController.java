@@ -9,6 +9,7 @@ import gift.goblin.HayRackController.service.io.IOController;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.WeightMeasurementService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.tools.NumberConverterUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,13 +39,16 @@ public class WeightController {
     private WebcamDeviceService webcamService;
 
     @Autowired
-    WeightMeasurementService weightMeasurementService;
+    private WeightMeasurementService weightMeasurementService;
 
     @Autowired
-    IOController iOController;
+    private IOController iOController;
 
     @Autowired
-    StringUtils stringUtils;
+    private StringUtils stringUtils;
+    
+    @Autowired
+    private NumberConverterUtil numberConverterUtil;
 
     @GetMapping(value = "/weight")
     public String renderWeightOverview(Model model) {
@@ -85,7 +89,7 @@ public class WeightController {
 
         List<WeightDetailsDto> singleLoadCells = new ArrayList<>();
 
-        int weightSum = 0;
+        double weightSum = 0;
         int maxWeightSum = 0;
 
         if (loadCellAmount >= 1) {
@@ -94,16 +98,17 @@ public class WeightController {
 
             String ticksLoadCell1 = stringUtils.createTicksString(maxWeightLoadCell1);
             Long weightLoadCell1 = weightMeasurementService.measureWeightLoadCell1();
-
+            double convertedGramsToKg = numberConverterUtil.convertGramsToKg(weightLoadCell1);
+            
             // fallback, required if raspberry isnt initialized!
             if (weightLoadCell1 != null) {
-                weightSum += weightLoadCell1;
+                weightSum += convertedGramsToKg;
             } else {
                 logger.warn("NULL value returned when calling weightMeasurementService.measureWeightLoadCell1() - Ignore, if no raspberry is initialized!");
                 weightLoadCell1 = new Long(0);
             }
 
-            WeightDetailsDto loadCell1Data = new WeightDetailsDto(weightLoadCell1, maxWeightLoadCell1, ticksLoadCell1, 1);
+            WeightDetailsDto loadCell1Data = new WeightDetailsDto(convertedGramsToKg, maxWeightLoadCell1, ticksLoadCell1, 1);
             singleLoadCells.add(loadCell1Data);
         }
         if (loadCellAmount >= 2) {
@@ -112,16 +117,17 @@ public class WeightController {
 
             String ticksLoadCell2 = stringUtils.createTicksString(maxWeightLoadCell2);
             Long weightLoadCell2 = weightMeasurementService.measureWeightLoadCell2();
-
+            double convertedGramsToKg = numberConverterUtil.convertGramsToKg(weightLoadCell2);
+            
             // fallback, required if raspberry isnt initialized!
             if (weightLoadCell2 != null) {
-                weightSum += weightLoadCell2;
+                weightSum += convertedGramsToKg;
             } else {
                 logger.warn("NULL value returned when calling weightMeasurementService.measureWeightLoadCell2() - Ignore, if no raspberry is initialized!");
                 weightLoadCell2 = new Long(0);
             }
 
-            WeightDetailsDto loadCell2Data = new WeightDetailsDto(weightLoadCell2, maxWeightLoadCell2, ticksLoadCell2, 2);
+            WeightDetailsDto loadCell2Data = new WeightDetailsDto(convertedGramsToKg, maxWeightLoadCell2, ticksLoadCell2, 2);
             singleLoadCells.add(loadCell2Data);
         }
         if (loadCellAmount >= 3) {
@@ -130,16 +136,17 @@ public class WeightController {
 
             String ticksLoadCell3 = stringUtils.createTicksString(maxWeightLoadCell3);
             Long weightLoadCell3 = weightMeasurementService.measureWeightLoadCell3();
-
+            double convertedGramsToKg = numberConverterUtil.convertGramsToKg(weightLoadCell3);
+            
             // fallback, required if raspberry isnt initialized!
             if (weightLoadCell3 != null) {
-                weightSum += weightLoadCell3;
+                weightSum += convertedGramsToKg;
             } else {
                 logger.warn("NULL value returned when calling weightMeasurementService.measureWeightLoadCell3() - Ignore, if no raspberry is initialized!");
                 weightLoadCell3 = new Long(0);
             }
 
-            WeightDetailsDto loadCell3Data = new WeightDetailsDto(weightLoadCell3, maxWeightLoadCell3, ticksLoadCell3, 3);
+            WeightDetailsDto loadCell3Data = new WeightDetailsDto(convertedGramsToKg, maxWeightLoadCell3, ticksLoadCell3, 3);
             singleLoadCells.add(loadCell3Data);
         }
         if (loadCellAmount >= 4) {
@@ -148,16 +155,17 @@ public class WeightController {
 
             String ticksLoadCell4 = stringUtils.createTicksString(maxWeightLoadCell4);
             Long weightLoadCell4 = weightMeasurementService.measureWeightLoadCell4();
-
+            double convertedGramsToKg = numberConverterUtil.convertGramsToKg(weightLoadCell4);
+            
             // fallback, required if raspberry isnt initialized!
             if (weightLoadCell4 != null) {
-                weightSum += weightLoadCell4;
+                weightSum += convertedGramsToKg;
             } else {
                 logger.warn("NULL value returned when calling weightMeasurementService.measureWeightLoadCell4() - Ignore, if no raspberry is initialized!");
                 weightLoadCell4 = new Long(0);
             }
 
-            WeightDetailsDto loadCell4Data = new WeightDetailsDto(weightLoadCell4, maxWeightLoadCell4, ticksLoadCell4, 4);
+            WeightDetailsDto loadCell4Data = new WeightDetailsDto(convertedGramsToKg, maxWeightLoadCell4, ticksLoadCell4, 4);
             singleLoadCells.add(loadCell4Data);
         }
 

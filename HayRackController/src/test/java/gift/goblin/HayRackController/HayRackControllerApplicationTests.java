@@ -1,5 +1,6 @@
 package gift.goblin.HayRackController;
 
+import gift.goblin.HayRackController.service.tools.NumberConverterUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,6 +23,16 @@ public class HayRackControllerApplicationTests {
     }
 
     @Test
+    public void testCreateTicksString2000() {
+
+        StringUtils stringUtils = new StringUtils();
+
+        String result = stringUtils.createTicksString(2000);
+        System.out.println("XYZ:" + result);
+        Assert.assertEquals("0,200,400,600,800,1000,1200,1400,1600,1800,2000", result);
+    }
+
+    @Test
     public void testCreateTicksString3() {
 
         StringUtils stringUtils = new StringUtils();
@@ -29,6 +40,15 @@ public class HayRackControllerApplicationTests {
         String result = stringUtils.createTicksString(3);
         System.out.println("XYZ:" + result);
         Assert.assertEquals("0,0.3,0.6,0.9,1.2,1.5,1.8,2.1,2.4,2.7,3", result);
+    }
+
+    @Test
+    public void testNumberConverterUtil() {
+
+        NumberConverterUtil numberConverterUtil = new NumberConverterUtil();
+
+        double result = numberConverterUtil.convertGramsToKg(89_570);
+        Assert.assertEquals(89.6d, result, 1e-15);
     }
 
 }

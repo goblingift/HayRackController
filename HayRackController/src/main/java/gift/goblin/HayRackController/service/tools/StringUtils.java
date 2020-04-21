@@ -62,7 +62,7 @@ public class StringUtils {
 
         for (int i = 1; i <= 10; i++) {
             double value = diff * i;
-            sb.append(",").append(formatter.format(value));
+            sb.append(",").append(formatter.format(value).replace(",", ""));
         }
 
         return sb.toString();

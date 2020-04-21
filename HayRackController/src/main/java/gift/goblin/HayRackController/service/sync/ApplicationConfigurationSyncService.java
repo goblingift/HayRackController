@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import gift.goblin.HayRackController.database.backup.repo.configuration.ApplicationConfigurationBackupRepository;
 import gift.goblin.HayRackController.database.embedded.repo.configuration.ApplicationConfigurationRepository;
+import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
 import gift.goblin.HayRackController.database.model.configuration.ApplicationConfiguration;
 import gift.goblin.HayRackController.database.model.configuration.ConfigurationType;
+import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
 import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.io.IOController;
 import java.time.LocalDateTime;
@@ -41,6 +43,9 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
 
     @Autowired
     private ConfigurationService configurationService;
+
+    @Autowired
+    private TareMeasurementRepository tareMeasurementRepository;
 
     @Override
     public int backupValues() {
@@ -92,8 +97,7 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
         // If load-cells were activated in the config, initialize them
         Optional<ApplicationConfiguration> optLoadCellActivatedConfig = synchronizedEntities.stream()
                 .filter(c -> c.getConfigurationId() == ConfigurationType.LOADCELLS_ACTIVATED.getId()).findFirst();
-        logger.info(optLoadCellActivatedConfig.toString());
-        
+
         if (optLoadCellActivatedConfig.isPresent() && optLoadCellActivatedConfig.get().getValue().equals(Boolean.TRUE.toString())) {
             initializeLoadCells();
         } else {
@@ -110,26 +114,45 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
      * @param configEntities
      */
     private void initializeLoadCells() {
-        
-        logger.info("Start initializing load cells now...");
 
         LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
-        logger.info("X:" + loadCellSettings);
+        logger.info("Start initializing load cells now with following settings: {}", loadCellSettings);
         if (loadCellSettings.isEnabled()) {
             logger.info("Load-cells were activated in the loaded configuration, initialize load-cells now...");
+
+            Optional<TareMeasurement> optTareMeasurement = Optional.empty();
+            try {
+                logger.info("Try to read the last tare-measurement, to initialize load-cells correctly...");
+                optTareMeasurement = tareMeasurementRepository.findTop1ByOrderByMeasuredAtDesc();
+            } catch (Exception e) {
+                logger.error("Exception while try to read the last tare measurement entry!", e);
+            }
+
             if (loadCellSettings.getAmount() >= 4) {
                 iOController.initializeLoadCell4(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell4(optTareMeasurement.get().getTareLoadCell4());
+                }
             }
             if (loadCellSettings.getAmount() >= 3) {
                 iOController.initializeLoadCell3(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell3(optTareMeasurement.get().getTareLoadCell3());
+                }
             }
             if (loadCellSettings.getAmount() >= 2) {
                 iOController.initializeLoadCell2(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell2(optTareMeasurement.get().getTareLoadCell2());
+                }
             }
             if (loadCellSettings.getAmount() >= 1) {
                 iOController.initializeLoadCell1(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell1(optTareMeasurement.get().getTareLoadCell1());
+                }
             }
-            
+
             iOController.setLoadCellAmount(loadCellSettings.getAmount());
             iOController.setLoadCellsActivated(true);
         }

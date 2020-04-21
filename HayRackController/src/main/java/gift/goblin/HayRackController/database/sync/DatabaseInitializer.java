@@ -50,8 +50,8 @@ public class DatabaseInitializer {
         temperatureSyncService.prefillEmbeddedDatabase();
         scheduledShutterMovementSyncService.prefillEmbeddedDatabase();
         temperatureDailyMaxMinSyncService.prefillEmbeddedDatabase();
-        applicationConfigurationSyncService.prefillEmbeddedDatabase();
         tareMeasurementSyncService.prefillEmbeddedDatabase();
+        applicationConfigurationSyncService.prefillEmbeddedDatabase();
         feedingEventSyncService.prefillEmbeddedDatabase();
     }
 
