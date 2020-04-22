@@ -29,5 +29,16 @@ public class NumberConverterUtil {
         bd = bd.setScale(1, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+    
+    /**
+     * Rounds the given double to two decimal places.
+     * @param value the double value.
+     * @return e.g. "89.13".
+     */
+    public String roundDoubleTwoDecimals(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.toString();
+    }
 
 }

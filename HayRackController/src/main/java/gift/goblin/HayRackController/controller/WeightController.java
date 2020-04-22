@@ -70,8 +70,13 @@ public class WeightController {
     public @ResponseBody
     WeightDetailsDto measureLoadCells() throws IOException {
         logger.info("Called measureLoadCells!");
-
-        return readLoadCells();
+        
+        if (!iOController.isRaspberryInitialized()) {
+            logger.warn("Raspberry PI isnt initalized- return fake data for load-cell measurement.");
+            return new WeightDetailsDto(120.0, 200, "0,20,40,60,80,100,120,140,160,180,200", 1);
+        } else {
+            return readLoadCells();
+        }
     }
 
     /**
@@ -174,7 +179,7 @@ public class WeightController {
         returnValue.setWeightSumKg(weightSum);
         String ticksSum = stringUtils.createTicksString(maxWeightSum);
         returnValue.setTicks(ticksSum);
-
+        
         return returnValue;
     }
 

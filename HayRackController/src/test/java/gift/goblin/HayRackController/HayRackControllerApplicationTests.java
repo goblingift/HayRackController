@@ -1,7 +1,9 @@
 package gift.goblin.HayRackController;
 
+import gift.goblin.HayRackController.service.tools.DateAndTimeUtil;
 import gift.goblin.HayRackController.service.tools.NumberConverterUtil;
 import gift.goblin.HayRackController.service.tools.StringUtils;
+import java.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,4 +53,14 @@ public class HayRackControllerApplicationTests {
         Assert.assertEquals(89.6d, result, 1e-15);
     }
 
+    @Test
+    public void testDateAndTimeUtil() {
+        
+        DateAndTimeUtil dateAndTimeUtil = new DateAndTimeUtil();
+        
+        LocalDateTime ldt = LocalDateTime.of(2020, 4, 22, 20, 3);
+        String convertedDateTime = dateAndTimeUtil.convertToReadableDateTime(ldt);
+        Assert.assertEquals("Mi 20:03", convertedDateTime);
+    }
+    
 }
