@@ -20,7 +20,7 @@ import javax.persistence.Table;
 @Entity
 @Table
 public class TemperatureMeasurement {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long temperateMeasurementId;

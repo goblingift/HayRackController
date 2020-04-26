@@ -4,36 +4,33 @@
  */
 package gift.goblin.HayRackController.service.io;
 
+import gift.goblin.HayRackController.service.io.interfaces.MaintenanceManager;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import com.pi4j.io.gpio.trigger.GpioBlinkStateTrigger;
-import com.pi4j.io.gpio.trigger.GpioBlinkStopStateTrigger;
-import com.pi4j.io.gpio.trigger.GpioSetStateTrigger;
+import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
 import com.pi4j.wiringpi.Gpio;
-import com.pi4j.wiringpi.GpioUtil;
 import gift.goblin.HayRackController.aop.RequiresRaspberry;
+import gift.goblin.HayRackController.controller.model.LoadCellSettings;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
+import gift.goblin.HayRackController.service.io.interfaces.WeightManager;
 import gift.goblin.HayRackController.service.io.model.Playlist;
-import java.util.Map;
+import gift.goblin.HayRackController.service.io.trigger.MaintenanceTrigger;
+import gift.goblin.HayRackController.service.io.trigger.ShowRemainingFoodTrigger;
+import gift.goblin.HayRackController.service.io.trigger.TareTrigger;
+import gift.goblin.hx711.GainFactor;
+import gift.goblin.hx711.Hx711;
 import java.util.Optional;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class IOController {
+public class IOController implements MaintenanceManager, WeightManager {
 
     private static final int OPENING_CLOSING_TIME_MS = 30_000;
 
@@ -54,14 +51,43 @@ public class IOController {
     private static final int PIN_NO_LIGHT_AND_SOUND = 25;
     private static final int PIN_NO_RELAY_OPEN_MOTOR = 28;
     private static final int PIN_NO_RELAY_CLOSE_MOTOR = 29;
+    private static final int PIN_NO_LOAD_CELL_1_DAT = 15;
+    private static final int PIN_NO_LOAD_CELL_1_SCK = 16;
+    private static final int PIN_NO_LOAD_CELL_2_DAT = 4;
+    private static final int PIN_NO_LOAD_CELL_2_SCK = 5;
+    private static final int PIN_NO_LOAD_CELL_3_DAT = 6;
+    private static final int PIN_NO_LOAD_CELL_3_SCK = 10;
+    private static final int PIN_NO_LOAD_CELL_4_DAT = 11;
+    private static final int PIN_NO_LOAD_CELL_4_SCK = 31;
+    private static final int PIN_NO_BUTTON_MAINTENANCE = 1;
+    private static final int PIN_NO_RELAY_LIGHT_MAINTENANCE = 21;
+    private static final int PIN_NO_BUTTON_TARE = 2;
+    private static final int PIN_NO_BUTTON_SHOW_REMAINING_FOOD = 3;
+
+    private ApplicationState applicationState = ApplicationState.UNINITIALIZED;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private GpioController gpioController;
     private boolean raspberryInitialized;
 
+    private boolean loadCellsActivated;
+    private int loadCellAmount;
+
+    private Hx711 hx711LoadCell1;
+    private Hx711 hx711LoadCell2;
+    private Hx711 hx711LoadCell3;
+    private Hx711 hx711LoadCell4;
+
+    //<editor-fold defaultstate="collapsed" desc="pinDefinitions">
+    /**
+     * Pin which triggers the motor for closing shutters.
+     */
     private GpioPinDigitalOutput pinCloseMotor;
 
+    /**
+     * Pin which triggers the motor for opening shutters.
+     */
     private GpioPinDigitalOutput pinOpenMotor;
 
     /**
@@ -84,12 +110,33 @@ public class IOController {
      * Pin for the external relay, which switches the indoor light.
      */
     private GpioPinDigitalOutput pinRelayLight;
-    
+
     /**
      * Pin for powering the temperature sensor.
      */
     private GpioPinDigitalOutput pinTempSensorVoltage;
 
+    /**
+     * Pin for the external relay, which switches the maintenance light.
+     */
+    private GpioPinDigitalOutput pinRelayLightMaintenance;
+
+    // Pins for the load cells
+    private GpioPinDigitalInput pinLoadCell1Dat;
+    private GpioPinDigitalOutput pinLoadCell1Sck;
+    private GpioPinDigitalInput pinLoadCell2Dat;
+    private GpioPinDigitalOutput pinLoadCell2Sck;
+    private GpioPinDigitalInput pinLoadCell3Dat;
+    private GpioPinDigitalOutput pinLoadCell3Sck;
+    private GpioPinDigitalInput pinLoadCell4Dat;
+    private GpioPinDigitalOutput pinLoadCell4Sck;
+
+    // Pins for the external buttons
+    private GpioPinDigitalInput pinButtonMaintenance;
+    private GpioPinDigitalInput pinButtonTare;
+    private GpioPinDigitalInput pinButtonShowRemainingFood;
+
+//</editor-fold>
     private static final int TEMPSENSOR_MAX_TIMINGS = 85;
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
     private static final int TEMPSENSOR_MAX_READ_ATTEMPTS = 5;
@@ -109,10 +156,13 @@ public class IOController {
             setupCloseShutter();
             setup12VTransformator();
             setupRelayLight();
+            setupRelayLightMaintenance();
             setupBrightnessSensor();
-            setupPinsTemperatureSensor();
+            setupTemperatureSensor();
+            setupButtons();
 
             raspberryInitialized = true;
+            applicationState = applicationState.DEFAULT;
             logger.info("Raspberry PI successful initialized!");
         } catch (UnsatisfiedLinkError e) {
             logger.warn("Couldnt initialize Raspberry PI.");
@@ -122,6 +172,36 @@ public class IOController {
 
     public boolean isRaspberryInitialized() {
         return raspberryInitialized;
+    }
+
+    /**
+     * Returns the current state of the application.
+     *
+     * @return DEFAULT when application works as expected.
+     */
+    @Override
+    public ApplicationState getApplicationState() {
+        return applicationState;
+    }
+
+    /**
+     * Starts the maintenance mode- every action on the shutters will be
+     * skipped, so every scheduler also. The feeding light will pulse to notice
+     * you about the active maintenance mode.
+     */
+    @Override
+    public void startMaintenanceMode() {
+        logger.info("Button held long enough- entering maintenance mode now!");
+        this.applicationState = ApplicationState.MAINTENANCE;
+    }
+
+    /**
+     * Application will continue to normal mode.
+     */
+    @Override
+    public void endMaintenanceMode() {
+        logger.info("Button held long enough- end maintenance mode now!");
+        this.applicationState = ApplicationState.DEFAULT;
     }
 
     @PreDestroy
@@ -138,15 +218,12 @@ public class IOController {
     }
 
     @RequiresRaspberry
-    private void setupPinsTemperatureSensor() {
+    private void setupTemperatureSensor() {
 
         pinTempSensorVoltage = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_TEMP_VOLTAGE),
                 PinState.LOW);
     }
 
-    /**
-     * Setup for the 12V transformator.
-     */
     @RequiresRaspberry
     private void setup12VTransformator() {
         pin12VTransformator = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_12V_TRANSFORMATOR),
@@ -162,6 +239,13 @@ public class IOController {
     }
 
     @RequiresRaspberry
+    private void setupRelayLightMaintenance() {
+        pinRelayLightMaintenance = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_LIGHT_MAINTENANCE),
+                "External Relay, Light Maintenance", PinState.LOW);
+        pinRelayLightMaintenance.setShutdownOptions(true, PinState.LOW);
+    }
+
+    @RequiresRaspberry
     private void setupBrightnessSensor() {
         pinBrightnessSensor = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BRIGHTNESS_SENSOR));
         pinBrightnessSensor.setShutdownOptions(true, PinState.LOW);
@@ -174,9 +258,6 @@ public class IOController {
         pinLightAndSound.setShutdownOptions(true, PinState.HIGH);
     }
 
-    /**
-     * Initialize all required pins for the open shutter functionality.
-     */
     @RequiresRaspberry
     private void setupOpenShutter() {
         pinOpenMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_OPEN_MOTOR),
@@ -190,9 +271,6 @@ public class IOController {
         });
     }
 
-    /**
-     * Initialize all required pins for the close shutter functionality.
-     */
     @RequiresRaspberry
     private void setupCloseShutter() {
         pinCloseMotor = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(PIN_NO_RELAY_CLOSE_MOTOR),
@@ -206,11 +284,100 @@ public class IOController {
         });
     }
 
+    @RequiresRaspberry
+    public void releasePinsLoadCell1() {
+        logger.info("Releasing pins for load-cell 1...");
+        gpioController.unprovisionPin(pinLoadCell1Dat, pinLoadCell1Sck);
+        hx711LoadCell1 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell2() {
+        logger.info("Releasing pins for load-cell 2...");
+        gpioController.unprovisionPin(pinLoadCell2Dat, pinLoadCell2Sck);
+        hx711LoadCell2 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell3() {
+        logger.info("Releasing pins for load-cell 3...");
+        gpioController.unprovisionPin(pinLoadCell3Dat, pinLoadCell3Sck);
+        hx711LoadCell3 = null;
+    }
+
+    @RequiresRaspberry
+    public void releasePinsLoadCell4() {
+        logger.info("Releasing pins for load-cell 4...");
+        gpioController.unprovisionPin(pinLoadCell4Dat, pinLoadCell4Sck);
+        hx711LoadCell4 = null;
+    }
+
+    @RequiresRaspberry
+    public void initializeLoadCell1(LoadCellSettings loadCellSettings) {
+        logger.info("Start initializing load-cell #1...");
+        pinLoadCell1Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT1()),
+                "Load-cell 1 DAT", PinPullResistance.OFF);
+        pinLoadCell1Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK1()),
+                "Load-cell 1 SCK", PinState.LOW);
+        hx711LoadCell1 = new Hx711(pinLoadCell1Dat, pinLoadCell1Sck, loadCellSettings.getLoadCellMax1(), loadCellSettings.getLoadCellMVV1(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #1 with these settings: " + loadCellSettings.toString());
+        this.setLoadCellsActivated(true);
+    }
+
+    @RequiresRaspberry
+    public void initializeLoadCell2(LoadCellSettings loadCellSettings) {
+        pinLoadCell2Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT2()),
+                "Load-cell 2 DAT", PinPullResistance.OFF);
+        pinLoadCell2Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK2()),
+                "Load-cell 2 SCK", PinState.LOW);
+        hx711LoadCell2 = new Hx711(pinLoadCell2Dat, pinLoadCell2Sck, loadCellSettings.getLoadCellMax2(), loadCellSettings.getLoadCellMVV2(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #2 with these settings: " + loadCellSettings.toString());
+        this.setLoadCellsActivated(true);
+    }
+
+    @RequiresRaspberry
+    public void initializeLoadCell3(LoadCellSettings loadCellSettings) {
+        pinLoadCell3Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT3()),
+                "Load-cell 3 DAT", PinPullResistance.OFF);
+        pinLoadCell3Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK3()),
+                "Load-cell 3 SCK", PinState.LOW);
+        hx711LoadCell3 = new Hx711(pinLoadCell3Dat, pinLoadCell3Sck, loadCellSettings.getLoadCellMax3(), loadCellSettings.getLoadCellMVV3(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #3 with these settings: " + loadCellSettings.toString());
+        this.setLoadCellsActivated(true);
+    }
+
+    @RequiresRaspberry
+    public void initializeLoadCell4(LoadCellSettings loadCellSettings) {
+        pinLoadCell4Dat = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellDAT4()),
+                "Load-cell 4 DAT", PinPullResistance.OFF);
+        pinLoadCell4Sck = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByAddress(loadCellSettings.getLoadCellSCK4()),
+                "Load-cell 4 SCK", PinState.LOW);
+        hx711LoadCell4 = new Hx711(pinLoadCell4Dat, pinLoadCell4Sck, loadCellSettings.getLoadCellMax4(), loadCellSettings.getLoadCellMVV4(), GainFactor.GAIN_128);
+        logger.info("Successful initialized load-cell #4 with these settings: " + loadCellSettings.toString());
+        this.setLoadCellsActivated(true);
+    }
+
+    @RequiresRaspberry
+    private void setupButtons() {
+
+        pinButtonMaintenance = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_MAINTENANCE),
+                "Button maintenance", PinPullResistance.PULL_DOWN);
+
+        pinButtonTare = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_TARE),
+                "Button tare", PinPullResistance.PULL_DOWN);
+
+        pinButtonShowRemainingFood = gpioController.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_NO_BUTTON_SHOW_REMAINING_FOOD),
+                "Button show remaining food", PinPullResistance.PULL_DOWN);
+
+        pinButtonMaintenance.addTrigger(new GpioCallbackTrigger(new MaintenanceTrigger(this, pinButtonMaintenance)));
+        pinButtonTare.addTrigger(new GpioCallbackTrigger(new TareTrigger(this, this, pinButtonTare)));
+        pinButtonShowRemainingFood.addTrigger(new GpioCallbackTrigger(new ShowRemainingFoodTrigger(this, pinButtonShowRemainingFood)));
+    }
+
 //</editor-fold>
     /**
      * Triggers the opening logic, which powers the motor to open the shutters.
      *
-     * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
@@ -239,7 +406,6 @@ public class IOController {
      * Including warn lights and warn sounds.
      *
      * @param track Contains the optional track. If empty, will play random one.
-     * @param ms the duration, how long the motor will get powered.
      * @throws InterruptedException Dont wake me up!
      */
     @RequiresRaspberry
@@ -249,21 +415,22 @@ public class IOController {
         if (!track.isPresent()) {
             track = Optional.of(Playlist.getRandomPlaylist());
         }
-        
+
         closeShutter(OPENING_CLOSING_TIME_MS);
-        
+
         playSoundAndLight(track.get());
     }
-    
+
     /**
-     * Triggers the 12V transformator with the given rhytm, to make sound and light
-     * effects.
+     * Triggers the 12V transformator with the given rhytm, to make sound and
+     * light effects.
+     *
      * @param track contains playtime and waittimes.
      * @throws InterruptedException if the sleeping goes wrong.
      */
     @RequiresRaspberry
     public void playSoundAndLight(Playlist track) throws InterruptedException {
-        
+
         logger.info("Start playing sound and light for track: {}", track.getTitle());
 
         // power on 12v transformator
@@ -283,9 +450,8 @@ public class IOController {
 
         // power off 12v transformator
         pin12VTransformator.high();
-        
+
     }
-    
 
     /**
      * Triggers the relay to power on the light.
@@ -301,6 +467,24 @@ public class IOController {
         } else {
             pinRelayLight.low();
             logger.info("Triggered relay light to: OFF");
+        }
+    }
+
+    /**
+     * Triggers the relay to power on the light for the maintenance mode.
+     *
+     * @param turnOn true if you wanna turn the light on, false if otherwise.
+     */
+    @RequiresRaspberry
+    @Override
+    public void triggerRelayLightMaintenance(boolean turnOn) {
+
+        if (turnOn) {
+            logger.info("Triggered relay maintenance-light to: ON");
+            pinRelayLightMaintenance.high();
+        } else {
+            pinRelayLightMaintenance.low();
+            logger.info("Triggered relay maintenance-light to: OFF");
         }
     }
 
@@ -382,7 +566,7 @@ public class IOController {
     }
 
     private Optional<TemperatureAndHumidity> measureTempSensorValues(final int pin) {
-        
+
         // Power on the temperature sensor
         pinTempSensorVoltage.high();
         Gpio.delay(5000);
@@ -395,7 +579,7 @@ public class IOController {
         Gpio.pinMode(pin, Gpio.OUTPUT);
         Gpio.digitalWrite(pin, Gpio.LOW);
         Gpio.delay(18);
-        
+
         Gpio.digitalWrite(pin, Gpio.HIGH);
         Gpio.delayMicroseconds(7);
         Gpio.pinMode(pin, Gpio.INPUT);
@@ -445,9 +629,9 @@ public class IOController {
             TemperatureAndHumidity temperatureAndHumidity = new TemperatureAndHumidity(c, f, h);
             returnValue = Optional.of(temperatureAndHumidity);
         } else {
-            System.out.println("Data not good, skip");
+            logger.warn("Data not good, skip");
         }
-        
+
         // Power off the temperature sensor
         pinTempSensorVoltage.low();
 
@@ -456,6 +640,164 @@ public class IOController {
 
     private boolean checkParityTempSensor() {
         return dht22_dat[4] == (dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3] & 0xFF);
+    }
+
+    @Override
+    public Long measureWeightLoadCell1() {
+        long measurement = hx711LoadCell1.measure();
+        logger.debug("Measured weight of load-cell #1: " + measurement);
+        return measurement;
+    }
+
+    @Override
+    public Long measureWeightLoadCell2() {
+        long measurement = hx711LoadCell2.measure();
+        logger.debug("Measured weight of load-cell #2: " + measurement);
+        return measurement;
+    }
+
+    @Override
+    public Long measureWeightLoadCell3() {
+        long measurement = hx711LoadCell3.measure();
+        logger.debug("Measured weight of load-cell #3: " + measurement);
+        return measurement;
+    }
+
+    @Override
+    public Long measureWeightLoadCell4() {
+        long measurement = hx711LoadCell4.measure();
+        logger.debug("Measured weight of load-cell #4: " + measurement);
+        return measurement;
+    }
+
+    @Override
+    public Long measureAndSetTareLoadCell1() {
+
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell1 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 1) {
+            logger.warn("measureAndSetTareLoadCell1 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell1.measureAndSetTare();
+            logger.info("Inside measureAndSetTareLoadCell1, tareValue:" + tareValue);
+            return tareValue;
+        }
+    }
+
+    @Override
+    public Long measureAndSetTareLoadCell2() {
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell2 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 2) {
+            logger.warn("measureAndSetTareLoadCell2 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell2.measureAndSetTare();
+            logger.info("Inside measureAndSetTareLoadCell2, tareValue:" + tareValue);
+            return tareValue;
+        }
+    }
+
+    @Override
+    public Long measureAndSetTareLoadCell3() {
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell3 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 3) {
+            logger.warn("measureAndSetTareLoadCell3 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell3.measureAndSetTare();
+            logger.info("Inside measureAndSetTareLoadCell3, tareValue:" + tareValue);
+            return tareValue;
+        }
+    }
+
+    @Override
+    public Long measureAndSetTareLoadCell4() {
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureAndSetTareLoadCell4 called, but load-cells arent activated!");
+            return null;
+        } else if (getLoadCellAmount() < 4) {
+            logger.warn("measureAndSetTareLoadCell4 called, but load-cells amount is: {}", getLoadCellAmount());
+            return null;
+        } else {
+            long tareValue = hx711LoadCell4.measureAndSetTare();
+            logger.info("Inside measureAndSetTareLoadCell4, tareValue:" + tareValue);
+            return tareValue;
+        }
+    }
+
+    @RequiresRaspberry
+    @Override
+    public Long measureWeight() {
+        if (!isLoadCellsActivated()) {
+            logger.warn("measureWeight called, but load-cells arent activated!");
+            return new Long(0);
+        }
+        long sum = 0;
+        if (getLoadCellAmount() >= 4) {
+            sum += measureWeightLoadCell4();
+        }
+        if (getLoadCellAmount() >= 3) {
+            sum += measureWeightLoadCell3();
+        }
+        if (getLoadCellAmount() >= 2) {
+            sum += measureWeightLoadCell2();
+        }
+        if (getLoadCellAmount() >= 1) {
+            sum += measureWeightLoadCell4();
+        }
+
+        return sum;
+    }
+
+    @RequiresRaspberry
+    @Override
+    public void setTareValueLoadCell1(long tareValue) {
+        hx711LoadCell1.setTareValue(tareValue);
+    }
+
+    @RequiresRaspberry
+    @Override
+    public void setTareValueLoadCell2(long tareValue) {
+        hx711LoadCell2.setTareValue(tareValue);
+    }
+
+    @RequiresRaspberry
+    @Override
+    public void setTareValueLoadCell3(long tareValue) {
+        hx711LoadCell3.setTareValue(tareValue);
+    }
+
+    @RequiresRaspberry
+    @Override
+    public void setTareValueLoadCell4(long tareValue) {
+        hx711LoadCell4.setTareValue(tareValue);
+    }
+
+    @Override
+    public boolean isMaintenanceModeActive() {
+        return this.getApplicationState() == ApplicationState.MAINTENANCE;
+    }
+
+    public boolean isLoadCellsActivated() {
+        return loadCellsActivated;
+    }
+
+    public void setLoadCellsActivated(boolean loadCellsActivated) {
+        this.loadCellsActivated = loadCellsActivated;
+    }
+
+    public int getLoadCellAmount() {
+        return loadCellAmount;
+    }
+
+    public void setLoadCellAmount(int loadCellAmount) {
+        this.loadCellAmount = loadCellAmount;
     }
 
 }

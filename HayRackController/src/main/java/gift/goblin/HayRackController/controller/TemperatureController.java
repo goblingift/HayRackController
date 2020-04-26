@@ -51,7 +51,7 @@ public class TemperatureController {
     private WebcamDeviceService webcamService;
     
     @GetMapping(value = "/temperature")
-    public String renderDashboard(Model model) {
+    public String renderTemperatureOverview(Model model) {
 
         TemperatureAndHumidity latestMeasurement = temperatureMeasurementService.getLatestMeasurement();
         if (latestMeasurement != null) {

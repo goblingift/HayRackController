@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!--
+Copyright (C) 2020 Andre Kessler (https://github.com/goblingift)
+All rights reserved
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Navigation header fragment</title>
+    </head>
+    <body>
+        
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark" th:fragment="header_nav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/dashboard}">
+                        <i class="fas fa-home fa-4x"></i>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/shutter-control}">
+                        <i class="fas fa-toolbox fa-4x"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/timetable}">
+                        <i class="fas fa-clipboard-list fa-4x"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/temperature}">
+                        <i class="fas fa-thermometer-half fa-4x"></i>
+                    </a>
+                </li>
+                
+                <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
+                    <a class="nav-link" th:href="@{${'/webcams/' + i}}">
+                        <i class="fas fa-camera fa-4x"></i>
+                    </a>    
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/weight}">
+                        <i class="fas fa-weight fa-4x"></i>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/food}">
+                        <i class="fas fa-carrot fa-4x"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/settings}">
+                        <i class="fas fa-cogs fa-4x"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}">
+                        <i class="fas fa-door-open fa-4x"></i>
+                    </a>
+                </li>
+            </ul>
+            
+            <script th:inline="javascript">
+                // Visualize the navigation-button for current url as activated
+                $("a.nav-link").each(function(index, element) {
+                    var elem = $(element);
+                    
+                    if (window.location.href.includes(elem.attr("href"))) {
+                        elem.addClass("active");
+                    }
+                });
+            </script>
+            
+        </nav>
+        
+        
+    </body>
+</html>

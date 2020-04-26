@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
+public class TemperatureDailyMaxMinSyncService implements DatabaseSynchronizer {
 
     @Autowired
     private TemperatureDailyMaxMinBackupRepository backupRepo;
@@ -46,7 +46,9 @@ public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
      * is already an entry for that date in the backup database.
      */
     @Override
-    public void backupValues() {
+    public int backupValues() {
+        
+        int syncedEntitiesCount = 0;
 
         Optional<TemperatureDailyMaxMin> lastEntry = embeddedRepo.findTop1ByOrderByDateDesc();
         if (lastEntry.isPresent()) {
@@ -71,8 +73,11 @@ public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
             backupEntry.setMax(backupEntityMax);
             
             backupRepo.save(backupEntry);
+            syncedEntitiesCount = 1;
             logger.info("Successful synced TemperatureDailyMaxMin from embedded-db to backup-db: {}", backupEntry);
         }
+        
+        return syncedEntitiesCount;
     }
 
     /**
@@ -107,11 +112,11 @@ public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
      */
     private TemperatureMeasurement findOrCreateTempMeasurementEmbeddedEntry(TemperatureMeasurement original) {
         
-        Optional<TemperatureMeasurement> optResult = tempEmbeddedRepo
+        List<TemperatureMeasurement> results = tempEmbeddedRepo
                 .findByTemperatureAndMeasuredAt(original.getTemperature(), original.getMeasuredAt());
-        if (optResult.isPresent()) {
+        if (results != null && !results.isEmpty()) {
             // The TemperatureMeasurement entity already exists in the backup-db, just return em
-            return optResult.get();
+            return results.get(0);
         } else {
             // The TemperatureMeasurement entity doesnt exist in the backup-db, create em and return
             TemperatureMeasurement newEntity = new TemperatureMeasurement(original.getTemperature(),
@@ -122,7 +127,10 @@ public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
     }
     
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
+     
+        int syncedEntitiesCount = 0;
+        
         logger.info("Start prefilling the TemperatureDailyMaxMin-table from backup-db to embedded-db.");
         List<TemperatureDailyMaxMin> allEntries = backupRepo.findAll();
 
@@ -133,10 +141,13 @@ public class TemperatureDailyMaxMinSyncService implements SynchronizedDatabase {
             actEntry.setMin(embeddedMin);
             actEntry.setMax(embeddedMax);
             embeddedRepo.save(actEntry);
+            syncedEntitiesCount++;
         }
         
         logger.info("Successful imported {} TemperatureDailyMaxMin entries from backup-db to embedded-db.",
-                allEntries.size());
+                syncedEntitiesCount);
+    
+        return syncedEntitiesCount;
     }
 
 }

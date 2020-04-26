@@ -6,7 +6,6 @@ package gift.goblin.HayRackController.service.sync;
 
 import gift.goblin.HayRackController.database.backup.repo.event.TemperatureMeasurementBackupRepository;
 import gift.goblin.HayRackController.database.embedded.repo.event.TemperatureMeasurementRepository;
-import gift.goblin.HayRackController.database.model.event.ScheduledShutterMovement;
 import gift.goblin.HayRackController.database.model.event.TemperatureMeasurement;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Component;
  * @author andre
  */
 @Component
-public class TemperatureSyncService implements SynchronizedDatabase {
+public class TemperatureSyncService implements DatabaseSynchronizer {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,7 +37,9 @@ public class TemperatureSyncService implements SynchronizedDatabase {
      * the backup database.
      */
     @Override
-    public void backupValues() {
+    public int backupValues() {
+        
+        int syncedEntitiesCount = 0;
         
         List<TemperatureMeasurement> syncEntries;
         Optional<TemperatureMeasurement> optLatestEntry = backupRepo.findTop1ByOrderByMeasuredAtDesc();
@@ -54,21 +55,27 @@ public class TemperatureSyncService implements SynchronizedDatabase {
         
         List<TemperatureMeasurement> syncedEntries = backupRepo.saveAll(syncEntries);
         if (!syncedEntries.isEmpty()) {
-            logger.info("Successful synced {} new entries from embedded-db to backup-db.", syncedEntries.size());
+            syncedEntitiesCount = syncedEntries.size();
+            logger.info("Successful synced {} new temperature-measurement entries from embedded-db to backup-db.",
+                    syncedEntries.size());
         }
+        
+        return syncedEntitiesCount;
     }
 
     /**
      * Prefills the embedded-db with all entries of the backup-db.
      */
     @Override
-    public void prefillEmbeddedDatabase() {
+    public int prefillEmbeddedDatabase() {
         logger.info("Fetch all temperature-measurement entries from backup-db");
         List<TemperatureMeasurement> tempBackupEntries = backupRepo.findAll();
 
         List<TemperatureMeasurement> importedEntries = embeddedRepo.saveAll(tempBackupEntries);
         logger.info("Successful imported {} temperatureMeasurement entries from backup-db to embedded-db.",
                 importedEntries.size());
+        
+        return importedEntries.size();
     }
 
 }

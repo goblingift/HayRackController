@@ -77,7 +77,7 @@ public class SchedulerJobService {
         
     }
     
-    public JobDetail createStartFeedingJob(int id) {
+    public JobDetail createStartFeedingJob(long id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StartFeedingJob.class)
                 .storeDurably()
                 .withIdentity(PREFIX_START_FEEDING_JOB + id)
@@ -87,7 +87,7 @@ public class SchedulerJobService {
         return newjobDetail;
     }
 
-    public JobDetail createStopFeedingJob(int id) {
+    public JobDetail createStopFeedingJob(long id) {
         JobDetail newjobDetail = JobBuilder.newJob().ofType(StopFeedingJob.class)
                 .storeDurably()
                 .withIdentity(PREFIX_STOP_FEEDING_JOB + id)
@@ -153,7 +153,7 @@ public class SchedulerJobService {
      * @param jobDetail for which job this trigger shall be used.
      * @return
      */
-    public SimpleTrigger createStartFeedingTrigger(int id, Date nextExecutionDate, JobDetail jobDetail) {
+    public SimpleTrigger createStartFeedingTrigger(long id, Date nextExecutionDate, JobDetail jobDetail) {
         SimpleTrigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(PREFIX_START_FEEDING_TRIGGER + id, GROUP_START_TRIGGERS)
                 .startAt(nextExecutionDate)
@@ -173,7 +173,7 @@ public class SchedulerJobService {
      * @param jobDetail for which job this trigger shall be used.
      * @return
      */
-    public Trigger createStopFeedingTrigger(int id, String description, Date nextExecutionDate, JobDetail jobDetail) {
+    public Trigger createStopFeedingTrigger(long id, String description, Date nextExecutionDate, JobDetail jobDetail) {
         Trigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(PREFIX_STOP_FEEDING_TRIGGER + id, GROUP_STOP_TRIGGERS)
                 .withDescription(description)
@@ -187,7 +187,7 @@ public class SchedulerJobService {
      * Deletes a scheduled start feeding job.
      * @param id id of the job.
      */
-    public void deleteStartFeedingJob(int id) {
+    public void deleteStartFeedingJob(long id) {
 
         try {
             scheduler.pauseTrigger(TriggerKey.triggerKey(PREFIX_START_FEEDING_TRIGGER + id, GROUP_START_TRIGGERS));
