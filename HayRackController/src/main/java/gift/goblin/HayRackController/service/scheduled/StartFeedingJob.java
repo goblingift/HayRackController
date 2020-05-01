@@ -1,7 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.service.scheduled;
 
@@ -64,19 +63,25 @@ public class StartFeedingJob implements Job {
     public void execute(JobExecutionContext jec) throws JobExecutionException {
 
         String jobKey = jec.getJobDetail().getKey().getName().toString();
-        int jobId = stringUtils.getJobId(jobKey);
+        long jobId = stringUtils.getJobId(jobKey);
 
-        logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
+        if (ioController.isMaintenanceModeActive()) {
+            logger.warn("Will skip start feeding job {}, cause maintenance mode is active!", jobId);
+        } else {
+            logger.info("Start of feeding scheduled! Job-Id: {}", jobKey);
+            try {
+                ioController.openShutter();
+                ioController.triggerRelayLight(true);
+                Long feedingEventId = feedingEventService.addNewFeedingEvent(jobId);
+                if (ioController.isLoadCellsActivated()) {
+                    feedingEventService.measureStartWeight(feedingEventId);
+                }
+            } catch (Exception ex) {
+                logger.error("Exception thrown while try to open shutters!", ex);
+            }
 
-        try {
-            ioController.openShutter();
-            ioController.triggerRelayLight(true);
-            feedingEventService.addNewFeedingEvent(jobId);
-        } catch (InterruptedException ex) {
-            logger.error("Exception thrown while closing shutters!", ex);
+            createNewStopFeedingScheduler(jobId, jobKey);
         }
-
-        createNewStopFeedingScheduler(jobId, jobKey);
     }
 
     /**
@@ -87,9 +92,9 @@ public class StartFeedingJob implements Job {
      * @param jobId id of the job.
      * @param description description, like 'dinner*.
      */
-    private void createNewStopFeedingScheduler(int jobId, String description) {
+    private void createNewStopFeedingScheduler(long jobId, String description) {
 
-        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(new Long(jobId));
+        Optional<ScheduledShutterMovement> optEntity = scheduledShutterMovementRepo.findById(jobId);
         if (optEntity.isPresent()) {
             ScheduledShutterMovement entity = optEntity.get();
             Integer feedingDuration = entity.getFeedingDuration();

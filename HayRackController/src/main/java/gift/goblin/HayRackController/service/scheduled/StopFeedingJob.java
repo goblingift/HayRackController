@@ -1,7 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.service.scheduled;
 
@@ -21,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- *
+ * The job which will executes at the end of a feeding-event.
  * @author andre
  */
 @Component
@@ -37,30 +36,38 @@ public class StopFeedingJob implements Job {
 
     @Autowired
     private FeedingEventService feedingEventService;
-    
+
     @Autowired
     private StringUtils stringUtils;
 
     @Autowired
     private ConfigurationService configurationService;
-    
+
     @Override
     public void execute(JobExecutionContext jec) throws JobExecutionException {
 
-        String jobKey = jec.getJobDetail().getKey().getName().toString();
-        int jobId = stringUtils.getJobId(jobKey);
-        
-        logger.info("End of feeding scheduled! Job-Id: {}", jobId);
-        
-        Playlist track = configurationService.getSelectedSound().orElseGet(Playlist.getRandomPlaylist());
-        
-        try {
-            ioController.triggerRelayLight(false);
-            ioController.closeShutter(Optional.of(track));
-            feedingEventService.finishFeedingEvent(jobId);
-        } catch (InterruptedException ex) {
-            logger.error("Exception thrown while closing shutters!", ex);
+        String jobKey = jec.getJobDetail().getKey().getName();
+        long jobId = stringUtils.getJobId(jobKey);
+
+        if (ioController.isMaintenanceModeActive()) {
+            logger.warn("Will skip end feeding job {}, cause maintenance mode is active!", jobId);
+        } else {
+            logger.info("End of feeding scheduled! Job-Id: {}", jobId);
+
+            Playlist track = configurationService.getSelectedSound().orElseGet(Playlist.getRandomPlaylist());
+
+            try {
+                ioController.triggerRelayLight(false);
+                ioController.closeShutter(Optional.of(track));
+                Long feedingEventId = feedingEventService.finishFeedingEvent(jobId);
+                if (ioController.isLoadCellsActivated()) {
+                    feedingEventService.measureEndWeight(feedingEventId);
+                }
+            } catch (InterruptedException ex) {
+                logger.error("Exception thrown while closing shutters!", ex);
+            }
         }
+
     }
 
 }

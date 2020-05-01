@@ -1,76 +1,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Hayrack</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-
-        <!-- CSS and JS includes -->
-        <script src="../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
-        <script src="../static/js/popper.js" th:src="@{/js/popper.js}"></script>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous" />
-        <link href="../static/css/custom.css" th:href="@{/css/custom.css}" rel="stylesheet" />
-        <link href="../static/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" />
-        <link href="../static/css/awesome-bootstrap-checkbox.css" th:href="@{/css/awesome-bootstrap-checkbox.css}" rel="stylesheet" />
-        <script src="../static/js/bootstrap.js" th:src="@{/js/bootstrap.js}"></script>
-
-    </head>
+    <head th:replace="library_includes :: frontend_libraries" />
     <body>
 
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/dashboard}">
-                        <i class="fas fa-home fa-4x"></i>
-                    </a>
-                </li>
+        <div th:replace="header_navigation :: header_nav"></div>
 
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/shutter-control}">
-                        <i class="fas fa-toolbox fa-4x"></i>
-                    </a>
-                </li>
+        <div class="container">
 
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/timetable}">
-                        <i class="fas fa-clipboard-list fa-4x"></i>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/temperature}">
-                        <i class="fas fa-thermometer-half fa-4x"></i>
-                    </a>
-                </li>
-
-                <li class="nav-item" th:each="i : ${#numbers.sequence( 1, webcam_count)}">
-                    <a class="nav-link" th:href="@{${'/webcams/' + i}}">
-                        <i class="fas fa-camera fa-4x"></i>
-                    </a>    
-                </li>
-            </ul>
-
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <i class="fas fa-thermometer-half fa-lg"></i>
-                    <a class="light-grey-color" th:text="${temperature.temperature}" />
-                </li>
-            </ul>
-
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" th:href="@{/settings}">
-                        <i class="fas fa-cogs fa-4x"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/logout}">
-                        <i class="fas fa-door-open fa-4x"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="container" style="margin-top: 100px;">
+            <div th:if="${success_message != null}" class="alert alert-primary alert-dismissible fade show" role="alert">
+                <strong th:text="#{${success_message}}"></strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
 
             <div class="row justify-content-start">
                 <div class="col">
@@ -84,24 +25,60 @@
                 </div>
             </div>
 
+            <div class="row justify-content-start">
+                <div class="col">
+                    <p style="font-size: large;">
+                        <h2>
+                            <a th:text="#{settings.header}" />
+                        </h2>
+                    </p>
+                </div>
+            </div>
 
-            <form th:action="@{/settings/save}" th:object="${settings}" method="POST">
+            <div class="row justify-content-start">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
 
+                            <div class="row justify-content-between">
+                                <div class="col">
+                                    <h5 class="card-title"><a th:text="#{settings.header.maintenance}" /></h5>
+                                </div>
+                            </div>
 
-                <div class="row justify-content-start">
-                    <div class="col">
-                        <p style="font-size: large;">
-                            <h2>
-                                <a th:text="#{settings.header}" />
-                            </h2>
-                        </p>
+                            <div class="row justify-content-between align-items-center">
+                                <div class="col-6">
+                                    <div th:if="${maintenance_mode}">
+                                        <a th:text="#{settings.maintenance.change.stop}"/>
+                                    </div>
+                                    <div th:unless="${maintenance_mode}">
+                                        <a th:text="#{settings.maintenance.change.start}"/>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div th:if="${maintenance_mode}">
+                                        <a th:href="@{/settings/maintenance/stop}">
+                                            <i class="fa fa-stop-circle fa-2x"></i>
+                                        </a>
+                                    </div>
+                                    <div th:unless="${maintenance_mode}">
+                                        <a th:href="@{/settings/maintenance/start}">
+                                            <i class="fa fa-play-circle fa-2x"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="row justify-content-start">
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body">
+            <div class="row justify-content-start">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/sound/save}" th:object="${soundSettings}" method="POST">
 
                                 <div class="row justify-content-between">
                                     <div class="col">
@@ -128,12 +105,166 @@
 
                                 </div>
 
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </div>
 
-            </form>
+            <div class="row justify-content-start">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/sound/save}" th:object="${soundSettings}" method="POST">
+
+                                <div class="row justify-content-between">
+                                    <div class="col">
+                                        <h5 class="card-title"><a th:text="#{settings.light.header}" /></h5>
+                                    </div>
+                                </div>
+
+                                <div class="row py-1 justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <a th:text="#{settings.light.hint}"/>
+                                    </div>
+
+                                    <div class="col">
+                                        <input id="toggle-light" type="checkbox" data-toggle="toggle" th:checked="${feedingLightOn}"/>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-start pb-5">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/load-cell/save}" th:object="${loadCellSettings}" method="POST">
+
+                                <div class="row justify-content-between">
+                                    <div class="col">
+                                        <h5 class="card-title"><a th:text="#{settings.header_scale}" /></h5>
+                                    </div>
+                                </div>
+
+                                <div class="row py-1 justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <a th:text="#{settings.scale.enable}"/>
+                                    </div>
+
+                                    <div class="col">
+                                        <input type="checkbox" data-toggle="toggle"
+                                               th:checked="*{enabled}" th:field="*{enabled}"/>
+                                    </div>
+                                </div>
+
+                                <div class="row py-1 justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <a th:text="#{settings.scale.tare}"/>
+                                    </div>
+
+                                    <div class="col">
+                                        <div th:if="${maintenance_mode}">
+                                            <a th:href="@{/settings/tare}" class="btn btn-lg btn-info">
+                                                <i class="fa fa-balance-scale fa-lg"></i>
+                                            </a>
+                                        </div>
+                                        <div th:unless="${maintenance_mode}">
+                                            <a th:href="@{/settings/tare}" class="btn btn-lg btn-info disabled">
+                                                <i class="fa fa-balance-scale fa-lg"></i>
+                                            </a>
+                                            <a class="small" th:text="#{settings.maintenance_required}"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row py-1 justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <a th:text="#{settings.scale.amount}"/>
+                                    </div>
+
+                                    <div class="col">
+                                        <td><input type="number" min="1" max="4" step="1" th:field="*{amount}"/></td>
+                                    </div>
+
+                                    <div class="col">
+                                        <button class="btn btn-lg btn-info"><i class="fa fa-save fa-2x"></i></button>
+                                    </div>
+                                </div>
+
+
+                                <div id="accordion">
+
+                                    <div class="card my-1" th:each="i : ${#numbers.sequence( 1, loadCellSettings.amount)}">
+                                        <div class="card-header">
+                                            <a class="card-link">
+                                                <a th:text="#{settings.header_scale_1}"/>
+                                                <a th:text="${i}" />
+                                                <a th:text="#{settings.header_scale_2}"/>
+                                            </a> 
+                                        </div>
+                                        <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col" th:with="fieldName=${'loadCellSCK' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">PIN SCK</span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col" th:with="fieldName=${'loadCellMVV' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" th:text="#{settings.scale.rated_capacity}"></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">MV/V</span>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col" th:with="fieldName=${'loadCellDAT' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" >PIN DAT</span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col" th:with="fieldName=${'loadCellMax' + i}">
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" th:text="#{settings.scale.nominal_load}"></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" th:field='*{__${fieldName}__}'>
+                                                                <div class="input-group-append">
+                                                                    <span class="input-group-text">KG</span>
+                                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
         </div>
 
         <!-- Footer -->
@@ -156,29 +287,67 @@
 
         <script th:inline="javascript">
 
+            $("input[type='number']").inputSpinner();
             $("#play-button").click(function () {
-                $("#webcam-reload").prop('disabled', true);
-                var selectedSound = $('#dd-sound').children("option:selected").val();
-                var postUrl = "/settings/play-sound";
-                
-                $.ajax({
-                url: postUrl,
-                        method: 'POST',
-                        cache: false,
-                        data: {
-                            soundId: selectedSound
-                        }
-                })
-                        .done(function (data) {
-                            console.log("Finished with playing sound");
-                        })
-                        .fail(function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error while playing sound");
-                        })
-                        .always(function () {
-                            $("#webcam-reload").prop('disabled', false);
-                        });
-                });
+            $("#play-button").prop('disabled', true);
+            var selectedSound = $('#dd-sound').children("option:selected").val();
+            var postUrl = "/settings/play-sound";
+            $.ajax({
+            url: postUrl,
+                    method: 'POST',
+                    cache: false,
+                    data: {
+                    soundId: selectedSound
+                    }
+            })
+                    .done(function (data) {
+                    console.log("Finished with playing sound");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while playing sound");
+                    })
+                    .always(function () {
+                    $("#webcam-reload").prop('disabled', false);
+                    });
+            });
+            $("#tare-button").click(function () {
+            $("#tare-button").prop('disabled', true);
+            var postUrl = "/settings/tare";
+            $.ajax({
+            url: postUrl,
+                    method: 'GET'
+            })
+                    .done(function (data) {
+                    console.log("Finished setting tare!");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while setting tare!");
+                    })
+                    .always(function () {
+                    $("#tare-button").prop('disabled', false);
+                    });
+            });
+            $('#toggle-light').change(function () {
+            var postUrl = "/settings/light/trigger";
+            console.log("triggered light switch");
+            
+            var isEnabled = $("#toggle-light").prop('checked');
+            
+        $.ajax({
+            url: postUrl,
+                    method: 'POST',
+                    cache: false,
+                    data: {
+                    isEnabled: isEnabled
+                    }
+            })
+                    .done(function (data) {
+                    console.log("Successful triggered light-switch.");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while triggering light-switch!");
+                    })
+            });
 
         </script>
 

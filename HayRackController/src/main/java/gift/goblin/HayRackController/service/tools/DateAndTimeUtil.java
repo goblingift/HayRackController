@@ -1,7 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.service.tools;
 
@@ -10,7 +9,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class DateAndTimeUtil {
 
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("E HH:mm").withLocale(Locale.GERMANY);
+    
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -73,6 +76,11 @@ public class DateAndTimeUtil {
         logger.debug("Calculated datetime: {}", calculatedDateTime);
 
         return calculatedDateTime;
+    }
+    
+    public String convertToReadableDateTime(LocalDateTime ldt) {
+        String formattedDateTime = dtf.format(ldt);
+        return formattedDateTime;
     }
 
 }

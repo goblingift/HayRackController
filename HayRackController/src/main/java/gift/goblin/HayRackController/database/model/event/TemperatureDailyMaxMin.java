@@ -1,10 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -22,7 +22,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table
-public class TemperatureDailyMaxMin {
+public class TemperatureDailyMaxMin implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

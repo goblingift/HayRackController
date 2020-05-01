@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
  * All rights reserved
  */
@@ -11,6 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author andre
  */
-public interface ApplicationConfigurationRepository extends JpaRepository<ApplicationConfiguration, Long>{
+public interface ApplicationConfigurationRepository extends JpaRepository<ApplicationConfiguration, Integer>{
     
 }

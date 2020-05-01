@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="library_includes :: frontend_libraries" />
+    <body>
+
+        <div th:replace="header_navigation :: header_nav"></div>
+
+        <div class="container-fluid">
+
+            <div th:if="${error_message != null}" class="alert alert-dark alert-dismissible fade show" role="alert">
+                <p><strong th:text="#{${error_message}}"></strong></p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="row">
+                <div class="col text-center align-self-center p-3">
+                    <canvas data-type="radial-gauge"
+                            id="gauge-sum"
+                            data-units="Load Cell sum kg"
+                            data-width="600"
+                            data-height="600"
+                            th:data-value="${weightDetailsDto.weightSumKg}"
+                            data-min-value="0"
+                            th:data-max-value="${weightDetailsDto.maxWeightSum}"
+                            data-minor-ticks="2"
+                            th:data-major-ticks="${weightDetailsDto.ticks}"
+                            data-value-dec="1"
+                            data-highlights='[
+                            {"from": 0, "to": 0, "color": "rgba(200, 50, 50, .75)"}
+                            ]'
+                            />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col text-center align-self-center">
+                    <button id="weight-reload-btn" class="weight-reload-btn btn btn-primary btn-lg">
+                        <i id="weight-reload-icon" class="fa fa-sync-alt fa-4x"></i>
+                        <a>Manual refresh</a>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col text-center" th:each="element, state : ${weightDetailsDto.loadCellList}">
+                    <canvas data-type="radial-gauge"
+                            th:id="${'gauge-' + element.loadCellNumber}"
+                            th:data-units="${'Load Cell #' + element.loadCellNumber}"
+                            data-width="400"
+                            data-height="400"
+                            th:data-value="${element.weightSumKg}"
+                            data-min-value="0"
+                            th:data-max-value="${element.maxWeightSum}"
+                            data-minor-ticks="2"
+                            th:data-major-ticks="${element.ticks}"
+                            data-value-dec="1"
+                            data-highlights='[
+                            {"from": 0, "to": 0, "color": "rgba(200, 50, 50, .75)"}
+                            ]'
+                            />
+                </div>
+            </div>
+        </div>
+
+
+        <script th:inline="javascript">
+
+            $('body').on('click', '.weight-reload-btn', function (e) {
+                var reloadButton = $(this);
+                var postUrl = "/weight/measure";
+                var reloadIcon = $("#weight-reload-icon");
+
+                reloadButton.prop('disabled', true);
+                reloadIcon.addClass("fa-spin");
+                console.log('calling async method measureLoadCells');
+
+                $.ajax({
+                    url: postUrl,
+                    method: 'POST',
+                    cache: false
+                    //dataType: 'json'
+                })
+                        .done(function (data) {
+                            console.log("Successful received load-cell measurement. Update gauges next...");
+                            
+                            // update sum gauge
+                            $('#gauge-sum').attr('data-value', data.weightSumKg);
+                            
+                            // update every single load-cell gauge
+                            $.each(data.loadCellList, function(index, item) {
+                                $('#gauge-' + item.loadCellNumber).attr('data-value', item.weightSumKg);
+                            });
+                    
+                        })
+                        .fail(function (xhr, ajaxOptions, thrownError) {
+                            console.log("Error while async call measure load-cells!");
+                        })
+                        .always(function () {
+                            reloadIcon.removeClass("fa-spin");
+                            reloadButton.prop('disabled', false);
+                        });
+            });
+        </script>
+
+
+    </body>
+</html>

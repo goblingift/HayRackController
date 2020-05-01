@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
  * All rights reserved
  */
@@ -9,16 +9,19 @@ package gift.goblin.HayRackController.service.sync;
  * and backup database.
  * @author andre
  */
-public interface SynchronizedDatabase {
+public interface DatabaseSynchronizer {
     
     /**
      * Backup the values from the embedded database to the backup database.
+     * @return amount of backuped entities.
      */
-    void backupValues();
+    int backupValues();
     
     /**
      * Restore the entries of the backup database into the embedded database.
+     * @return amount of imported entities.
      */
-    void prefillEmbeddedDatabase();
+    int prefillEmbeddedDatabase();
+    
     
 }

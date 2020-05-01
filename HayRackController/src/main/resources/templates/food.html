@@ -1,0 +1,52 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="library_includes :: frontend_libraries" />
+    <body>
+
+        <div th:replace="header_navigation :: header_nav"></div>
+
+        <div class="container">
+            <div class="row mt-3">
+                <div class="col">
+                    <h2 th:text="#{food.remaining.header}"></h2>
+                </div>
+                <div class="col">
+                    <h2><a th:text="${foodInformation.remainingFoodKg}" /> kg</h2>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col">
+                    <h4 th:text="#{food.last_consumptions}"></h4>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col">
+
+                    <div class="table-responsive">
+                        <table id="food-consumptions" class="table table-striped">
+                            <!--Table head-->
+                            <thead>
+                                <tr>
+                                    <th th:text="#{food.table.header.datetime}"></th>
+                                    <th th:text="#{food.table.header.duration}"></th>
+                                    <th th:text="#{food.table.header.consumption}"></th>
+                                </tr>
+                            </thead>
+                            <tbody th:each="actObject,iterStat : ${foodInformation.last10Consumptions}">
+                                <tr>
+                                    <td th:text="${actObject.startDateTime}" />
+                                    <td th:text="${actObject.feedingTimeMins}" />
+                                    <td><a th:text="${actObject.consumptionInKg}" /> kg</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </body>
+</html>

@@ -1,11 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.database.embedded.repo.event;
 
 import gift.goblin.HayRackController.database.model.event.FeedingEvent;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -13,5 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author andre
  */
 public interface FeedingEventRepository extends JpaRepository<FeedingEvent, Long> {
+    
+    List<FeedingEvent> findTop10ByOrderByFeedingStartDesc();
     
 }

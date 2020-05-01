@@ -1,10 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
+ * All rights reserved
  */
 package gift.goblin.HayRackController.database.model.event;
 
+import gift.goblin.HayRackController.database.sync.LongIdentifier;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,15 +18,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
- * Entity for a scheduled shutter movement.
+ * Entity for a scheduled shutter movement, which only defines the time and
+ * duration how long the shutter will be opened. This entity will be generated
+ * once- if you want to look at a specific event, look at the FeedingEvent
+ * entity.
  *
  * @author andre
  */
 @Entity
 @Table(name = "scheduled_shutter_movement")
-public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement> {
+public class ScheduledShutterMovement implements Comparable<ScheduledShutterMovement>, Serializable, LongIdentifier {
 
     private Long id;
     private LocalTime feedingStartTime;
@@ -47,7 +52,10 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GenericGenerator(
+            name = "assigned-sequence",
+            strategy = "gift.goblin.HayRackController.database.sync.IntelligentSequenceGenerator")
+    @GeneratedValue(generator = "assigned-sequence", strategy = GenerationType.SEQUENCE)
     public Long getId() {
         return id;
     }
@@ -88,7 +96,7 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         this.createdAt = createdAt;
     }
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "scheduledShutterMovement", targetEntity = FeedingEvent.class)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "scheduledShutterMovement", targetEntity = FeedingEvent.class)
     @ElementCollection(targetClass = FeedingEvent.class)
     public List<FeedingEvent> getFeedingEvents() {
         return feedingEvents;
@@ -125,7 +133,6 @@ public class ScheduledShutterMovement implements Comparable<ScheduledShutterMove
         }
         return true;
     }
-
 
     @Override
     public String toString() {

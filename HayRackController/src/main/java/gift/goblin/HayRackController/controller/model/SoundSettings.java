@@ -1,14 +1,14 @@
-/*
+/* 
  * Copyright (C) 2019 Andre Kessler (https://github.com/goblingift)
  * All rights reserved
  */
 package gift.goblin.HayRackController.controller.model;
 
 /**
- * Form DTO which contains all bound properties of the settings-page. 
+ * Form DTO which contains all bound properties of the sound-section on settings-page.
  * @author andre
  */
-public class Settings {
+public class SoundSettings {
     
     private String selectedSound;
 

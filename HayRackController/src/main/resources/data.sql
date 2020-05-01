@@ -8,6 +8,7 @@
  * Created: 23.09.2018
  */
 
+/* TEMPORARILY DEACTIVATED !
 insert into role (id, name)
     values(900,'admin');
 
@@ -28,4 +29,4 @@ insert into user_role (user_id, role_id)
     values(9000, 100);
 
 insert into user_role (user_id, role_id)
-    values(1000, 100);
+    values(1000, 100); */

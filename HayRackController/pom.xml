@@ -6,7 +6,7 @@
     <groupId>gift.goblin</groupId>
     <artifactId>HayRackController</artifactId>
 
-    <version>1.6.1</version>
+    <version>1.7.0</version>
 
     <packaging>war</packaging>
 
@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.5.RELEASE</version>
+        <version>2.2.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-core</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.2</version>
         </dependency>
         
         <!-- Raspberry PI Webcam -->
@@ -109,8 +109,13 @@
 
         <dependency>
             <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.15</version>           
+            <artifactId>mysql-connector-java</artifactId>           
+        </dependency>
+        
+        <dependency>
+            <groupId>gift.goblin</groupId>
+            <artifactId>pi4j-hx711</artifactId>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
     
