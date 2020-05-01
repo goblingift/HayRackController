@@ -11,6 +11,7 @@ import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.ApplicationState;
 import gift.goblin.HayRackController.service.io.IOController;
+import gift.goblin.HayRackController.service.io.LightAndSoundService;
 import gift.goblin.HayRackController.service.io.WebcamDeviceService;
 import gift.goblin.HayRackController.service.io.WeightMeasurementService;
 import gift.goblin.HayRackController.service.io.dto.TemperatureAndHumidity;
@@ -92,12 +93,12 @@ public class SettingsController {
 
         SoundSettings soundSettings = configurationService.getSoundSettings();
         LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
-
         logger.info("got loadcell settings successful:" + loadCellSettings);
-
+        
         model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
         model.addAttribute("soundSettings", soundSettings);
         model.addAttribute("loadCellSettings", loadCellSettings);
+        model.addAttribute("feedingLightOn", iOController.isFeedingLightOn());
         model.addAttribute("build_artifact", buildProperties.getArtifact());
         model.addAttribute("build_version", buildProperties.getVersion());
         model.addAttribute("build_time", buildProperties.getTime().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
@@ -250,6 +251,13 @@ public class SettingsController {
                 throw new IllegalArgumentException("Unknown soundId:" + soundId);
             }
         }
+    }
+
+    @PostMapping(value = "/settings/light/trigger")
+    public @ResponseBody
+    void triggerLightSwitch(@RequestParam("isEnabled") boolean isEnabled) {
+        iOController.triggerRelayLight(isEnabled);
+        logger.info("Successful triggered light-switch with value: {}", isEnabled);
     }
 
 }

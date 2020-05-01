@@ -111,6 +111,34 @@
                 </div>
             </div>
 
+            <div class="row justify-content-start">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/settings/sound/save}" th:object="${soundSettings}" method="POST">
+
+                                <div class="row justify-content-between">
+                                    <div class="col">
+                                        <h5 class="card-title"><a th:text="#{settings.light.header}" /></h5>
+                                    </div>
+                                </div>
+
+                                <div class="row py-1 justify-content-between align-items-center">
+                                    <div class="col-6">
+                                        <a th:text="#{settings.light.hint}"/>
+                                    </div>
+
+                                    <div class="col">
+                                        <input id="toggle-light" type="checkbox" data-toggle="toggle" th:checked="${feedingLightOn}"/>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row justify-content-start pb-5">
                 <div class="col">
                     <div class="card">
@@ -260,48 +288,65 @@
         <script th:inline="javascript">
 
             $("input[type='number']").inputSpinner();
-
             $("#play-button").click(function () {
-                $("#play-button").prop('disabled', true);
-                var selectedSound = $('#dd-sound').children("option:selected").val();
-                var postUrl = "/settings/play-sound";
-
-                $.ajax({
-                    url: postUrl,
+            $("#play-button").prop('disabled', true);
+            var selectedSound = $('#dd-sound').children("option:selected").val();
+            var postUrl = "/settings/play-sound";
+            $.ajax({
+            url: postUrl,
                     method: 'POST',
                     cache: false,
                     data: {
-                        soundId: selectedSound
+                    soundId: selectedSound
                     }
-                })
-                        .done(function (data) {
-                            console.log("Finished with playing sound");
-                        })
-                        .fail(function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error while playing sound");
-                        })
-                        .always(function () {
-                            $("#webcam-reload").prop('disabled', false);
-                        });
+            })
+                    .done(function (data) {
+                    console.log("Finished with playing sound");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while playing sound");
+                    })
+                    .always(function () {
+                    $("#webcam-reload").prop('disabled', false);
+                    });
             });
-
             $("#tare-button").click(function () {
-                $("#tare-button").prop('disabled', true);
-                var postUrl = "/settings/tare";
-
-                $.ajax({
-                    url: postUrl,
+            $("#tare-button").prop('disabled', true);
+            var postUrl = "/settings/tare";
+            $.ajax({
+            url: postUrl,
                     method: 'GET'
-                })
-                        .done(function (data) {
-                            console.log("Finished setting tare!");
-                        })
-                        .fail(function (xhr, ajaxOptions, thrownError) {
-                            console.log("Error while setting tare!");
-                        })
-                        .always(function () {
-                            $("#tare-button").prop('disabled', false);
-                        });
+            })
+                    .done(function (data) {
+                    console.log("Finished setting tare!");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while setting tare!");
+                    })
+                    .always(function () {
+                    $("#tare-button").prop('disabled', false);
+                    });
+            });
+            $('#toggle-light').change(function () {
+            var postUrl = "/settings/light/trigger";
+            console.log("triggered light switch");
+            
+            var isEnabled = $("#toggle-light").prop('checked');
+            
+        $.ajax({
+            url: postUrl,
+                    method: 'POST',
+                    cache: false,
+                    data: {
+                    isEnabled: isEnabled
+                    }
+            })
+                    .done(function (data) {
+                    console.log("Successful triggered light-switch.");
+                    })
+                    .fail(function (xhr, ajaxOptions, thrownError) {
+                    console.log("Error while triggering light-switch!");
+                    })
             });
 
         </script>

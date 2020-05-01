@@ -375,6 +375,10 @@ public class IOController implements MaintenanceManager, WeightManager {
     }
 
 //</editor-fold>
+    GpioPinDigitalOutput getPinRelayLight() {
+        return pinRelayLight;
+    }
+
     /**
      * Triggers the opening logic, which powers the motor to open the shutters.
      *
@@ -458,15 +462,33 @@ public class IOController implements MaintenanceManager, WeightManager {
      *
      * @param turnOn true if you wanna turn the light on, false if otherwise.
      */
-    @RequiresRaspberry
     public void triggerRelayLight(boolean turnOn) {
 
-        if (turnOn) {
-            logger.info("Triggered relay light to: ON");
-            pinRelayLight.high();
+        if (isRaspberryInitialized()) {
+            if (turnOn) {
+                logger.info("Triggered relay light to: ON");
+                pinRelayLight.high();
+            } else {
+                pinRelayLight.low();
+                logger.info("Triggered relay light to: OFF");
+            }
         } else {
-            pinRelayLight.low();
-            logger.info("Triggered relay light to: OFF");
+            logger.warn("raspberry isnt initialized- return false.");
+        }
+    }
+
+    /**
+     * Evaluates if the light (Inside light) is on.
+     *
+     * @return true if its on, false if its off.
+     */
+    public boolean isFeedingLightOn() {
+
+        if (this.isRaspberryInitialized()) {
+            return this.getPinRelayLight().getState().isHigh();
+        } else {
+            logger.warn("raspberry isnt initialized- return false.");
+            return false;
         }
     }
 
