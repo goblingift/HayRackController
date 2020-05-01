@@ -128,33 +128,36 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
                 logger.error("Exception while try to read the last tare measurement entry!", e);
             }
 
-            if (loadCellSettings.getAmount() >= 4) {
-                iOController.initializeLoadCell4(loadCellSettings);
-                if (optTareMeasurement.isPresent()) {
-                    iOController.setTareValueLoadCell4(optTareMeasurement.get().getTareLoadCell4());
+            if (optTareMeasurement.isPresent()) {
+                if (loadCellSettings.getAmount() >= 4) {
+                    iOController.initializeLoadCell4(loadCellSettings);
+                    if (optTareMeasurement.isPresent()) {
+                        iOController.setTareValueLoadCell4(optTareMeasurement.get().getTareLoadCell4());
+                    }
                 }
-            }
-            if (loadCellSettings.getAmount() >= 3) {
-                iOController.initializeLoadCell3(loadCellSettings);
-                if (optTareMeasurement.isPresent()) {
-                    iOController.setTareValueLoadCell3(optTareMeasurement.get().getTareLoadCell3());
+                if (loadCellSettings.getAmount() >= 3) {
+                    iOController.initializeLoadCell3(loadCellSettings);
+                    if (optTareMeasurement.isPresent()) {
+                        iOController.setTareValueLoadCell3(optTareMeasurement.get().getTareLoadCell3());
+                    }
                 }
-            }
-            if (loadCellSettings.getAmount() >= 2) {
-                iOController.initializeLoadCell2(loadCellSettings);
-                if (optTareMeasurement.isPresent()) {
-                    iOController.setTareValueLoadCell2(optTareMeasurement.get().getTareLoadCell2());
+                if (loadCellSettings.getAmount() >= 2) {
+                    iOController.initializeLoadCell2(loadCellSettings);
+                    if (optTareMeasurement.isPresent()) {
+                        iOController.setTareValueLoadCell2(optTareMeasurement.get().getTareLoadCell2());
+                    }
                 }
-            }
-            if (loadCellSettings.getAmount() >= 1) {
-                iOController.initializeLoadCell1(loadCellSettings);
-                if (optTareMeasurement.isPresent()) {
-                    iOController.setTareValueLoadCell1(optTareMeasurement.get().getTareLoadCell1());
+                if (loadCellSettings.getAmount() >= 1) {
+                    iOController.initializeLoadCell1(loadCellSettings);
+                    if (optTareMeasurement.isPresent()) {
+                        iOController.setTareValueLoadCell1(optTareMeasurement.get().getTareLoadCell1());
+                    }
                 }
+
+                iOController.setLoadCellAmount(loadCellSettings.getAmount());
+                iOController.setLoadCellsActivated(true);
             }
 
-            iOController.setLoadCellAmount(loadCellSettings.getAmount());
-            iOController.setLoadCellsActivated(true);
         }
 
     }
