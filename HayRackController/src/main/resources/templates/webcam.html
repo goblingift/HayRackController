@@ -28,7 +28,9 @@
             <img id="camPreview" src="" />
         </p>
 
-
+        
+        <a class="light-grey-color" id="camNumber" th:text="${camNumber}" />
+        
         <script th:inline="javascript">
 
             $('body').on('click', '.dropdown-item', function (e) {

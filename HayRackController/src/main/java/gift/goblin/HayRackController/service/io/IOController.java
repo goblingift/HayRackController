@@ -287,28 +287,76 @@ public class IOController implements MaintenanceManager, WeightManager {
     @RequiresRaspberry
     public void releasePinsLoadCell1() {
         logger.info("Releasing pins for load-cell 1...");
-        gpioController.unprovisionPin(pinLoadCell1Dat, pinLoadCell1Sck);
+        
+        if (pinLoadCell1Dat != null) {
+            gpioController.unprovisionPin(pinLoadCell1Dat);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 1 dat, cause its null!");
+        }
+
+        if (pinLoadCell1Sck != null) {
+            gpioController.unprovisionPin(pinLoadCell1Sck);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 1 sck, cause its null!");
+        }
+
         hx711LoadCell1 = null;
     }
 
     @RequiresRaspberry
     public void releasePinsLoadCell2() {
         logger.info("Releasing pins for load-cell 2...");
-        gpioController.unprovisionPin(pinLoadCell2Dat, pinLoadCell2Sck);
+
+        if (pinLoadCell2Dat != null) {
+            gpioController.unprovisionPin(pinLoadCell2Dat);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 2 dat, cause its null!");
+        }
+
+        if (pinLoadCell2Sck != null) {
+            gpioController.unprovisionPin(pinLoadCell2Sck);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 2 sck, cause its null!");
+        }
+
         hx711LoadCell2 = null;
     }
 
     @RequiresRaspberry
     public void releasePinsLoadCell3() {
         logger.info("Releasing pins for load-cell 3...");
-        gpioController.unprovisionPin(pinLoadCell3Dat, pinLoadCell3Sck);
+        
+        if (pinLoadCell3Dat != null) {
+            gpioController.unprovisionPin(pinLoadCell3Dat);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 3 dat, cause its null!");
+        }
+        
+        if (pinLoadCell3Sck != null) {
+            gpioController.unprovisionPin(pinLoadCell3Sck);
+        } else {            
+            logger.warn("Cant unprovision pin load-cell 3 sck, cause its null!");
+        }
+        
         hx711LoadCell3 = null;
     }
 
     @RequiresRaspberry
     public void releasePinsLoadCell4() {
         logger.info("Releasing pins for load-cell 4...");
-        gpioController.unprovisionPin(pinLoadCell4Dat, pinLoadCell4Sck);
+        
+        if (pinLoadCell4Dat != null) {
+            gpioController.unprovisionPin(pinLoadCell4Dat);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 4 dat, cause its null!");
+        }
+        
+        if (pinLoadCell4Sck != null) {
+            gpioController.unprovisionPin(pinLoadCell4Sck);
+        } else {
+            logger.warn("Cant unprovision pin load-cell 4 sck, cause its null!");
+        }
+        
         hx711LoadCell4 = null;
     }
 
