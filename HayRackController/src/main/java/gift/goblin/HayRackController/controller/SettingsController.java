@@ -7,6 +7,8 @@ package gift.goblin.HayRackController.controller;
 import gift.goblin.HayRackController.controller.model.LoadCellSettings;
 import gift.goblin.HayRackController.controller.model.SoundSettings;
 import gift.goblin.HayRackController.controller.model.Soundtitle;
+import gift.goblin.HayRackController.database.embedded.repo.weight.TareMeasurementRepository;
+import gift.goblin.HayRackController.database.model.weight.TareMeasurement;
 import gift.goblin.HayRackController.service.configuration.ConfigurationService;
 import gift.goblin.HayRackController.service.event.TemperatureMeasurementService;
 import gift.goblin.HayRackController.service.io.ApplicationState;
@@ -72,6 +74,9 @@ public class SettingsController {
     @Autowired
     private MaintenanceManager maintenanceManager;
 
+    @Autowired
+    private TareMeasurementRepository tareMeasurementRepository;
+
     /**
      * Default render method for the dashboard.
      *
@@ -94,7 +99,7 @@ public class SettingsController {
         SoundSettings soundSettings = configurationService.getSoundSettings();
         LoadCellSettings loadCellSettings = configurationService.getLoadCellSettings();
         logger.info("got loadcell settings successful:" + loadCellSettings);
-        
+
         model.addAttribute("maintenance_mode", maintenanceManager.getApplicationState() == ApplicationState.MAINTENANCE);
         model.addAttribute("soundSettings", soundSettings);
         model.addAttribute("loadCellSettings", loadCellSettings);
@@ -197,18 +202,7 @@ public class SettingsController {
 
         if (!oldSettings.isEnabled() && settings.isEnabled()) {
             logger.info("Load-cells were activated, initialize load-cells now...");
-            if (settings.getAmount() >= 4) {
-                iOController.initializeLoadCell4(settings);
-            }
-            if (settings.getAmount() >= 3) {
-                iOController.initializeLoadCell3(settings);
-            }
-            if (settings.getAmount() >= 2) {
-                iOController.initializeLoadCell2(settings);
-            }
-            if (settings.getAmount() >= 1) {
-                iOController.initializeLoadCell1(settings);
-            }
+            initializeLoadCells(settings);
         }
 
         if (oldSettings.isEnabled() && !settings.isEnabled()) {
@@ -222,6 +216,50 @@ public class SettingsController {
         iOController.setLoadCellsActivated(settings.isEnabled());
 
         return renderSettings(model);
+    }
+
+    private void initializeLoadCells(LoadCellSettings loadCellSettings) {
+
+        Optional<TareMeasurement> optTareMeasurement = Optional.empty();
+        try {
+            logger.info("Try to read the last tare-measurement, to initialize load-cells correctly...");
+            optTareMeasurement = tareMeasurementRepository.findTop1ByOrderByMeasuredAtDesc();
+        } catch (Exception e) {
+            logger.error("Exception while try to read the last tare measurement entry!", e);
+        }
+        
+        if (optTareMeasurement.isPresent()) {
+            if (loadCellSettings.getAmount() >= 4) {
+                iOController.initializeLoadCell4(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell4(optTareMeasurement.get().getTareLoadCell4());
+                }
+            }
+            if (loadCellSettings.getAmount() >= 3) {
+                iOController.initializeLoadCell3(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell3(optTareMeasurement.get().getTareLoadCell3());
+                }
+            }
+            if (loadCellSettings.getAmount() >= 2) {
+                iOController.initializeLoadCell2(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell2(optTareMeasurement.get().getTareLoadCell2());
+                }
+            }
+            if (loadCellSettings.getAmount() >= 1) {
+                iOController.initializeLoadCell1(loadCellSettings);
+                if (optTareMeasurement.isPresent()) {
+                    iOController.setTareValueLoadCell1(optTareMeasurement.get().getTareLoadCell1());
+                }
+            }
+
+            iOController.setLoadCellAmount(loadCellSettings.getAmount());
+            iOController.setLoadCellsActivated(true);
+        } else {
+            logger.warn("No tare-measurement entry found, cant initialize load-cells.");
+        }
+
     }
 
     private List<Soundtitle> generateAvailableSounds() {

@@ -156,6 +156,8 @@ public class ApplicationConfigurationSyncService implements DatabaseSynchronizer
 
                 iOController.setLoadCellAmount(loadCellSettings.getAmount());
                 iOController.setLoadCellsActivated(true);
+            } else {
+                logger.warn("No tare-measurement entry found, cant initialize load-cells.");
             }
 
         }

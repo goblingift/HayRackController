@@ -55,9 +55,10 @@ public class WeightController {
 
         if (!iOController.isLoadCellsActivated()) {
             model.addAttribute("error_message", "weight.loadcells.deactivated");
+        } else {
+            model.addAttribute("weightDetailsDto", readLoadCells());
         }
 
-        model.addAttribute("weightDetailsDto", readLoadCells());
         model.addAttribute("webcam_count", webcamService.getWebcamCount());
 
         return "weight";
