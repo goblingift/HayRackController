@@ -35,6 +35,8 @@ public class WebcamController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String URL_GET_WEBCAM_IMAGE = "/webcams/image";
+    
     @Autowired
     private WebcamDeviceService webcamService;
 
@@ -67,7 +69,7 @@ public class WebcamController {
      * @throws IOException 
      */
     @PostMapping(
-            value = "/webcams/image",
+            value = URL_GET_WEBCAM_IMAGE,
             produces = MediaType.IMAGE_JPEG_VALUE
     )
     public @ResponseBody

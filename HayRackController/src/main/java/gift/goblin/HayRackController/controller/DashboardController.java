@@ -45,13 +45,15 @@ public class DashboardController {
     @Autowired
     private TemperatureMeasurementService temperatureMeasurementService;
 
+    public static final String URL_DASHBOARD = "/dashboard";
+    
     /**
      * Default render method for the dashboard.
      *
      * @param model model with the used attributes in the view.
      * @return name of the view.
      */
-    @GetMapping(value = {"/", "/dashboard"})
+    @GetMapping(value = {"/", URL_DASHBOARD})
     public String renderDashboard(Model model) {
         
         TemperatureAndHumidity latestMeasurement = temperatureMeasurementService.getLatestMeasurement();

@@ -4,6 +4,8 @@
  */
 package gift.goblin.HayRackController;
 
+import gift.goblin.HayRackController.controller.DashboardController;
+import gift.goblin.HayRackController.controller.WebcamController;
 import gift.goblin.HayRackController.service.security.enumerations.Pages;
 import gift.goblin.HayRackController.service.security.enumerations.UserRole;
 import java.io.IOException;
@@ -51,10 +53,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+        
         httpSecurity
                 .authorizeRequests()
-                .antMatchers("/resources/**", "/css/**", "/js/**").permitAll()
-                .anyRequest().access("isAuthenticated() or hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16') or hasIpAddress('127.0.0.1')")
+                    .antMatchers("/resources/**", "/css/**", "/js/**", "/webfonts/**", "/images/**").permitAll()
+                    .antMatchers("/", DashboardController.URL_DASHBOARD, WebcamController.URL_GET_WEBCAM_IMAGE).access("hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16') or hasIpAddress('127.0.0.1')")
+                    .anyRequest().authenticated()
                 .and()
                 .formLogin()
                     .loginPage("/login")
@@ -63,7 +67,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .and()
                 .logout()
-                .permitAll();
+                    .permitAll()
+                .and()
+                .exceptionHandling()
+                    .accessDeniedPage("/login");
         
         // security config for using h2-console
         httpSecurity.csrf().disable();

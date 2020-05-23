@@ -8,7 +8,26 @@
  * Created: 23.09.2018
  */
 
-/* TEMPORARILY DEACTIVATED !
+CREATE TABLE `role` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `user` (
+  `id` bigint NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `user_role` (
+  `user_id` bigint NOT NULL,
+  `role_id` bigint NOT NULL,
+  PRIMARY KEY (`user_id`,`role_id`)
+);
+
+
 insert into role (id, name)
     values(900,'admin');
 
@@ -29,4 +48,4 @@ insert into user_role (user_id, role_id)
     values(9000, 100);
 
 insert into user_role (user_id, role_id)
-    values(1000, 100); */
+    values(1000, 100);
