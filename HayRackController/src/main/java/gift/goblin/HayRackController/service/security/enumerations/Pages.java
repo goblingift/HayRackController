@@ -11,8 +11,7 @@ package gift.goblin.HayRackController.service.security.enumerations;
 public enum Pages {
     
     LOGINPAGE("/login"),
-    DASHBOARD("/dashboard"),
-    ADMIN_DASHBOARD("/control-center");
+    DASHBOARD("/dashboard");
     
     private String url;
 

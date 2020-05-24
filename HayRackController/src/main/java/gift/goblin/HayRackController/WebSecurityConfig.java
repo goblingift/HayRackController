@@ -10,7 +10,6 @@ import gift.goblin.HayRackController.service.security.enumerations.Pages;
 import gift.goblin.HayRackController.service.security.enumerations.UserRole;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -19,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -30,10 +27,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
  * Defines which paths are public, and which are private (login required).
@@ -53,11 +53,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        
+
         httpSecurity
                 .authorizeRequests()
-                    .antMatchers("/resources/**", "/css/**", "/js/**", "/webfonts/**", "/images/**").permitAll()
-                    .antMatchers("/", DashboardController.URL_DASHBOARD, WebcamController.URL_GET_WEBCAM_IMAGE).access("hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16') or hasIpAddress('127.0.0.1')")
+                    .antMatchers("/resources/**", "/css/**", "/js/**", "/webfonts/**", "/images/**", "/static/**").permitAll()
+                    .antMatchers(DashboardController.URL_DASHBOARD, WebcamController.URL_GET_WEBCAM_IMAGE).access("isFullyAuthenticated() or hasIpAddress('0:0:0:0:0:0:0:1') or hasIpAddress('192.168.2.0/16') or hasIpAddress('127.0.0.1')")
                     .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -69,9 +69,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                     .permitAll()
                 .and()
-                .exceptionHandling()
-                    .accessDeniedPage("/login");
-        
+                    .exceptionHandling()
+                    .accessDeniedPage("/login")
+                .and()
+                .sessionManagement()
+                    .maximumSessions(5)
+                    .sessionRegistry(sessionRegistry());
+
         // security config for using h2-console
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();
@@ -83,8 +87,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             Authentication authentication) throws IOException {
 
         String redirectAfterLoginUrl = getRedirectAfterLoginUrl(authentication);
-
-        logger.info("Login successful, redirect user to: {}", redirectAfterLoginUrl);
+        
+        WebAuthenticationDetails authenticationDetails = (WebAuthenticationDetails)authentication.getDetails();
+        String ip = authenticationDetails.getRemoteAddress();
+        String sessionId = authenticationDetails.getSessionId();
+        
+        logger.info("Login successful! IP {} logged in as {}. Session-ID: {}.", ip, authentication.getName(), sessionId);
 
         redirectStrategy.sendRedirect(request, response, redirectAfterLoginUrl);
     }
@@ -102,9 +110,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority actAuthority : authorities) {
-            if (actAuthority.getAuthority().equals(UserRole.ADMIN.getDatabaseValue())) {
-                return Pages.ADMIN_DASHBOARD.getUrl();
-            } else if (actAuthority.getAuthority().equals(UserRole.USER.getDatabaseValue())) {
+            if (actAuthority.getAuthority().equalsIgnoreCase(UserRole.ADMIN.getDatabaseValue())) {
+                return Pages.DASHBOARD.getUrl();
+            } else if (actAuthority.getAuthority().equalsIgnoreCase(UserRole.USER.getDatabaseValue())) {
                 return Pages.DASHBOARD.getUrl();
             }
         }
@@ -115,6 +123,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Autowired

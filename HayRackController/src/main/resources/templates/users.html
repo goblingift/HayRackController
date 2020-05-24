@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="library_includes :: frontend_libraries" />
+    <body>
+
+        <div th:replace="header_navigation :: header_nav"></div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2 th:text="#{users.title.top}"></h2>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="scheduled-timings" class="table table-striped">
+                    <!--Table head-->
+                    <thead>
+                        <tr>
+                            <th th:text="#{users.table.header_username}"></th>
+                            <th th:text="#{users.table.header_sessionId}"></th>
+                            <th th:text="#{users.table.header_lastRequest}"></th>
+                            <th th:text="#{users.table.header_killSession}"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <div th:each="actObject,iterStat : ${userInfos}">
+                            <tr>
+                                <td th:text="${actObject.username}" />
+                                <td th:text="${actObject.sessionId}" />
+                                <td th:text="${actObject.lastRequest}" />
+                                <td>
+                                    <a class="btn btn-lg btn-info" th:href="@{'/users/logout/' + ${actObject.sessionId}}">
+                                        <i class="fas fa-times-circle fa-lg"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </div> 
+                    </tbody>
+                    <!--Table body-->
+                </table>
+                <!--Table-->
+            </div>
+            
+        </div>
+    </body>
+</html>
